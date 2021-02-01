@@ -4,15 +4,15 @@
 .DESCRIPTION
     This CmdLet lets you read the detailed properties of an existing user.
 .EXAMPLE
-    PS C:\> Get-SMUser 
+    PS C:\> Get-SMAUser 
 .EXAMPLE
-    PS C:\> Get-SMUser -eMailAddress 'alice.miller@contoso.com'
+    PS C:\> Get-SMAUser -eMailAddress 'alice.miller@contoso.com'
     Get information about a SEPPmail user
 .EXAMPLE
-    PS C:\> Get-SMUser -eMailAddress 'alice.miller@contoso.com' -Customer 'Contoso'
+    PS C:\> Get-SMAUser -eMailAddress 'alice.miller@contoso.com' -Customer 'Contoso'
     Get information about a SEPPmail user
 #>
-function Get-SMUser
+function Get-SMAUser
 {
     [CmdletBinding()]
     param (
@@ -34,7 +34,7 @@ function Get-SMUser
 
     try {
         Write-Verbose "Creating URL root"
-        $urlRoot = New-SMUrlRoot -SMHost $SMHost -SMPort $SMPort
+        $urlRoot = New-SMAUrlRoot -SMAHost $SMAHost -SMAPort $SMAPort
         if ($customer) {
             $uri = "{0}{1}/{2}?customer={3}" -f $urlroot, 'user', $eMail, $customer
         }
@@ -42,21 +42,28 @@ function Get-SMUser
             $uri = "{0}{1}/{2}" -f $urlroot, 'user', $eMail
         }
 
-        Write-verbose "Crafting Invokeparam for Invoke-SMrestMethod"
+        Write-verbose "Crafting Invokeparam for Invoke-SMARestMethod"
         $invokeParam = @{
             Uri         = $uri 
             Method      = 'GET'
         }
 
-        Write-Verbose "Call Invoke-SMRestMethod $uri" 
-        $UserRaw = Invoke-SMRestMethod @invokeParam
+        Write-Verbose "Call Invoke-SMARestMethod $uri" 
+        $UserRaw = Invoke-SMARestMethod @invokeParam
 
         Write-Verbose 'Filter data and return as PSObject'
         $GetUser = $userraw.Psobject.properties.value
 
-        if ($GetUser) {return $GetUser}
-        else {Write-Information 'Nothing to return'}
+        Write-Verbose 'Converting Umlauts from ISO-8859-1'
+        $user = ConvertFrom-SMAPIFormat -inputObject $Getuser
 
+        # Userobject
+        if ($User) {
+            return $User
+        }
+        else {
+            Write-Information 'Nothing to return'
+        }
     }
     catch {
         Write-Error "An error occured, see $error"
@@ -69,13 +76,13 @@ function Get-SMUser
 .DESCRIPTION
     This CmdLet lets you read the detailed properties of multiple users.
 .EXAMPLE
-    PS C:\> Find-SMUser
+    PS C:\> Find-SMAUser
     Emits all users and their details - may take some time
 .EXAMPLE
-    PS C:\> Find-SMUser -customer 'Contoso'
+    PS C:\> Find-SMAUser -customer 'Contoso'
     Emits all users of a particular customer
 #>
-function Find-SMUser
+function Find-SMAUser
 {
     [CmdletBinding()]
     param (
@@ -99,7 +106,7 @@ function Find-SMUser
 
     try {
         Write-Verbose "Creating URL root"
-        $urlRoot = New-SMUrlRoot -SMHost $SMHost -SMPort $SMPort
+        $urlRoot = New-SMAUrlRoot -SMAHost $SMAHost -SMAPort $SMAPort
         if ($customer) {
             $uri = "{0}{1}?customer={2}" -f $urlroot, 'user', $customer
         }
@@ -113,27 +120,28 @@ function Find-SMUser
         }
         #>
 
-        Write-verbose "Crafting Invokeparam for Invoke-SMrestMethod"
+        Write-verbose "Crafting Invokeparam for Invoke-SMARestMethod"
         $invokeParam = @{
             Uri         = $uri 
             Method      = 'GET'
         }
 
-        Write-Verbose "Call Invoke-SMRestMethod $uri" 
-        $UserRaw = Invoke-SMRestMethod @invokeParam
+        Write-Verbose "Call Invoke-SMARestMethod $uri" 
+        $UserRaw = Invoke-SMARestMethod @invokeParam
 
         Write-Verbose 'Filter data and return as PSObject'
 
-        <#if ($list) {
-            $FindUser = $userraw
-        }
-        #>
-        #else {
-            $FindUser = $userraw.Psobject.properties.value
-        #}
+        $FindUser = $userraw.Psobject.properties.value
 
-        if ($FindUser) {return $FindUser}
-        else {Write-Information 'Nothing to return'}
+        Write-Verbose 'Converting Umlauts from ISO-8859-1 and DateTime correctly'
+        $user = foreach ($u in $finduser) {ConvertFrom-SMAPIFormat -inputobject $u}
+
+        if ($User) {
+            return $User
+        }
+        else {
+            Write-Information 'Nothing to return'
+        }
 
     }
     catch {
@@ -147,11 +155,11 @@ function Find-SMUser
 .DESCRIPTION
     This CmdLet lets you create a new user. You need at least 3 properties to create a user (name, uid and email)
 .EXAMPLE
-    PS C:\> New-SMUser -uid 'm.musterfrau@contoso.com' -email 'm.musterfrau@contoso.com' -Name 'Maria Musterfrau'
+    PS C:\> New-SMAUser -uid 'm.musterfrau@contoso.com' -email 'm.musterfrau@contoso.com' -Name 'Maria Musterfrau'
     Basic information about a user. uid and email are identical
 .EXAMPLE
     PS C:\> $UID = (New-Guid).guid
-    PS C:\> New-SMUser -uid $uid -email 'm.musterfrau@contoso.com' -Name 'Maria Musterfrau'
+    PS C:\> New-SMAUser -uid $uid -email 'm.musterfrau@contoso.com' -Name 'Maria Musterfrau'
     Basic information about a user. uid is a GUID
 .EXAMPLE
     PS C:\> $userinfo = @{
@@ -166,10 +174,10 @@ function Find-SMUser
         notifications = 'never'
         mpkiSubjectPart = ''
     }
-    PS C:\> New-SMUser @userInfo
+    PS C:\> New-SMAUser @userInfo
     Example of all parameters possible to create a user using parameter splatting
 #>
-function New-SMUser
+function New-SMAUser
 {
     [CmdletBinding()]
     param (
@@ -249,7 +257,7 @@ function New-SMUser
 
     try {
         Write-Verbose "Creating URL root"
-        $urlRoot = New-SMUrlRoot -SMHost $SMHost -SMPort $SMPort
+        $urlRoot = New-SMAUrlRoot -SMAHost $SMAHost -SMAPort $SMAPort
         $uri = "{0}{1}/" -f $urlroot, 'user'
 
         Write-Verbose 'Crafting mandatory $body JSON'
@@ -260,22 +268,24 @@ function New-SMUser
         }
         Write-Verbose 'Adding Optional values to $body JSON'
         if ($customer) {$bodyht.customer = $customer}
-        if ($locked) {$bodyht.locked = $false}
+        if ($locked) {$bodyht.locked = $locked}
         if ($mayNotEncrypt) {$bodyht.mayNotEncrypt = $mayNotEncrypt}
         if ($mayNotSign) {$bodyht.mayNotSign = $mayNotSign}
         if ($mpkiSubjectPart) {$bodyht.mpkiSubjectPart = $mpkiSubjectPart}
         if ($notifications) {$bodyht.notifications = $notifications}
         
-        $body = $bodyht|ConvertTo-JSON
-        Write-verbose "Crafting Invokeparam for Invoke-SMrestMethod"
+        Write-Verbose 'Converting body HashTable to UTF-8 JSON body'
+        $utf7bodyht = ConvertTo-SMAPIFormat -inputobject $bodyht
+        $body = $utf7bodyht|ConvertTo-JSON
+        Write-verbose "Crafting Invokeparam for Invoke-SMARestMethod"
         $invokeParam = @{
             Uri         = $uri 
             Method      = 'POST'
             body        = $body
         }
         #debug $uri
-        Write-Verbose "Call Invoke-SMRestMethod $uri" 
-        $UserRaw = Invoke-SMRestMethod @invokeParam
+        Write-Verbose "Call Invoke-SMARestMethod $uri" 
+        $UserRaw = Invoke-SMARestMethod @invokeParam
         #debug $userraw
         Write-Verbose 'Returning e-Mail addresses of new users'
         ($userraw.message -split ' ')[3]
@@ -291,7 +301,7 @@ function New-SMUser
 .DESCRIPTION
     This CmdLet lets you modity an existing user. You need the email address to identify the user.
 .EXAMPLE
-    PS C:\> Set-SMUser -email 'm.musterfrau@contoso.com' -Name 'Martha Musterfrau'
+    PS C:\> Set-SMAUser -email 'm.musterfrau@contoso.com' -Name 'Martha Musterfrau'
     Change the UserName of m.musterfrau@contoso.com
 .EXAMPLE
     PS C:\> $userinfo = @{
@@ -305,10 +315,10 @@ function New-SMUser
         notifications = 'never'
         mpkiSubjectPart = ''
     }
-    PS C:\> New-SMUser @userInfo
+    PS C:\> New-SMAUser @userInfo
     Example of all parameters possible to create a user using parameter splatting
 #>
-function Set-SMUser
+function Set-SMAUser
 {
     [CmdletBinding()]
     param (
@@ -381,7 +391,7 @@ function Set-SMUser
 
     try {
         Write-Verbose "Creating URL root"
-        $urlRoot = New-SMUrlRoot -SMHost $SMHost -SMPort $SMPort
+        $urlRoot = New-SMAUrlRoot -SMAHost $SMAHost -SMAPort $SMAPort
         $uri = "{0}{1}/{2}" -f $urlroot, 'user', $eMail
 
         Write-Verbose 'Crafting mandatory $body JSON'
@@ -391,22 +401,22 @@ function Set-SMUser
         Write-Verbose 'Adding optional values to $body JSON'
         if ($name) {$bodyht.name = $name}
         if ($customer) {$bodyht.customer = $customer}
-        if ($locked) {$bodyht.locked = $false}
+        if ($locked) {$bodyht.locked = $locked}
         if ($mayNotEncrypt) {$bodyht.mayNotEncrypt = $mayNotEncrypt}
         if ($mayNotSign) {$bodyht.mayNotSign = $mayNotSign}
         if ($mpkiSubjectPart) {$bodyht.mpkiSubjectPart = $mpkiSubjectPart}
         if ($notifications) {$bodyht.notifications = $notifications}
         
         $body = $bodyht|ConvertTo-JSON
-        Write-verbose "Crafting Invokeparam for Invoke-SMrestMethod"
+        Write-verbose "Crafting Invokeparam for Invoke-SMARestMethod"
         $invokeParam = @{
             Uri         = $uri 
             Method      = 'PUT'
             body        = $body
         }
         #debug $uri
-        Write-Verbose "Call Invoke-SMRestMethod $uri" 
-        $UserRaw = Invoke-SMRestMethod @invokeParam
+        Write-Verbose "Call Invoke-SMARestMethod $uri" 
+        $UserRaw = Invoke-SMARestMethod @invokeParam
         #debug $userraw
         Write-Verbose 'Returning e-Mail addresses of new users'
         ($userraw.message -split ' ')[3]
@@ -423,13 +433,13 @@ function Set-SMUser
 .DESCRIPTION
     This CmdLet lets you delete a SEPPmail user. You need the e-Mail address of the user. Optionally it is possible to leave the certificates and keys in the appliance.
 .EXAMPLE
-    PS C:\> Remove-SMUser -email 'm.musterfrau@contoso.com'
+    PS C:\> Remove-SMAUser -email 'm.musterfrau@contoso.com'
     Delete a user and all keys and certificates.
 .EXAMPLE
-    PS C:\> Remove-SMUser -email 'm.musterfrau@contoso.com' -keepKeys
+    PS C:\> Remove-SMAUser -email 'm.musterfrau@contoso.com' -keepKeys
     Delete a user but leave the keys. If you recreate the user with the same email address, the keys will be re-attached.
 #>
-function Remove-SMUser
+function Remove-SMAUser
 {
     [CmdletBinding()]
     param (
@@ -458,7 +468,7 @@ function Remove-SMUser
 
     try {
         Write-Verbose "Creating URL root"
-        $urlRoot = New-SMUrlRoot -SMHost $SMHost -SMPort $SMPort
+        $urlRoot = New-SMAUrlRoot -SMAHost $SMAHost -SMAPort $SMAPort
         if ($customer) {
             $uri = "{0}{1}/{2}?customer={3}" -f $urlroot, 'user', $eMail, $customer
             }
@@ -466,13 +476,13 @@ function Remove-SMUser
             $uri = "{0}{1}/{2}" -f $urlroot, 'user', $eMail
             }
 
-        Write-verbose "Crafting Invokeparam for Invoke-SMrestMethod"
+        Write-verbose "Crafting Invokeparam for Invoke-SMARestMethod"
         $invokeParam = @{
             Uri         = $uri 
             Method      = 'DELETE'
             }
-        Write-Verbose "Call Invoke-SMRestMethod $uri" 
-        $UserRaw = Invoke-SMRestMethod @invokeParam
+        Write-Verbose "Call Invoke-SMARestMethod $uri" 
+        $UserRaw = Invoke-SMARestMethod @invokeParam
         Write-Verbose 'Returning e-Mail addresses of new users'
         ($userraw.message -split ' ')[3]
     }

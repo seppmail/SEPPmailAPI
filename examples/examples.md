@@ -1,20 +1,32 @@
-# Examples to use the SEPPmailAPI Module
+# Examples for the SEPPmailAPI Module
 
-Below, find some examples on how to use the module. The modulesCmdLets output are PSObjects for easier further processing. Read the API documentation on https://docs.seppmail.com/api
+Below, find some examples on how to use the module. The modules CmdLets output are PSObjects for easier further processing. Read the API documentation on https://docs.seppmail.com/api for insights of the API
 
+## Manage Users
 
-## Use the SEPPmailAPI Module
+This section explains CRUD (Create, Read, Modify and Delete) operations on SEPPmail User Objects.
+Especially in environments with often changing useraccounts (i.e. education) this should be helpful. For mass-changes use external sources like Active Directory or CSV-files for modifying.
 
-### Manage Users
+### Create new SEPPmail users
 
-This API allows you to create and modify Users. Especially in environments with many changing useraccounts (i.e. education) external sources for userdata may make sense.
+Create a single SEPPmail user. you need at least 3 properties for a new user
+- uid
+- email
+- name
 
-#### Create new SEPPmail Users
+More properties may be defined as well, see CmdLet help for more.
 
-Create single User
+*NOTE:* Without specifying a customer this user-object will be created in the [none] customer.
 
 ```powershell
-New-SMUser -uid 'cde12348' -email 'u.m@fabrikam.com' -Name 'Ulli Meyer' -customer 'Contoso' -verbose
+New-SMAUser -uid 'umeyer@domain.local' -email 'ullrich.meyer@yourdomain.com' -Name 'Ulli Meyer'
+```
+
+Create a single user for a customer.
+*NOTE:* Customer Names are __case sensitive!__
+
+```powershell
+New-SMAUser -uid 'sandra.berger@fab.int' -email 'sberger@fabrikam.com' -Name 'Sandra Berger' -customer 'Fabrikam'
 ```
 
 Creating multiple users via CSV import
@@ -22,35 +34,53 @@ Creating multiple users via CSV import
 ```powershell
 $SampleCSVPath = (Split-Path (Get-Module SEPPmailapi).path) + '\examples\NewUsers.csv'
 $newusers = import-csv $SampleCSVPath
-foreach ($user in $newusers) {$user|new-smuser}
+foreach ($user in $newusers) {$user|new-SMAUser}
 ```
 
-For more examples use the commandlet help
-```powershell
-Get-Help New-SMUser -examples
-```
-
-#### Change a SEPPmail users properties
-
-Change a single User
+For more examples use the CmdLet help
 
 ```powershell
-New-SMUser -uid 'cde12348' -email 'u.m@fabrikam.com' -Name 'Ulli Meyer' -customer 'Contoso' -verbose
+Get-Help New-SMAUser -examples
 ```
 
-Changing multiple users via CSV import
+### Change a SEPPmail users properties
+
+#### Change a single User
+
+```powershell
+# Change locked status
+Set-SMAUser -email 'sberger@fabrikam.com' -locked $true
+# Change user Display Name
+Set-SMAUser -email 'sberger@fabrikam.com' -name 'Alexandra Berger'
+# Disable sign and encrypt possibility
+Set-SMAUser -email 'sberger@fabrikam.com' -mayNotSign $true -MayNotEncrypt $true
+```
+
+#### Changing multiple users via CSV import
+
+```powershell
+# The below example shows a CSV which changes all users to $locked 
+$SampleCSVPath = (Split-Path (Get-Module SEPPmailapi).path) + '\examples\UpdateUsers.csv'
+$changeusers = Import-CSV $SampleCSVPath
+foreach ($i in $changeusers) {Set-SMAUser -eMailAddress $i.eMail -locked ([boolean]$i.locked)}
+```
+
+For more examples use the commandlet help.
+
+```powershell
+Get-Help Set-SMAUser -examples
+```
+
+### Remove SEPPmail Users
+
+*NOTE:* Removing a User has no recycle bin functionality. Removed users are GONE!
+
+Remove-SMAUSers works pretty similar to the CmdLets above. If you want to remove a SEPPmail user, you just need the e-Mail address as identifyer.
 
 ```powershell
 $SampleCSVPath = (Split-Path (Get-Module SEPPmailapi).path) + '\examples\NewUsers.csv'
-$changeusers = Import-CSV $SampleCSVPath
-foreach ($i in $changeusers) {Set-SMUser -eMailAddress $i.eMailAddress -locked ([boolean]$i.locked)}
+$newusers = import-csv $SampleCSVPath
+foreach ($user in $newusers) {$user|Remove-SMAUser}
 ```
-
-For more examples use the commandlet help
-```powershell
-Get-Help New-SMUser -examples
-```
-
-
 
 --- This is the end of the file ---

@@ -5,28 +5,74 @@
 .DESCRIPTION
     This is for module internal use only
 #>
-function New-SMUrlRoot {
+function New-SMAUrlRoot {
     [CmdletBinding()]
     param (
         [Parameter(
             Mandatory                       = $false,
             ValueFromPipelineByPropertyName = $true
             )]
-        $SMHost,
+        $SMAHost,
         
         [Parameter(
             Mandatory                       = $false,
             ValueFromPipelineByPropertyName = $true
             )]
-        $SMPort = '8445'
+        $SMAPort = '8445'
     )
     begin {
     }
     process {
-        'https://' + $SMHost + ':' + $SMport + '/v1/'
+        'https://' + $SMAHost + ':' + $SMAPort + '/v1/'
     }
     end {
     }
+}
+
+function ConvertFrom-SMAPIFormat {
+    [CmdletBinding()]
+    param (
+        [Parameter(
+            Mandatory         = $true,
+            ValueFromPipeline = $true
+            )]
+        [PSobject]$inputObject
+    )
+
+    $outputobject = $inputObject
+
+    # Convert Names to Umlauts
+    if ($inputobject.Name) {
+        $bytes = [System.Text.Encoding]::GetEncoding("ISO-8859-1").GetBytes($inputobject.Name)
+        $outputobject.Name = [System.Text.Encoding]::UTF8.GetString($bytes)
+    }
+
+    # Convert strig to Date
+    if ($inputobject.createddate) {
+        $outputobject.createdDate = [Datetime]::ParseExact($inputobject.createdDate, 'yyyyMMddHHmmssZ', $null)
+    }
+    return $outputobject
+}
+
+function ConvertTo-SMAPIFormat {
+    [CmdletBinding()]
+    param (
+        [Parameter(
+            Mandatory         = $true,
+            ValueFromPipeline = $true
+            )]
+        [PSobject]$inputObject
+    )
+
+    $outputobject = $inputObject
+
+    # Convert Umlauts to Names API understands
+    if ($inputobject.Name) {
+        $bytes = [System.Text.Encoding]::GetEncoding("UTF-8").GetBytes($inputobject.Name)
+        $outputobject.Name = [System.Text.Encoding]::UTF7.GetString($bytes)
+    }
+
+    return $outputobject
 }
 
 <#
@@ -36,7 +82,7 @@ function New-SMUrlRoot {
     Depending on the PS Version/Edition, calls the REST Method with proper settings and valid parameters.
     For Module internal use only.
 #>
-function Invoke-SMRestMethod {
+function Invoke-SMARestMethod {
     [CmdletBinding()]
     param(
         [Parameter(
@@ -52,7 +98,7 @@ function Invoke-SMRestMethod {
 
         [Parameter(
             )]
-        [bool]$skipCertCheck = $SMskipCertCheck,
+        [bool]$skipCertCheck = $SMASkipCertCheck,
 
         [Parameter(
             Mandatory=$false
@@ -62,7 +108,7 @@ function Invoke-SMRestMethod {
 
     begin {
         Write-Verbose "convert Securestring to encrypted Key"
-        $BSTR = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($SMKey)
+        $BSTR = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($SMAKey)
         $RESTKey = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
         Write-Verbose "Crafting Header-JSON"
         $headers = @{
@@ -83,7 +129,13 @@ function Invoke-SMRestMethod {
         # Core and Skip
         if (($PSversiontable.PSEdition -like 'Core') -and ($skipCertCheck = $true)) {
             Write-verbose 'Calling Invoke-RestMethod on Core edition with skip Certificate'
-            Invoke-RestMethod @SMinvokeParam -SkipCertificateCheck
+            try {
+                Invoke-RestMethod @SMinvokeParam -SkipCertificateCheck
+            }
+            catch {
+                $RestErr = ($_.ErrorDetails.Message|convertfrom-JSON).errorMessage
+                Write-Error "$RestErr"
+            }
         }
         # Desktop and skip
         elseif (($PSversiontable.PSedition -like 'Desktop') -and ($skipCertCheck = $true)) {
@@ -104,14 +156,26 @@ function Invoke-SMRestMethod {
 "@
                 [System.Net.ServicePointManager]::CertificatePolicy = new-object IDontCarePolicy 
                 Write-verbose 'Calling Invoke-RestMethod on Dektop edition with skip Certificate'
-                Invoke-RestMethod @SMinvokeParam
+                try {
+                    Invoke-RestMethod @SMinvokeParam
+                }
+                catch {
+                    $RestErr = ($_.ErrorDetails.Message|convertfrom-JSON).errorMessage
+                    Write-Error "$RestErr"
+                }
                 [System.Net.ServicePointManager]::CertificatePolicy = $DefaultPolicy
             }
         }
         # Valid Certificate
         else {
             Write-verbose 'Calling Invoke-ResrMethod with valid Certificate'
-            Invoke-RestMethod @SMinvokeParam
+            try {
+                Invoke-RestMethod @SMinvokeParam
+            }
+            catch {
+                $RestErr = ($_.ErrorDetails.Message|convertfrom-JSON).errorMessage
+                Write-Error "$RestErr"
+            }        
         }
     }
     end {
@@ -119,42 +183,5 @@ function Invoke-SMRestMethod {
         #    $textError  = Convert-SMRestError -interror $result.error
         #    Write-Error "SEPPmail REST-API returned Error $textError"
         #}
-    }
-}
-
-<#
-.SYNOPSIS
-    Converts REST Errors to readable errors
-.DESCRIPTION
-    The REST-API returns 11 different error numeric codes, this cmdLet transforms them into written messages.
-#>
-function Convert-SMRestError {
-    [CmdletBinding()]
-    [OutputType([String])]
-    param(
-        [Parameter(
-            Mandatory=$true
-            )]
-            [ValidateSet('-2','-3','-4','-5','-6','-8','-9','-11','-12','-13','-14')]
-            [string]$interror
-    )
-    begin {
-    }
-    process {
-        switch ($interror) {
-            {$_ -eq '-2'} {'Unknown command'}
-            {$_ -eq '-3'} {'Unknown category'}
-            {$_ -eq '-4'} {'Invalid HTTP Method'}
-            {$_ -eq '-5'} {'POST-Data error'}
-            {$_ -eq '-6'} {'Error when parsing JSON POST-data'}
-            {$_ -eq '-8'} {'Error while reading/writing database'}
-            {$_ -eq '-9'} {'Unknown error'}
-            {$_ -eq '-11'} {'Invalid REST-Path'}
-            {$_ -eq '-12'} {'Invalid parameter in REST-Path'}
-            {$_ -eq '-13'} {'Invalid data in REST-query'}
-            {$_ -eq '-14'} {'Internal Error'}
-        }
-    }
-    end {
     }
 }

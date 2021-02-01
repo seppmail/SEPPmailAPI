@@ -54,7 +54,7 @@ PowerShellVersion = '5.1'
 
 # Modules that must be imported into the global environment prior to importing this module
 # RequiredModules = @('Configuration','Microsoft.PowerShell.SecretsManagement')
-RequiredModules = @()
+# RequiredModules = @()
 
 # Assemblies that must be loaded prior to importing this module
 # RequiredAssemblies = @()
@@ -76,11 +76,11 @@ ScriptsToProcess = @('ModuleInit.ps1')
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = @(
-        'Get-SMUser'
-        'Find-SMUser'
-        'New-SMUser'
-        'Set-SMuser'
-        'Remove-SMUser'
+        'Get-SMAUser'
+        'Find-SMAUser'
+        'New-SMAUser'
+        'Set-SMAUser'
+        'Remove-SMAUser'
 )
 
 # Variables to export from this module
@@ -144,7 +144,7 @@ PrivateData = @{
 } # End of PrivateData hashtable
 
 # HelpInfo URI of this module
-HelpInfoURI = 'https://github.com/seppmail/SEPPmailAPI/blob/master/examples/examples.md'
+HelpInfoURI = 'https://github.com/seppmail/SEPPmailAPI/blob/main/examples/examples.md'
 
 # Default prefix for commands exported from this module. Override the default prefix using Import-Module -Prefix.
 # DefaultCommandPrefix = ''

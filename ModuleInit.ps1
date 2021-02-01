@@ -14,29 +14,29 @@ param()
 
 try {
     Write-Verbose 'Checking Variables'
-    if ($null -eq $global:SMHost) {
+    if ($null -eq $global:SMAHost) {
         Write-Warning "No SEPPmail Host set - Add a Variable i.e. https://securemail.contoso.de"
-        $global:SMHost = Read-Host "Enter SEPPmail host name in FQDN format (i.e.securemail.contoso.de)"
+        $global:SMAHost = Read-Host "Enter SEPPmail host name in FQDN format (i.e.securemail.contoso.de)"
         }
-    if ($null -eq $global:SMKey) {
+    if ($null -eq $global:SMAKey) {
         Write-Warning "No REST-API Key set - Enter the API Key"
-        $global:SMKey = Read-Host "Enter SEPPmail REST-API Key (the one from the Admin-Portal)" -AsSecurestring
+        $global:SMAKey = Read-Host "Enter SEPPmail REST-API Key (the one from the Admin-Portal)" -AsSecurestring
         }
-    if ($null -eq $global:SMskipCertCheck) {
-        Write-Verbose 'Variable $SMskipCertCheck not found setting to default value $false'
-        $global:SMskipCertCheck = $false
+    if ($null -eq $global:SMASkipCertCheck) {
+        Write-Verbose 'Variable $SMASkipCertCheck not found setting to default value $false'
+        $global:SMASkipCertCheck = $false
         }
-    if ($null -eq $global:SMPort) {
-        Write-Verbose 'Variable $SMPort not found. Setting to default value 8445'
-            $global:SMPort = '8445'
+    if ($null -eq $global:SMAPort) {
+        Write-Verbose 'Variable $SMAPort not found. Setting to default value 8445'
+            $global:SMAPort = '8445'
         }
-    Write-Warning 'If your SEPPmail Appliance does not have a valid SSL certificate, set the valiable $SMskipCertCheck to $true'
+    Write-Warning 'If your SEPPmail Appliance does not have a valid SSL certificate, set the valiable $SMASkipCertCheck to $true'
     
-    "SM-Host: " + $SMHost
-    "SM-Port: " + $SMPort
-    "SM-Skip certificate check ?: " + $SMskipCertCheck
-    #Write-Verbose "Testing connction to $smHost on port $smPort"
-    #Test-NetConnection -Computername $smhost -Port $smport
+    "SMA-Host: " + $SMAHost
+    "SMA-Port: " + $SMAPort
+    "SMA-Skip certificate check ?: " + $SMASkipCertCheck
+    #Write-Verbose "Testing connction to $SMAHost on port $SMAPort"
+    #Test-NetConnection -Computername $SMAHost -Port $SMAPort
     }
 catch {
     Write-Error "ModuleInit.ps1 failed with error $_"
