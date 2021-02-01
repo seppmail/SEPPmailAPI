@@ -68,6 +68,9 @@ function ConvertTo-SMAPIFormat {
 
     # Convert Umlauts to Names API understands
     if ($inputobject.Name) {
+        #$bytes = [System.Text.Encoding]::Unicode.GetBytes($inputobject.Name);
+        #$outputobject.Name = [System.Text.Encoding]::UTF8.GetString($bytes);
+
         $bytes = [System.Text.Encoding]::GetEncoding("UTF-8").GetBytes($inputobject.Name)
         $outputobject.Name = [System.Text.Encoding]::UTF7.GetString($bytes)
     }
@@ -114,7 +117,7 @@ function Invoke-SMARestMethod {
         $headers = @{
             'X-SM-API-KEY' = $RESTKey
             'accept' = 'application/json'
-            'content-type' = 'application/json'
+            'content-type' = 'application/json; charset=utf-8'
         }
         
         Write-Verbose "Crafting the parameters for invoke-RestMethod"
@@ -168,7 +171,7 @@ function Invoke-SMARestMethod {
         }
         # Valid Certificate
         else {
-            Write-verbose 'Calling Invoke-ResrMethod with valid Certificate'
+            Write-verbose 'Calling Invoke-RestMethod with valid Certificate'
             try {
                 Invoke-RestMethod @SMinvokeParam
             }

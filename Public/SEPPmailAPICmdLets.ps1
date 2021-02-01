@@ -274,9 +274,10 @@ function New-SMAUser
         if ($mpkiSubjectPart) {$bodyht.mpkiSubjectPart = $mpkiSubjectPart}
         if ($notifications) {$bodyht.notifications = $notifications}
         
-        Write-Verbose 'Converting body HashTable to UTF-8 JSON body'
+<#      Write-Verbose 'Converting body HashTable to UTF-8 JSON body'
         $utf7bodyht = ConvertTo-SMAPIFormat -inputobject $bodyht
-        $body = $utf7bodyht|ConvertTo-JSON
+#>
+        $body = $bodyht|ConvertTo-JSON
         Write-verbose "Crafting Invokeparam for Invoke-SMARestMethod"
         $invokeParam = @{
             Uri         = $uri 
@@ -284,7 +285,7 @@ function New-SMAUser
             body        = $body
         }
         #debug $uri
-        Write-Verbose "Call Invoke-SMARestMethod $uri" 
+        Write-Verbose "Call Invoke-SMARestMethod $uri"
         $UserRaw = Invoke-SMARestMethod @invokeParam
         #debug $userraw
         Write-Verbose 'Returning e-Mail addresses of new users'
