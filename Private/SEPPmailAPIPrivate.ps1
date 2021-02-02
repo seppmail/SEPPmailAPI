@@ -39,43 +39,17 @@ function ConvertFrom-SMAPIFormat {
         [PSobject]$inputObject
     )
 
-    $outputobject = $inputObject
-
-    # Convert Names to Umlauts
+      # Convert Names to Umlauts
     if ($inputobject.Name) {
         $bytes = [System.Text.Encoding]::GetEncoding("ISO-8859-1").GetBytes($inputobject.Name)
-        $outputobject.Name = [System.Text.Encoding]::UTF8.GetString($bytes)
+        $inputobject.Name = [System.Text.Encoding]::UTF8.GetString($bytes)
     }
 
     # Convert strig to Date
     if ($inputobject.createddate) {
-        $outputobject.createdDate = [Datetime]::ParseExact($inputobject.createdDate, 'yyyyMMddHHmmssZ', $null)
+        $inputobject.createdDate = [Datetime]::ParseExact($inputobject.createdDate, 'yyyyMMddHHmmssZ', $null)
     }
-    return $outputobject
-}
-
-function ConvertTo-SMAPIFormat {
-    [CmdletBinding()]
-    param (
-        [Parameter(
-            Mandatory         = $true,
-            ValueFromPipeline = $true
-            )]
-        [PSobject]$inputObject
-    )
-
-    $outputobject = $inputObject
-
-    # Convert Umlauts to Names API understands
-    if ($inputobject.Name) {
-        #$bytes = [System.Text.Encoding]::Unicode.GetBytes($inputobject.Name);
-        #$outputobject.Name = [System.Text.Encoding]::UTF8.GetString($bytes);
-
-        $bytes = [System.Text.Encoding]::GetEncoding("UTF-8").GetBytes($inputobject.Name)
-        $outputobject.Name = [System.Text.Encoding]::UTF7.GetString($bytes)
-    }
-
-    return $outputobject
+    return $inputobject
 }
 
 <#
@@ -117,7 +91,6 @@ function Invoke-SMARestMethod {
         $headers = @{
             'X-SM-API-KEY' = $RESTKey
             'accept' = 'application/json'
-            'content-type' = 'application/json; charset=utf-8'
         }
         
         Write-Verbose "Crafting the parameters for invoke-RestMethod"
@@ -133,7 +106,7 @@ function Invoke-SMARestMethod {
         if (($PSversiontable.PSEdition -like 'Core') -and ($skipCertCheck = $true)) {
             Write-verbose 'Calling Invoke-RestMethod on Core edition with skip Certificate'
             try {
-                Invoke-RestMethod @SMinvokeParam -SkipCertificateCheck
+                Invoke-RestMethod @SMinvokeParam -SkipCertificateCheck -ContentType 'application/json; charset=utf-8'
             }
             catch {
                 $RestErr = ($_.ErrorDetails.Message|convertfrom-JSON).errorMessage
@@ -160,7 +133,7 @@ function Invoke-SMARestMethod {
                 [System.Net.ServicePointManager]::CertificatePolicy = new-object IDontCarePolicy 
                 Write-verbose 'Calling Invoke-RestMethod on Dektop edition with skip Certificate'
                 try {
-                    Invoke-RestMethod @SMinvokeParam
+                    Invoke-RestMethod @SMinvokeParam -ContentType 'application/json; charset=utf-8'
                 }
                 catch {
                     $RestErr = ($_.ErrorDetails.Message|convertfrom-JSON).errorMessage
@@ -173,7 +146,7 @@ function Invoke-SMARestMethod {
         else {
             Write-verbose 'Calling Invoke-RestMethod with valid Certificate'
             try {
-                Invoke-RestMethod @SMinvokeParam
+                Invoke-RestMethod @SMinvokeParam -ContentType 'application/json; charset=utf-8'
             }
             catch {
                 $RestErr = ($_.ErrorDetails.Message|convertfrom-JSON).errorMessage

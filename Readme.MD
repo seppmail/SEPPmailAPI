@@ -42,9 +42,9 @@ Set your location to this folder and enter:
 
 If you do not have git installed, download the files from the repository, unblock the zip file (PS CmdLet `Unblock-File`) and place it in the modules folder.
 
-IMPORTANT: Its imperative that the Module is installed in a folder which is included in the $env:PSModulePath, otherwise it will not work.
+IMPORTANT: Its imperative that the Module is installed in a folder which is included in the $env:PSModulePath, otherwise the module will not work.
 
-## Loading and initial configuration of the module
+## Loading the module and preparing for first use
 
 Be sure the module is accessible with
 
@@ -57,6 +57,21 @@ and load it into memory with
 ```powershell
 Import-Module SEPPmailAPI
 ```
+
+Immediately after loading the module you will be asked for 2 values:
+
+* Hostname - this is the FQDN of the SEPPmail appliance
+* REST-API Key: The key you generated and stored in your SEPPmail Appliance for REST-Access
+
+You may set these values prior loading the module (i.e for autonomous scripts) so you get not askes interactively. an example to do so would be:
+
+```powershell
+$SMAHost = "securemail.yourdomain.com"
+$SMAkey = Convertto-SecureString -AsPlainText 'aloooongcoooomplexsecretkeyyyyyyyyyyyy' -Force
+$SMAPort = '8445'
+$SMAskipCertCheck = $true
+```
+The module assumes you have a SEPPmail with a valid SLL certificate and use Port 8445 for REST-API communication. If this is not the case set 2 additional values, $SMAPort and $SMAskipCetCheck = $true as in the example above.
 
 Usage examples can be found in the module example folder \examples.
 

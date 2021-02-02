@@ -26,12 +26,12 @@ try {
     if ($null -eq $global:SMASkipCertCheck) {
         Write-Verbose 'Variable $SMASkipCertCheck not found setting to default value $false'
         $global:SMASkipCertCheck = $false
+        Write-Warning 'If your SEPPmail Appliance does not have a valid SSL certificate, set the valiable $SMASkipCertCheck to $true'
         }
     if ($null -eq $global:SMAPort) {
         Write-Verbose 'Variable $SMAPort not found. Setting to default value 8445'
             $global:SMAPort = '8445'
         }
-    Write-Warning 'If your SEPPmail Appliance does not have a valid SSL certificate, set the valiable $SMASkipCertCheck to $true'
     
     "SMA-Host: " + $SMAHost
     "SMA-Port: " + $SMAPort
