@@ -30,8 +30,8 @@ CompanyName = 'SEPPmail AG'
 Copyright = '(c) SEPPmail AG. All rights reserved.'
 
 # Description of the functionality provided by this module
-Description = 'Receive data and manage Gina-Users from your SEPPmail Appliance beginning with SEPPmail Version 12.1.0.
-With the REST-API you can retrieve and set information via REST, including the option to mass-generate Users.
+Description = 'Receive and manipulate your SEPPmail Appliance beginning with SEPPmail Version 12.1.0.
+With the REST-API you can retrieve and set information via REST, including the option to mass-generate users.
 This PowerShell module is a wrapper around this API to allow more convenient operation and interaction from the command line.'
 
 # Minimum version of the PowerShell engine required by this module

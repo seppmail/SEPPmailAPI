@@ -29,7 +29,7 @@ Find-SMAuser -customer 'Fabrikam'
 
 ### Create new SEPPmail users
 
-Create a single SEPPmail user in the [default] customer.
+#### Create a single SEPPmail user in the [default] customer.
 
 You need at least 3 properties for a new user.
 

@@ -24,13 +24,13 @@ Preferrably we recommend to create a GUID (in Portshell "(New-Guid).Guid") and r
 We have published the module on the <https://www.PowerShellGallery.com>. You can install the module by running:
 
 ```powershell
-Install-module SEPPmailAPI
+Install-module SEPPmailAPI -allowprerelease
 ```
 
 To install it in the users scope use:
 
 ```powershell
-Install-module SEPPmailAPI -Scope CurrentUser
+Install-module SEPPmailAPI -Scope CurrentUser -AllowPrerelease
 ```
 
 ### Github

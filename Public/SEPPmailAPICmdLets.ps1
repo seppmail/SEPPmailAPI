@@ -378,7 +378,7 @@ function Set-SMAUser
             ValueFromPipelineByPropertyName = $true,
             HelpMessage                     = 'Define if and how the user gets notified, API standard is domain default'
             )]
-            [ValidateSet('never','always','domain default')]
+        [ValidateSet('never','always','domain default')]
         [string]$notifications,
 
         [Parameter(
@@ -402,9 +402,12 @@ function Set-SMAUser
         Write-Verbose 'Adding optional values to $body JSON'
         if ($name) {$bodyht.name = $name}
         if ($customer) {$bodyht.customer = $customer}
-        if ($locked) {$bodyht.locked = $locked}
-        if ($mayNotEncrypt) {$bodyht.mayNotEncrypt = $mayNotEncrypt}
-        if ($mayNotSign) {$bodyht.mayNotSign = $mayNotSign}
+        if ((Get-Variable locked).value -eq $false) {$bodyht.locked = $false}
+        if ((Get-Variable locked).value -eq $true) {$bodyht.locked = $true}
+        if ((Get-Variable mayNotEncrypt).value -eq $false) {$bodyht.mayNotEncrypt = $false}
+        if ((Get-Variable mayNotEncrypt).value -eq $true) {$bodyht.mayNotEncrypt = $true}
+        if ((Get-Variable mayNotSign).value -eq $false) {$bodyht.mayNotSign = $false}
+        if ((Get-Variable mayNotSign).value -eq $true) {$bodyht.mayNotSign = $true}
         if ($mpkiSubjectPart) {$bodyht.mpkiSubjectPart = $mpkiSubjectPart}
         if ($notifications) {$bodyht.notifications = $notifications}
         
