@@ -91,24 +91,30 @@ function Find-SMAUser
             ValueFromPipelineByPropertyName = $true,
             HelpMessage                     = 'For MSP´s and multi-customer environments, limit query for a specific customer'
             )]
-        [string]$customer
+        [string]$customer,
 
-        <#
+        
         [Parameter(
             Mandatory                       = $false,
             ValueFromPipelineByPropertyName = $true,
             HelpMessage                     = 'Show list with e-mail address only'
             )]
         [switch]$list
-        #>
-
+        
     )
 
     try {
         Write-Verbose "Creating URL root"
         $urlRoot = New-SMAUrlRoot -SMAHost $SMAHost -SMAPort $SMAPort
-        if ($customer) {
+
+        if (($customer) -and (!($list))) {
             $uri = "{0}{1}?customer={2}" -f $urlroot, 'user', $customer
+        }
+        elseif (($customer) -and ($list)){
+            $uri = "{0}{1}?customer={2}{3}" -f $urlroot, 'user', $customer, '&list=true'
+        }
+        elseif ($list) {
+            $uri = "{0}{1}{2}" -f $urlroot, 'user', '?list=true'
         }
         else {
             $uri = "{0}{1}" -f $urlroot, 'user'
@@ -131,7 +137,12 @@ function Find-SMAUser
 
         Write-Verbose 'Filter data and return as PSObject'
 
-        $FindUser = $userraw.Psobject.properties.value
+        if ($list) {
+            $Finduser = $userraw
+        }
+        else {
+            $FindUser = $userraw.Psobject.properties.value
+        }
 
         Write-Verbose 'Converting Umlauts from ISO-8859-1 and DateTime correctly'
         $user = foreach ($u in $finduser) {ConvertFrom-SMAPIFormat -inputobject $u}
