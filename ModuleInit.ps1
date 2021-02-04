@@ -15,28 +15,28 @@ param()
 try {
     #$OutputEncoding = [System.Text.Encoding]::Unicode
     Write-Verbose 'Checking Variables'
-    if ($null -eq $global:SMAHost) {
+    if (!($SMAHost)) {
         Write-Warning "No SEPPmail Host set - Add a Variable i.e. https://securemail.contoso.de"
         $global:SMAHost = Read-Host "Enter SEPPmail host name in FQDN format (i.e.securemail.contoso.de)"
         }
-    if ($null -eq $global:SMAKey) {
-        Write-Warning "No REST-API Key set - Enter the API Key"
+    if ((!($SMAKey)) -or ($SMAKey.GetType().Name -ne 'SecureString')){
+        Write-Warning "No REST-API Key set or API Key is a not SecureString - Enter the API Key below"
         $global:SMAKey = Read-Host "Enter SEPPmail REST-API Key (the one from the Admin-Portal)" -AsSecurestring
         }
-    if ($null -eq $global:SMASkipCertCheck) {
+    if (!($SMASkipCertCheck)) {
         Write-Verbose 'Variable $SMASkipCertCheck not found setting to default value $false'
         $global:SMASkipCertCheck = $false
         Write-Warning 'If your SEPPmail Appliance does not have a valid SSL certificate, set the valiable $SMASkipCertCheck to $true'
         }
-    if ($null -eq $global:SMAPort) {
-        Write-Verbose 'Variable $SMAPort not found. Setting to default value 8445'
+    if (!($global:SMAPort)) {
+        Write-Verbose 'Variable $global:SMAPort not found. Setting to default value 8445'
             $global:SMAPort = '8445'
         }
     
-    "SMA-Host: " + $SMAHost
-    "SMA-Port: " + $SMAPort
-    "SMA-Skip certificate check ?: " + $SMASkipCertCheck
-    #Write-Verbose "Testing connction to $SMAHost on port $SMAPort"
+    "SMA-Host: " + $global:SMAHost
+    "SMA-Port: " + $global:SMAPort
+    "SMA-Skip certificate check ?: " + $global:SMASkipCertCheck
+    #Write-Verbose "Testing connection to $SMAHost on port $SMAPort"
     #Test-NetConnection -Computername $SMAHost -Port $SMAPort
     }
 catch {
