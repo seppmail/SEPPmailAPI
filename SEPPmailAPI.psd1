@@ -12,7 +12,7 @@
 RootModule = '.\SEPPmailAPI.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.5.1'
+ModuleVersion = '0.5.2'
 
 # Supported PSEditions
 CompatiblePSEditions = @('Desktop','Core')
@@ -127,6 +127,8 @@ PrivateData = @{
         ReleaseNotes = 
 @'
 260121: Initial release - preparation for SM Release 12.1.0 - User path only
+
+050221: User management stable - working with SM Dev Release 12.1.0
 
 '@
 

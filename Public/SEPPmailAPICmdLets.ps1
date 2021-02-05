@@ -79,8 +79,14 @@ function Get-SMAUser
     PS C:\> Find-SMAUser
     Emits all users and their details - may take some time
 .EXAMPLE
+    PS C:\> Find-SMAUser -List
+    Emits all users - mail-addresses only
+.EXAMPLE
     PS C:\> Find-SMAUser -customer 'Contoso'
     Emits all users of a particular customer
+.EXAMPLE
+    PS C:\> Find-SMAUser -customer 'Contoso' -List
+    Emits e-mail addresses of all users of a particular customer
 #>
 function Find-SMAUser
 {
@@ -119,12 +125,6 @@ function Find-SMAUser
         else {
             $uri = "{0}{1}" -f $urlroot, 'user'
         }
-
-        <#Write-Verbose "Adding Listonly if requested"
-        if ($list) {
-            $uri = "{0}{1}" -f $uri, '?list=true'
-        }
-        #>
 
         Write-verbose "Crafting Invokeparam for Invoke-SMARestMethod"
         $invokeParam = @{
@@ -433,7 +433,7 @@ function Set-SMAUser
         Write-Verbose "Call Invoke-SMARestMethod $uri" 
         $UserRaw = Invoke-SMARestMethod @invokeParam
         #debug $userraw
-        Write-Verbose 'Returning e-Mail addresses of new users'
+        Write-Verbose 'Returning e-Mail addresses of updated user'
         ($userraw.message -split ' ')[3]
     }
     catch {
@@ -498,7 +498,7 @@ function Remove-SMAUser
             }
         Write-Verbose "Call Invoke-SMARestMethod $uri" 
         $UserRaw = Invoke-SMARestMethod @invokeParam
-        Write-Verbose 'Returning e-Mail addresses of new users'
+        Write-Verbose 'Returning e-Mail addresses of removed user'
         ($userraw.message -split ' ')[3]
     }
     catch {
