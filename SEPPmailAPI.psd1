@@ -12,7 +12,7 @@
 RootModule = '.\SEPPmailAPI.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.5.2'
+ModuleVersion = '0.5.3'
 
 # Supported PSEditions
 CompatiblePSEditions = @('Desktop','Core')
@@ -60,7 +60,7 @@ PowerShellVersion = '5.1'
 # RequiredAssemblies = @()
 
 # Script files (.ps1) that are run in the caller's environment prior to importing this module.
-ScriptsToProcess = @('ModuleInit.ps1')
+# ScriptsToProcess = @()
 
 # Type files (.ps1xml) to be loaded when importing this module
 # TypesToProcess = @()
@@ -69,19 +69,22 @@ ScriptsToProcess = @('ModuleInit.ps1')
 # FormatsToProcess = @()
 
 # Modules to import as nested modules of the module specified in RootModule/ModuleToProcess
-# NestedModules = @()
+NestedModules = @(
+        '.\Private\SEPPmailAPIPrivate.ps1'
+        '.\Public\ModuleInit.ps1'
+        )
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-# FunctionsToExport = @()
+FunctionsToExport = @(
+                'Get-SMAUser'
+                'Find-SMAUser'
+                'New-SMAUser'
+                'Set-SMAUser'
+                'Remove-SMAUser'
+)
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
-CmdletsToExport = @(
-        'Get-SMAUser'
-        'Find-SMAUser'
-        'New-SMAUser'
-        'Set-SMAUser'
-        'Remove-SMAUser'
-)
+CmdletsToExport = @()
 
 # Variables to export from this module
 VariablesToExport = '*'
@@ -130,6 +133,7 @@ PrivateData = @{
 
 050221: User management stable - working with SM Dev Release 12.1.0
 
+080221: 0.5.3 - Fixed TLS issue on older PS5 (WS2016) machines, cleanup exported commands
 '@
 
         # Prerelease string of this module

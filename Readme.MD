@@ -20,7 +20,6 @@ Preferrably we recommend to create a GUID (in Portshell "(New-Guid).Guid") and r
 
 ### PowerShell Gallery (preferred option)
 
-
 We have published the module on the <https://www.PowerShellGallery.com>. You can install the module by running:
 
 ```powershell

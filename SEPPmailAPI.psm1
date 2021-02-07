@@ -1,6 +1,9 @@
-$ModulePath = Split-Path ((Get-Module -Name SEPPmailAPI -Listavailable).Path) 
-. $ModulePath\Private\SEPPmailAPIPrivate.ps1
+[CmdLetBinding()]
+
+$ModulePath = $PSScriptroot
+#. $ModulePath\Private\SEPPmailAPIPrivate.ps1
 . $ModulePath\Public\SEPPmailAPICmdLets.ps1
+
 
 # SIG # Begin signature block
 # MIIL1wYJKoZIhvcNAQcCoIILyDCCC8QCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
