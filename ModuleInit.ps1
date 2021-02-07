@@ -33,11 +33,25 @@ try {
             $global:SMAPort = '8445'
         }
     
-    "SMA-Host: " + $global:SMAHost
-    "SMA-Port: " + $global:SMAPort
-    "SMA-Skip certificate check ?: " + $global:SMASkipCertCheck
-    #Write-Verbose "Testing connection to $SMAHost on port $SMAPort"
-    #Test-NetConnection -Computername $SMAHost -Port $SMAPort
+        Write-Verbose 'Check/set TLS Version 1.2'
+        if (([Net.ServicePointManager]::SecurityProtocol) -eq 'Ssl3, Tls') {
+            Write-Verbose "TLS was 1.0, set to version 1.2"
+            [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+        }
+        else 
+        {
+            Write-Verbose "TLS is version 1.2"
+        }
+
+        Write-Verbose "Testing connection to $SMAHost on port $SMAPort"
+        $SMAConnTest = Test-NetConnection -Computername $SMAHost -Port $SMAPort
+        if ($SMAConntest.TcptestSucceeded -eq $true) {
+            Write-Host "Connection to host $SMAHost on port $SMAPort was established successfully" -ForegroundColor Green
+            Write-Host "Start your journey with the SEPPmail API Module i.e. with Find-SMAUser -List" -ForegroundColor Green
+        }
+        else {
+            Write-Error "Connection to Host $SMAHost on Port $SMAPort FAILED. Fix this before using the module."
+        }
     }
 catch {
     Write-Error "ModuleInit.ps1 failed with error $_"
