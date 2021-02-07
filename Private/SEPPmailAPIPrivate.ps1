@@ -74,10 +74,6 @@ function Invoke-SMARestMethod {
         [string]$method,
 
         [Parameter(
-            )]
-        [bool]$skipCertCheck = $SMASkipCertCheck,
-
-        [Parameter(
             Mandatory=$false
             )]
         [string[]]$body
@@ -103,7 +99,7 @@ function Invoke-SMARestMethod {
     }
     process {
         # Core and Skip
-        if (($PSversiontable.PSEdition -like 'Core') -and ($skipCertCheck = $true)) {
+        if (($PSversiontable.PSEdition -like 'Core') -and ($SMAskipCertCheck)) {
             Write-verbose 'Calling Invoke-RestMethod on Core edition with skip Certificate'
             try {
                 Invoke-RestMethod @SMinvokeParam -SkipCertificateCheck -ContentType 'application/json; charset=utf-8'
@@ -114,7 +110,7 @@ function Invoke-SMARestMethod {
             }
         }
         # Desktop and skip
-        elseif (($PSversiontable.PSedition -like 'Desktop') -and ($skipCertCheck = $true)) {
+        elseif (($PSversiontable.PSedition -like 'Desktop') -and ($SMAskipCertCheck)) {
             Write-Verbose "Change endpoint to skipCertificateCheck and call url"
             if ([System.Net.ServicePointManager]::CertificatePolicy -like 'System.Net.DefaultCertPolicy') {
                 $DefaultPolicy = [System.Net.ServicePointManager]::CertificatePolicy
