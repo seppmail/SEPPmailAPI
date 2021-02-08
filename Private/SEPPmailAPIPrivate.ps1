@@ -96,6 +96,16 @@ function Invoke-SMARestMethod {
             header      = $headers
         }
         if ($null -ne $body) { $SMinvokeParam.body = $body }
+
+        function Get-SMARestError {
+            if ($_.ErrorDetails.Message -like '*errorcode*') {
+                $RestErr = ($_.ErrorDetails.Message|convertfrom-JSON).errorMessage
+                Write-Error "$RestErr"
+            }
+            else {
+                Write-Error "Calling SEPPmail API failed with error: $_"
+            }
+        }
     }
     process {
         # Core and Skip
@@ -105,8 +115,9 @@ function Invoke-SMARestMethod {
                 Invoke-RestMethod @SMinvokeParam -SkipCertificateCheck -ContentType 'application/json; charset=utf-8'
             }
             catch {
-                $RestErr = ($_.ErrorDetails.Message|convertfrom-JSON).errorMessage
-                Write-Error "$RestErr"
+                #$RestErr = ($_.ErrorDetails.Message|convertfrom-JSON).errorMessage
+                #Write-Error "$RestErr"
+                Get-SMARestError
             }
         }
         # Desktop and skip
@@ -132,8 +143,9 @@ function Invoke-SMARestMethod {
                     Invoke-RestMethod @SMinvokeParam -ContentType 'application/json; charset=utf-8'
                 }
                 catch {
-                    $RestErr = ($_.ErrorDetails.Message|convertfrom-JSON).errorMessage
-                    Write-Error "$RestErr"
+                    #$RestErr = ($_.ErrorDetails.Message|convertfrom-JSON).errorMessage
+                    #Write-Error "$RestErr"
+                    Get-SMARestError
                 }
                 [System.Net.ServicePointManager]::CertificatePolicy = $DefaultPolicy
             }
@@ -145,8 +157,9 @@ function Invoke-SMARestMethod {
                 Invoke-RestMethod @SMinvokeParam -ContentType 'application/json; charset=utf-8'
             }
             catch {
-                $RestErr = ($_.ErrorDetails.Message|convertfrom-JSON).errorMessage
-                Write-Error "$RestErr"
+                #$RestErr = ($_.ErrorDetails.Message|convertfrom-JSON).errorMessage
+                #Write-Error "$RestErr"
+                Get-SMARestError
             }        
         }
     }

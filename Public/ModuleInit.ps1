@@ -13,7 +13,6 @@
 param()
 
 try {
-    #$OutputEncoding = [System.Text.Encoding]::Unicode
     Write-Verbose 'Checking Variables'
     if (!($SMAHost)) {
         Write-Warning "No SEPPmail Host set - Add a Variable i.e. https://securemail.contoso.de"

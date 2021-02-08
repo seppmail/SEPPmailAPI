@@ -1,7 +1,5 @@
 [CmdLetBinding()]
-
 $ModulePath = $PSScriptroot
-#. $ModulePath\Private\SEPPmailAPIPrivate.ps1
 . $ModulePath\Public\SEPPmailAPICmdLets.ps1
 
 
