@@ -506,6 +506,75 @@ function Remove-SMAUser
     }
 }
 
+<#
+.SYNOPSIS
+    Find a locally existing users and details
+.DESCRIPTION
+    This CmdLet lets you read the detailed properties of multiple users.
+.EXAMPLE
+    PS C:\> Find-SMACustomer
+    Emits all customers and their details - may take some time
+.EXAMPLE
+    PS C:\> Find-SMAUser -List
+    Emits all customers names
+#>
+function Find-SMACustomer
+{
+    [CmdletBinding()]
+    param (
+        [Parameter(
+            Mandatory                       = $false,
+            ValueFromPipelineByPropertyName = $true,
+            HelpMessage                     = 'Show list with e-mail address only'
+            )]
+        [switch]$list
+    )
+
+    try {
+        Write-Verbose "Creating URL root"
+        $urlRoot = New-SMAUrlRoot -SMAHost $SMAHost -SMAPort $SMAPort
+
+        if ($list) {
+            $uri = "{0}{1}{2}" -f $urlroot, 'customer', '?list=true'
+        }
+        else {
+            $uri = "{0}{1}" -f $urlroot, 'customer'
+        }
+
+        Write-verbose "Crafting Invokeparam for Invoke-SMARestMethod"
+        $invokeParam = @{
+            Uri         = $uri 
+            Method      = 'GET'
+        }
+
+        Write-Verbose "Call Invoke-SMARestMethod $uri" 
+        $CustomerRaw = Invoke-SMARestMethod @invokeParam
+
+        Write-Verbose 'Filter data and return as PSObject'
+
+        if ($list) {
+            $Findcustomer = $customerRaw
+        }
+        else {
+            $FindCustomer = $customerRaw.Psobject.properties.value
+        }
+
+        Write-Verbose 'Converting Umlauts from ISO-8859-1 and DateTime correctly'
+        $customer = foreach ($c in $findcustomer) {ConvertFrom-SMAPIFormat -inputobject $c}
+
+        if ($customer) {
+            return $customer
+        }
+        else {
+            Write-Information 'Nothing to return'
+        }
+    }
+    catch {
+        Write-Error "An error occured, see $error"
+    }
+}
+
+
 # SIG # Begin signature block
 # MIIL1wYJKoZIhvcNAQcCoIILyDCCC8QCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
