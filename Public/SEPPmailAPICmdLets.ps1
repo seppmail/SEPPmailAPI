@@ -327,8 +327,8 @@ function New-SMAUser
         notifications = 'never'
         mpkiSubjectPart = ''
     }
-    PS C:\> New-SMAUser @userInfo
-    Example of all parameters possible to create a user using parameter splatting
+    PS C:\> Set-SMAUser @userInfo
+    Example of all parameters possible to change a user using parameter splatting
 #>
 function Set-SMAUser
 {
@@ -580,7 +580,7 @@ function Find-SMACustomer
 .DESCRIPTION
     This CmdLet lets you read the detailed properties of an existing customer.
 .EXAMPLE
-    PS C:\> Get-SMACustomer -customerName 'Fabrikam'
+    PS C:\> Get-SMACustomer -name 'Fabrikam'
     Get information about a SEPPmail customer.
     NOTE!: Customer names are case-sensitive
 #>
@@ -593,13 +593,14 @@ function Get-SMACustomer
             ValueFromPipelineByPropertyName = $true,
             HelpMessage                     = 'Customer name (Case sensitive!)'
             )]
-        [string]$customerName
+        [ValidatePattern('[a-zA-Z0-9\-_]')]
+        [string]$name
     )
 
     try {
         Write-Verbose "Creating URL root"
         $urlRoot = New-SMAUrlRoot -SMAHost $SMAHost -SMAPort $SMAPort
-        $uri = "{0}{1}/{2}" -f $urlroot, 'customer', $customerName
+        $uri = "{0}{1}/{2}" -f $urlroot, 'customer', $name
 
         Write-verbose "Crafting Invokeparam for Invoke-SMARestMethod"
         $invokeParam = @{
@@ -616,7 +617,7 @@ function Get-SMACustomer
         Write-Verbose 'Converting Umlauts from ISO-8859-1'
         $customer = ConvertFrom-SMAPIFormat -inputObject $getCustomer
 
-        # Userobject
+        # CustomerObject
         if ($customer) {
             return $customer
         }
@@ -654,10 +655,10 @@ function Get-SMACustomer
         deleteOldMessagesGracePeriod = 30
         deleteUnregistered = 60
         description = 'Contoso Holding AG'
-        mailRoutes = ''
+        mailRoutes = @()
         maximumEncryptionLicenses = 5
         maximumLFTLicenses = 3
-        sendBackupToAdmin = true
+        sendBackupToAdmin = $true
     }
     PS C:\> New-SMACustomer @customerInfo
     Example of all parameters possible to create a customer using PowerShell parameter splatting
@@ -671,6 +672,7 @@ function New-SMACustomer
             ValueFromPipelineByPropertyName = $true,
             HelpMessage                     = 'The customers display name'
             )]
+        [ValidatePattern('[a-zA-Z0-9\-_]')]
         [string]$name,
 
         [Parameter(
@@ -803,6 +805,174 @@ function New-SMACustomer
     }
 }
 
+<#
+.SYNOPSIS
+    Modyfies a SEPPmail customer
+.DESCRIPTION
+    This CmdLet lets you modity an existing customer. You need the customer name for identification.
+.EXAMPLE
+    PS C:\> Set-SMAcustomer -name 'Contoso' -description 'Contoso AG London'
+    Change the description of Contoso.
+.EXAMPLE
+    To change multiple values of a customer at one, we recomend using paraeter splatting. Create a hashtable, like below and 
+    PS C:\> $customerInfo = @{
+        adminEmail = 'admin@contoso.com'
+        admins = @('admin@contoso.com','admin2@contoso.com')
+        backupPassword = 'someReallydifficultPassword'
+        comment = 'Contoso is one of our most important clients'
+        defaultGINADomain = 'ContosoMain'
+        deleteOldMessagesGracePeriod = 30
+        deleteUnregistered = 60
+        description = 'Contoso Holding AG'
+        mailRoutes = @()
+        maximumEncryptionLicenses = 10
+        maximumLFTLicenses = 5
+        sendBackupToAdmin = $true
+    }
+    PS C:\> Set-SMAcustomer -name 'Contoso' @customerInfo
+    Example of all parameters possible to change a customer.
+#>
+function Set-SMACustomer
+{
+    [CmdletBinding()]
+    param (
+        [Parameter(
+            Mandatory                       = $true,
+            ValueFromPipelineByPropertyName = $true,
+            HelpMessage                     = 'The customers display name'
+            )]
+        [ValidatePattern('[a-zA-Z0-9\-_]')]
+        [string]$name,
+
+        [Parameter(
+            Mandatory                       = $false,
+            ValueFromPipelineByPropertyName = $true,
+            HelpMessage                     = 'Customers admin E-Mail address(es)'
+            )]
+        [ValidatePattern('([a-z0-9][-a-z0-9_\+\.]*[a-z0-9])@([a-z0-9][-a-z0-9\.]*[a-z0-9]\.(arpa|root|aero|biz|cat|com|coop|edu|gov|info|int|jobs|mil|mobi|museum|name|net|org|pro|tel|travel|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cu|cv|cx|cy|cz|de|dj|dk|dm|do|dz|ec|ee|eg|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ro|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|sk|sl|sm|sn|so|sr|st|su|sv|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|um|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw)|([0-9]{1,3}\.{3}[0-9]{1,3}))')]
+        [string]$adminEmail,
+
+        [Parameter(
+            Mandatory                       = $false,
+            ValueFromPipelineByPropertyName = $true,
+            HelpMessage                     = 'The customers administrators uid´s as array'
+            )]
+        [string[]]$admins,
+
+        [Parameter(
+            Mandatory                       = $false,
+            ValueFromPipelineByPropertyName = $true,
+            HelpMessage                     = 'Backup password'
+            )]
+        [string]$backupPassword,
+
+        [Parameter(
+            Mandatory                       = $false,
+            ValueFromPipelineByPropertyName = $true,
+            HelpMessage                     = 'Some additional text'
+            )]
+        [string]$comment,
+
+        [Parameter(
+            Mandatory                       = $false,
+            ValueFromPipelineByPropertyName = $true,
+            HelpMessage                     = 'GINA domain to use of none is selected'
+            )]
+        [string]$defaultGINADomain,
+
+        [Parameter(
+            Mandatory                       = $false,
+            ValueFromPipelineByPropertyName = $true,
+            HelpMessage                     = 'Grace period (in days) after which old GINA message metadata are automatically removed. Mails can still be decrypted by recipient if metadata is missing. (set to 0 to disable)'
+            )]
+        [Alias('delMessGrace')]
+        [int]$deleteOldMessagesGracePeriod = 0,
+
+        [Parameter(
+            Mandatory                       = $false,
+            ValueFromPipelineByPropertyName = $true,
+            HelpMessage                     = 'Grace period (in days) after which unregistered GINA accounts are automatically removed (set to 0 to disable)'
+            )]
+        [Alias('delUnreg')]
+        [int]$deleteUnregistered = 0,
+
+        [Parameter(
+            Mandatory                       = $false,
+            ValueFromPipelineByPropertyName = $true,
+            HelpMessage                     = 'Customers more detailed description'
+            )]
+        [string]$description,
+
+        [Parameter(
+            Mandatory                       = $false,
+            ValueFromPipelineByPropertyName = $true,
+            HelpMessage                     = '?????????????????'
+            )]
+        [string[]]$mailRoutes,
+
+        [Parameter(
+            Mandatory                       = $false,
+            ValueFromPipelineByPropertyName = $true,
+            HelpMessage                     = 'How many licenses may users of this customers consume for encryption ?'
+            )]
+        [int]$maximumEncryptionLicenses,
+
+        [Parameter(
+            Mandatory                       = $false,
+            ValueFromPipelineByPropertyName = $true,
+            HelpMessage                     = 'How many licenses may users of this customers consume for elarge file transfer ?'
+            )]
+        [int]$maximumLFTLicenses,
+
+        [Parameter(
+            Mandatory                       = $false,
+            ValueFromPipelineByPropertyName = $true,
+            HelpMessage                     = 'Automatically send backup to Customer Admin E-mail'
+            )]
+        [bool]$sendBackupToAdmin
+    )
+
+    try {
+        Write-Verbose "Creating URL root"
+        $urlRoot = New-SMAUrlRoot -SMAHost $SMAHost -SMAPort $SMAPort
+        $uri = "{0}{1}/{2}" -f $urlroot, 'customer', $name
+
+        Write-Verbose 'Crafting mandatory $body JSON'
+        $bodyht = @{}
+
+        Write-Verbose 'Adding optional values to $body JSON'
+        if ($adminEmail) {$bodyht.adminEmail = $adminEmail}
+        if ($admins) {$bodyht.admins = $admins}
+        if ($backupPassword) {$bodyht.backupPassword = $backupPassword}
+        if ($comment) {$bodyht.comment = $comment}
+        if ($defaultGINADomain) {$bodyht.defaultGINADomain = $defaultGINADomain}
+        if ($deleteOldMessagesGracePeriod) {$bodyht.deleteOldMessagesGracePeriod = $deleteOldMessagesGracePeriod}
+        if ($deleteUnregistered) {$bodyht.deleteUnregistered = $deleteUnregistered}
+        if ($description) {$bodyht.description = $description}
+        if ($mailRoutes) {$bodyht.mailRoutes = $mailRoutes}
+        if ($maximumEncryptionLicenses) {$bodyht.maximumEncryptionLicenses = $maximumEncryptionLicenses}
+        if ($maximumLFTLicenses) {$bodyht.maximumLFTLicenses = $maximumLFTLicenses}
+        if ($sendBackupToAdmin) {$bodyht.sendBackupToAdmin = $sendBackupToAdmin}
+
+        
+        $body = $bodyht|ConvertTo-JSON
+        Write-verbose "Crafting Invokeparam for Invoke-SMARestMethod"
+        $invokeParam = @{
+            Uri         = $uri 
+            Method      = 'PUT'
+            body        = $body
+        }
+        #debug $uri
+        Write-Verbose "Call Invoke-SMARestMethod $uri"
+        $customerRaw = Invoke-SMARestMethod @invokeParam
+        #debug $customerraw
+        Write-Verbose 'Returning name of customer'
+        $customerRaw.psobject.Properties.Value  
+    }
+    catch {
+        Write-Error "An error occured, see $error"
+    }
+}
 
 # SIG # Begin signature block
 # MIIL1wYJKoZIhvcNAQcCoIILyDCCC8QCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB

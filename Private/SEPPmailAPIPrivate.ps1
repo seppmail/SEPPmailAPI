@@ -45,6 +45,17 @@ function ConvertFrom-SMAPIFormat {
         $inputobject.Name = [System.Text.Encoding]::UTF8.GetString($bytes)
     }
 
+    # Convert comments to Umlauts
+      if ($inputobject.comment) {
+        $bytes = [System.Text.Encoding]::GetEncoding("ISO-8859-1").GetBytes($inputobject.comment)
+        $inputobject.comment = [System.Text.Encoding]::UTF8.GetString($bytes)
+    }
+    # Convert description to Umlauts
+    if ($inputobject.description) {
+        $bytes = [System.Text.Encoding]::GetEncoding("ISO-8859-1").GetBytes($inputobject.description)
+        $inputobject.description = [System.Text.Encoding]::UTF8.GetString($bytes)
+    }
+
     # Convert strig to Date
     if ($inputobject.createddate) {
         $inputobject.createdDate = [Datetime]::ParseExact($inputobject.createdDate, 'yyyyMMddHHmmssZ', $null)
