@@ -1075,6 +1075,77 @@ function Remove-SMAcustomer
     }
 }
 
+<#
+.SYNOPSIS
+    Export a customer and all its details.
+.DESCRIPTION
+    This CmdLet lets you export an existing customer.
+.EXAMPLE
+    PS C:\> Export-SMACustomer -name 'Fabrikam' -path c:\temp\Fabrikam.zip
+    Export the customer Fabrikam to a local ZIPFile.
+    NOTE!: Customer names are case-sensitive
+#>
+<#function Export-SMACustomer
+{
+    [CmdletBinding()]
+    param (
+        [Parameter(
+            Mandatory                       = $true,
+            ValueFromPipelineByPropertyName = $true,
+            HelpMessage                     = 'Customer name (Case sensitive!)'
+            )]
+        [ValidatePattern('[a-zA-Z0-9\-_]')]
+        [string]$name,
+
+        [Parameter(
+            Mandatory                       = $true,
+            ValueFromPipelineByPropertyName = $true,
+            HelpMessage                     = 'Path and fileName for ZIP File'
+            )]
+        [string]$path
+
+        )
+
+    try {
+        
+        if (!(test-path $path)) {
+            New-Item -ItemType Directory -Path $path 
+        }
+        
+        
+        Write-Verbose "Creating URL root"
+        $urlRoot = New-SMAUrlRoot -SMAHost $SMAHost -SMAPort $SMAPort
+        $uri = "{0}{1}/{2}" -f $urlroot, 'customer', $name
+
+        Write-verbose "Crafting Invokeparam for Invoke-SMARestMethod"
+        $invokeParam = @{
+            Uri         = $uri 
+            Method      = 'GET'
+        }
+
+        Write-Verbose "Call Invoke-SMARestMethod $uri" 
+        $customerRaw = Invoke-SMARestMethod @invokeParam
+
+        Write-Verbose 'Filter data and return as PSObject'
+        $GetCustomer = $customerRaw.Psobject.properties.value
+
+        Write-Verbose 'Converting Umlauts from ISO-8859-1'
+        $customer = ConvertFrom-SMAPIFormat -inputObject $getCustomer
+
+        # CustomerObject
+        if ($customer) {
+            return $customer
+        }
+        else {
+            Write-Information 'Nothing to return'
+        }
+    }
+    catch {
+        Write-Error "An error occured, see $error"
+    }
+}#>
+
+
 # SIG # Begin signature block
 # MIIL1wYJKoZIhvcNAQcCoIILyDCCC8QCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
