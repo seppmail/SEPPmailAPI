@@ -974,6 +974,107 @@ function Set-SMACustomer
     }
 }
 
+<#
+.SYNOPSIS
+    Remove a SEPPmail customer
+.DESCRIPTION
+    This CmdLet lets you delete a SEPPmail customer. You need the name of the customer.
+.EXAMPLE
+    PS C:\> Remove-SMAcustomer -name 'Fabrikam'
+    Delete a customer.
+#>
+function Remove-SMAcustomer
+{
+    [CmdletBinding()]
+    param (
+        [Parameter(
+            Mandatory                       = $true,
+            ValueFromPipelineByPropertyName = $true,
+            HelpMessage                     = 'The customer name you want to delete'
+            )]
+        [ValidatePattern('[a-zA-Z0-9\-_]')]
+        [string]$name,
+
+        [Parameter(
+            Mandatory                       = $false,
+            ValueFromPipelineByPropertyName = $true,
+            HelpMessage                     = 'If set, deletes all related users of this customer'
+            )]
+        [bool]$deleteUsers = $false,
+
+        [Parameter(
+            Mandatory                       = $false,
+            ValueFromPipelineByPropertyName = $true,
+            HelpMessage                     = 'If set, deletes all related GINA users of this customer'
+            )]
+        [bool]$deleteGINAUsers = $false,
+
+        [Parameter(
+            Mandatory                       = $false,
+            ValueFromPipelineByPropertyName = $true,
+            HelpMessage                     = 'If set, deletes all Admin Users of this customer'
+            )]
+        [bool]$deleteAdminUsers = $false,
+
+        [Parameter(
+            Mandatory                       = $false,
+            ValueFromPipelineByPropertyName = $true,
+            HelpMessage                     = 'If set, deletes all managed domains related to this customer'
+            )]
+        [bool]$deleteManagedDomains = $false,
+
+        [Parameter(
+            Mandatory                       = $false,
+            ValueFromPipelineByPropertyName = $true,
+            HelpMessage                     = 'If set, deletes all GINA domains related to this customer'
+            )]
+        [bool]$deleteGINADomains = $false,
+
+        [Parameter(
+            Mandatory                       = $false,
+            ValueFromPipelineByPropertyName = $true,
+            HelpMessage                     = 'If set, deletes all policies of this customer'
+            )]
+        [bool]$deletePolicies = $false,
+
+        [Parameter(
+            Mandatory                       = $false,
+            ValueFromPipelineByPropertyName = $true,
+            HelpMessage                     = 'If set, deletes all smarhost credentials used EXCLUSIVELY by this customer'
+            )]
+        [bool]$deleteSmarthostCredentials = $false,
+
+        [Parameter(
+            Mandatory                       = $false,
+            ValueFromPipelineByPropertyName = $true,
+            HelpMessage                     = 'If set, deletes everything related to this customer'
+            )]
+        [bool]$deleteEverything = $false
+
+    )
+
+    try {
+        Write-Verbose "Creating URL root"
+        $urlRoot = New-SMAUrlRoot -SMAHost $SMAHost -SMAPort $SMAPort
+        $uri = "{0}{1}/{2}" -f $urlroot, 'customer', $name
+
+        # Hier Parametereinleitung ? und Weiterwerwendung & einbauen
+        
+        Write-verbose "Crafting Invokeparam for Invoke-SMARestMethod"
+        $invokeParam = @{
+            Uri         = $uri 
+            Method      = 'DELETE'
+            }
+        Write-Verbose "Call Invoke-SMARestMethod $uri" 
+        $customerRaw = Invoke-SMARestMethod @invokeParam
+        Write-Verbose 'Returning Delete details'
+        $customerRaw.psobject.Properties.Value  
+    }
+    catch {
+        Write-Error "An error occured, see $error"
+    }
+}
+
 # SIG # Begin signature block
 # MIIL1wYJKoZIhvcNAQcCoIILyDCCC8QCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
