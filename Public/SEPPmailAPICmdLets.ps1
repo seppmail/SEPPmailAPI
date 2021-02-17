@@ -1085,7 +1085,7 @@ function Remove-SMAcustomer
     Export the customer Fabrikam to a local ZIPFile.
     NOTE!: Customer names are case-sensitive
 #>
-<#function Export-SMACustomer
+function Export-SMACustomer
 {
     [CmdletBinding()]
     param (
@@ -1100,50 +1100,77 @@ function Remove-SMAcustomer
         [Parameter(
             Mandatory                       = $true,
             ValueFromPipelineByPropertyName = $true,
-            HelpMessage                     = 'Path and fileName for ZIP File'
+            HelpMessage                     = 'Password for encrypted ZIP'
             )]
-        [string]$path
+        [SecureString]$encryptionPassword,
 
+        [Parameter(
+            Mandatory                       = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ParameterSetName                = 'Path',
+            HelpMessage                     = 'Relative Path for ZIP-File, i.e. .\contoso.zip'
+            )]
+        [string]$path,
+
+        [Parameter(
+            Mandatory                       = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ParameterSetName                = 'LiteralPath',
+            HelpMessage                     = 'Literal path for ZIP-File, i.e. c:\temp\contoso.zip'
+            )]
+        [string]$literalPath
         )
 
     try {
         
-        if (!(test-path $path)) {
-            New-Item -ItemType Directory -Path $path 
-        }
-        
-        
         Write-Verbose "Creating URL root"
         $urlRoot = New-SMAUrlRoot -SMAHost $SMAHost -SMAPort $SMAPort
-        $uri = "{0}{1}/{2}" -f $urlroot, 'customer', $name
+        $uri = "{0}{1}/{2}/{3}" -f $urlroot, 'customer', $name, 'export'
+
+        Write-verbose "Packing password into body JSON"
+        $encryptionPasswordPlain = ConvertFrom-SMASecureString -securePassword $encryptionPassword
+
+        $bodyHt = @{
+            encryptionpassword = $encryptionPasswordPlain
+        }
+        $body = ConvertTo-Json $bodyHt
 
         Write-verbose "Crafting Invokeparam for Invoke-SMARestMethod"
         $invokeParam = @{
             Uri         = $uri 
-            Method      = 'GET'
+            Method      = 'POST'
+            body        = $body
         }
 
         Write-Verbose "Call Invoke-SMARestMethod $uri" 
-        $customerRaw = Invoke-SMARestMethod @invokeParam
+        $ExportRaw = Invoke-SMARestMethod @invokeParam
 
-        Write-Verbose 'Filter data and return as PSObject'
-        $GetCustomer = $customerRaw.Psobject.properties.value
-
-        Write-Verbose 'Converting Umlauts from ISO-8859-1'
-        $customer = ConvertFrom-SMAPIFormat -inputObject $getCustomer
-
-        # CustomerObject
-        if ($customer) {
-            return $customer
+        Write-Verbose "Converting JSON Zip data to ZipFile"
+        $bytes = [System.Convert]::FromBase64String($ExportRaw.zippedData)
+        if ($pscmdlet.ParameterSetName -eq 'Path') {
+            Write-Verbose "Will create a file according to $path definition"
+            $ZipfileRoot = (Split-Path $path -Parent|resolve-path).Path
+            $ZipfileName = Split-Path $path -leaf
+            $ZipfilePath = Join-Path -Path $ZipFileRoot -ChildPath $ZipFileName
+            [IO.File]::WriteAllBytes($ZipFilePath, $bytes)
+            Write-Information "Written file to $ZipFilePath"
         }
-        else {
-            Write-Information 'Nothing to return'
+        if ($pscmdlet.ParameterSetName -eq 'literalPath') {
+            $fileParent = Split-Path $literalPath -Parent
+            if (!(test-path $fileparent)) {
+                Write-Verbose "Directory of $literalpath didnt exist, trying to create it"
+                New-Item -ItemType Directory -Path $fileParent
+            }
+            Write-Verbose "Will create a file according to $literalpath definition"
+            [IO.File]::WriteAllBytes($literalpath, $bytes)
+            Write-Information "Written file to $literalPath"
         }
     }
     catch {
         Write-Error "An error occured, see $error"
     }
-}#>
+}
+#>
 
 
 # SIG # Begin signature block

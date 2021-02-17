@@ -63,6 +63,24 @@ function ConvertFrom-SMAPIFormat {
     return $inputobject
 }
 
+function ConvertFrom-SMASecureString {
+    param(
+        [Parameter(
+            Mandatory           = $true,
+            ValueFromPipeline   = $true
+        )]
+        [SecureString]$securePassword
+    )
+
+    try {
+        $BSTR = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($securePassword)
+        $plainPassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
+        return $plainPassword
+    }
+    catch {
+        Write-Error "Error $_ occured!"
+    }    
+}
 <#
 .SYNOPSIS
     Calls the REST interface with Parameters
