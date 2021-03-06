@@ -200,6 +200,36 @@ function Invoke-SMARestMethod {
     }
 }
 
+<#
+.SYNOPSIS
+    Converts (and sorts) a hashtable to an ordered hashtable
+.DESCRIPTION
+    If indexing is needed on a hashtable, a conversion to [ordered] is needed. This function simply does this.
+#>
+function ConvertTo-OrderedDictionary {
+    [CmdletBinding()]
+    [OutputType([Collections.Specialized.OrderedDictionary])]
+    Param (
+        [parameter(Mandatory = $true, ValueFromPipeline = $true)]
+        $HashTable
+    )
+    $OrderedDictionary = [ordered]@{ }
+    if ($HashTable -is [System.Collections.IDictionary]) {
+        $Keys = $HashTable.Keys | Sort-Object
+        foreach ($_ in $Keys) {
+            $OrderedDictionary.Add($_, $HashTable[$_])
+        }
+    } elseif ($HashTable -is [System.Collections.ICollection]) {
+        for ($i = 0; $i -lt $HashTable.count; $i++) {
+            $OrderedDictionary.Add($i, $HashTable[$i])
+        }
+    } else {
+        Write-Error "ConvertTo-OrderedDictionary - Wrong input type."
+    }
+    return $OrderedDictionary
+}
+
+
 # SIG # Begin signature block
 # MIIL1wYJKoZIhvcNAQcCoIILyDCCC8QCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR

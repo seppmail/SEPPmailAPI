@@ -985,12 +985,19 @@ function Set-SMACustomer
 #>
 function Remove-SMAcustomer
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
     param (
         [Parameter(
             Mandatory                       = $true,
             ValueFromPipelineByPropertyName = $true,
-            HelpMessage                     = 'The customer name you want to delete'
+            ParameterSetName                = 'Default',
+            HelpMessage                     = 'The customer´s name you want to delete'
+            )]
+        [Parameter(
+            Mandatory                       = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ParameterSetName                = 'DeleteAll',
+            HelpMessage                     = 'The customer´s name you want to delete'
             )]
         [ValidatePattern('[a-zA-Z0-9\-_]')]
         [string]$name,
@@ -998,6 +1005,7 @@ function Remove-SMAcustomer
         [Parameter(
             Mandatory                       = $false,
             ValueFromPipelineByPropertyName = $true,
+            ParameterSetName                = 'Default',
             HelpMessage                     = 'If set, deletes all related users of this customer'
             )]
         [bool]$deleteUsers = $false,
@@ -1005,6 +1013,7 @@ function Remove-SMAcustomer
         [Parameter(
             Mandatory                       = $false,
             ValueFromPipelineByPropertyName = $true,
+            ParameterSetName                = 'Default',
             HelpMessage                     = 'If set, deletes all related GINA users of this customer'
             )]
         [bool]$deleteGINAUsers = $false,
@@ -1012,6 +1021,7 @@ function Remove-SMAcustomer
         [Parameter(
             Mandatory                       = $false,
             ValueFromPipelineByPropertyName = $true,
+            ParameterSetName                = 'Default',
             HelpMessage                     = 'If set, deletes all Admin Users of this customer'
             )]
         [bool]$deleteAdminUsers = $false,
@@ -1019,6 +1029,7 @@ function Remove-SMAcustomer
         [Parameter(
             Mandatory                       = $false,
             ValueFromPipelineByPropertyName = $true,
+            ParameterSetName                = 'Default',
             HelpMessage                     = 'If set, deletes all managed domains related to this customer'
             )]
         [bool]$deleteManagedDomains = $false,
@@ -1026,6 +1037,7 @@ function Remove-SMAcustomer
         [Parameter(
             Mandatory                       = $false,
             ValueFromPipelineByPropertyName = $true,
+            ParameterSetName                = 'Default',
             HelpMessage                     = 'If set, deletes all GINA domains related to this customer'
             )]
         [bool]$deleteGINADomains = $false,
@@ -1033,6 +1045,7 @@ function Remove-SMAcustomer
         [Parameter(
             Mandatory                       = $false,
             ValueFromPipelineByPropertyName = $true,
+            ParameterSetName                = 'Default',
             HelpMessage                     = 'If set, deletes all policies of this customer'
             )]
         [bool]$deletePolicies = $false,
@@ -1040,6 +1053,7 @@ function Remove-SMAcustomer
         [Parameter(
             Mandatory                       = $false,
             ValueFromPipelineByPropertyName = $true,
+            ParameterSetName                = 'Default',
             HelpMessage                     = 'If set, deletes all smarhost credentials used EXCLUSIVELY by this customer'
             )]
         [bool]$deleteSmarthostCredentials = $false,
@@ -1047,6 +1061,7 @@ function Remove-SMAcustomer
         [Parameter(
             Mandatory                       = $false,
             ValueFromPipelineByPropertyName = $true,
+            ParameterSetName                = 'DeleteAll',
             HelpMessage                     = 'If set, deletes everything related to this customer'
             )]
         [bool]$deleteEverything = $false
@@ -1058,8 +1073,31 @@ function Remove-SMAcustomer
         $urlRoot = New-SMAUrlRoot -SMAHost $SMAHost -SMAPort $SMAPort
         $uri = "{0}{1}/{2}" -f $urlroot, 'customer', $name
 
-        # Hier Parametereinleitung ? und Weiterwerwendung & einbauen
-        
+        if ($pscmdlet.ParameterSetName -eq 'DeleteAll') {
+            Write-Verbose "Using parameterset $($pscmdLet.ParameterSetName)"
+            $paramValue = $null
+            if ($deleteEverything -eq $true) {
+                $paramValue = 'true'
+            }
+            else {
+                $paramValue = 'false'
+            }
+            $uri = "{0}?deleteEverything={2}" -f $uri, $paramvalue
+        }
+        else {
+            Write-Verbose "Using parameterset $($pscmdLet.ParameterSetName)"
+            $boundParam = ConvertTo-OrderedDictionary $pscmdlet.MyInvocation.BoundParameters
+            Wait-Debugger
+            if ($boundParam.count -gt 2) {
+                Write-Verbose 'Add parameters function for multiple parameters'
+                # TBD
+                }
+            else {
+                Write-Verbose 'Add parameters function for a single parameters'
+                # TBD
+                }
+        }
+
         Write-verbose "Crafting Invokeparam for Invoke-SMARestMethod"
         $invokeParam = @{
             Uri         = $uri 
@@ -1081,13 +1119,19 @@ function Remove-SMAcustomer
 .DESCRIPTION
     This CmdLet lets you export an existing customer.
 .EXAMPLE
-    PS C:\> Export-SMACustomer -name 'Fabrikam' -path c:\temp\Fabrikam.zip
-    Export the customer Fabrikam to a local ZIPFile.
+    PS C:\> $backuppassword = ConvertTo-SecureString -String 'secretbackup' -AsPlainText -Force
+    PS C:\> Export-SMACustomer -name 'Fabrikam' -encryptionpassword $backuppassword -path ..\Fabrikam.zip
+    Export the customer Fabrikam to a local ZIP-file in the parent folder of the current folder (with a relative path)
+    NOTE!: Customer names are case-sensitive
+.EXAMPLE
+    PS C:\> $backuppassword = ConvertTo-SecureString -String 'secretbackup' -AsPlainText -Force
+    PS C:\> Export-SMACustomer -name 'Fabrikam' -encryptionpassword $backuppassword -literalpath c:\temp\Fabrikam.zip
+    Export the customer Fabrikam to a local ZIP-file with a literal path
     NOTE!: Customer names are case-sensitive
 #>
 function Export-SMACustomer
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Path')]
     param (
         [Parameter(
             Mandatory                       = $true,
@@ -1172,6 +1216,100 @@ function Export-SMACustomer
 }
 #>
 
+function Import-SMACustomer
+{
+    [CmdletBinding(DefaultParameterSetName = 'Path')]
+    param (
+        [Parameter(
+            Mandatory                       = $true,
+            ValueFromPipelineByPropertyName = $true,
+            HelpMessage                     = 'Customer name (Case sensitive!)'
+            )]
+        [ValidatePattern('[a-zA-Z0-9\-_]')]
+        [string]$name,
+
+        [Parameter(
+            Mandatory                       = $true,
+            ValueFromPipelineByPropertyName = $true,
+            HelpMessage                     = 'Password for encrypted ZIP'
+            )]
+        [SecureString]$encryptionPassword,
+
+        [Parameter(
+            Mandatory                       = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ParameterSetName                = 'Path',
+            HelpMessage                     = 'Relative Path for ZIP-File, i.e. .\contoso.zip'
+            )]
+        [string]$path,
+
+        [Parameter(
+            Mandatory                       = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ParameterSetName                = 'LiteralPath',
+            HelpMessage                     = 'Literal path for ZIP-File, i.e. c:\temp\contoso.zip'
+            )]
+        [string]$literalPath
+        )
+
+    try {
+        
+        Write-Verbose "Creating URL root"
+        $urlRoot = New-SMAUrlRoot -SMAHost $SMAHost -SMAPort $SMAPort
+        $uri = "{0}{1}/{2}" -f $urlroot, 'customer', 'import'
+
+        Write-verbose "Packing password into body JSON"
+        $encryptionPasswordPlain = ConvertFrom-SMASecureString -securePassword $encryptionPassword
+
+        $jsonZIP = $null
+        Write-Verbose "Convert ZIPFile to JSON Zip Data"
+        if ($psCmdLet.ParameterSetName -eq 'Path') {
+            if (!(Test-path $path)) {
+                Write-Error "$Path does not exist - please enter a valid path"
+                break
+            } else {
+                $truePath = Resolve-Path $path
+                $zipContent = [IO.File]::ReadAllBytes($truePath)
+                $jsonZip = [System.Convert]::ToBase64String($zipContent)
+            }
+        }
+
+        if ($psCmdLet.ParameterSetName -eq 'LiteralPath') {
+            if (!(Test-path $literalPath)) {
+                Write-Error "$literalPath does not exist - please enter a valid path"
+                break
+            } else {
+                $truePath = Resolve-Path $literalPath
+                $zipContent = [IO.File]::ReadAllBytes($truePath)
+                $jsonZip = [System.Convert]::ToBase64String($zipContent)
+            }
+        }
+
+        $bodyHt = @{
+            zippedData = $jsonZip
+            encryptionpassword = $encryptionPasswordPlain
+            name = $name
+        }
+        $body = ConvertTo-Json $bodyHt
+
+        Write-verbose "Crafting Invokeparam for Invoke-SMARestMethod"
+        $invokeParam = @{
+            Uri         = $uri 
+            Method      = 'POST'
+            body        = $body
+        }
+
+        Write-Verbose "Call Invoke-SMARestMethod $uri" 
+        $ImportRaw = Invoke-SMARestMethod @invokeParam
+
+        Wait-Debugger
+
+    }
+    catch {
+        Write-Error "An error occured, see $error"
+    }
+}
+#>
 
 # SIG # Begin signature block
 # MIIL1wYJKoZIhvcNAQcCoIILyDCCC8QCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
