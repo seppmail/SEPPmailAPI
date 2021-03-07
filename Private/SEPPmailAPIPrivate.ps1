@@ -33,37 +33,49 @@ function New-SMAQueryString {
     [CmdletBinding()]
     param 
     (
-        [Parameter(Mandatory = $true)]
-        [String]$Uri,
+        [Parameter(Mandatory = $false)]
+        [String]$host = $SMAHost,
+
+        [Parameter(Mandatory = $false)]
+        [int]$port = $SMAPort,
+
+        [Parameter(Mandatory = $false)]
+        [String]$schema = 'https',
+
+        [Parameter(Mandatory = $false)]
+        [String]$version = $SMAPIVersion,
 
         [Parameter(Mandatory = $true)]
-        [String]$path,
+        [String]$uriPath,
 
-        [Parameter(Mandatory = $true)]
-        [int]$Port = 8445,
-
-        [Parameter(Mandatory = $true)]
-        [Hashtable]$QueryParameter
-
-
+        [Parameter(Mandatory = $false)]
+        [Hashtable]$qparam
     )
 
-    # Add System.Web
-    Add-Type -AssemblyName System.Web
+    try {
+        # Add System.Web
+        Add-Type -AssemblyName System.Web
 
-    # Create a http name value collection from an empty string
-    $nvCollection = [System.Web.HttpUtility]::ParseQueryString([String]::Empty)
+        # Create a http name value collection from an empty string
+        Write-Verbose "Build the uri based on $schema and $host"
+        $schemeHost = "{0}://{1}/ " -f $schema, $host
+        $queryString = [System.UriBuilder]$schemeHost
 
-    foreach ($key in $QueryParameter.Keys)
-    {
-        $nvCollection.Add($key, $QueryParameter.$key)
+        Write-Verbose "Add path based on parameters from $($qparam)"
+        $ParamCollection = [System.Web.HttpUtility]::ParseQueryString([String]::Empty) 
+        if ($qparam) {
+            $qparam.GetEnumerator()|ForEach-Object {
+                $ParamCollection.Add("$($_.Key)","$($_.Value)")
+            }
+            $queryString.Query = $ParamCollection.ToString().Replace('=True','=true').Replace('=False','=false')
+        }
+        $queryString.Port = $port
+        $queryString.Path = "/$version/" + $uriPath
+        return $queryString.Uri.OriginalString
     }
-
-    # Build the uri
-    $uriRequest = [System.UriBuilder]$uri
-    $uriRequest.Query = $nvCollection.ToString()
-
-    return $uriRequest.Uri.OriginalString
+    catch {
+        Write-Error "Error $_ occured!"
+    }
 }
 
 
@@ -129,9 +141,7 @@ function ConvertFrom-SMASecureString {
 function Invoke-SMARestMethod {
     [CmdletBinding()]
     param(
-        [Parameter(
-            Mandatory=$true
-            )]
+        [Parameter(Mandatory=$true)]
         [string]$uri,
 
         [Parameter(

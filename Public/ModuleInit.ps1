@@ -37,7 +37,12 @@ try {
         Write-Verbose 'Variable $global:SMAPort not found. Setting to default value 8445'
             $global:SMAPort = '8445'
         }
-    Write-Verbose 'Check/set TLS Version 1.2'
+    if (!($global:SMAPIVersion)) {
+        Write-Verbose 'Variable $global:SMAPIVersion not found. Setting to default value v1'
+            $global:SMAPort = 'v1'
+        }
+    
+        Write-Verbose 'Check/set TLS Version 1.2'
     if (([Net.ServicePointManager]::SecurityProtocol) -eq 'Ssl3, Tls') {
             Write-Verbose "TLS was 1.0, set to version 1.2"
             [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12

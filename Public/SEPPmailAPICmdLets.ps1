@@ -598,9 +598,11 @@ function Get-SMACustomer
     )
 
     try {
-        Write-Verbose "Creating URL root"
-        $urlRoot = New-SMAUrlRoot -SMAHost $SMAHost -SMAPort $SMAPort
-        $uri = "{0}{1}/{2}" -f $urlroot, 'customer', $name
+        Write-Verbose "Creating URL Path"
+        $uriPath = "{0}/{1}" -f 'customer', $name
+
+        Write-Verbose "Build QueryString"
+        $uri = New-SMAQueryString -uriPath $uriPath
 
         Write-verbose "Crafting Invokeparam for Invoke-SMARestMethod"
         $invokeParam = @{
@@ -764,10 +766,12 @@ function New-SMACustomer
     )
 
     try {
-        Write-Verbose "Creating URL root"
-        $urlRoot = New-SMAUrlRoot -SMAHost $SMAHost -SMAPort $SMAPort
-        $uri = "{0}{1}/" -f $urlroot, 'customer'
-
+        Write-Verbose "Creating URL path"
+        $uriPath = "{0}" -f 'customer'
+        
+        Write-verbose "Crafting Invokeparam for Invoke-SMARestMethod"
+        $uri = New-SMAQueryString -uriPath $uriPath
+        
         Write-Verbose 'Crafting mandatory $body JSON'
         $bodyht = @{
             name = $name
@@ -787,16 +791,16 @@ function New-SMACustomer
         if ($sendBackupToAdmin) {$bodyht.sendBackupToAdmin = $sendBackupToAdmin}
 
         $body = $bodyht|ConvertTo-JSON
-        Write-verbose "Crafting Invokeparam for Invoke-SMARestMethod"
+
         $invokeParam = @{
             Uri         = $uri 
             Method      = 'POST'
             body        = $body
         }
-        #debug $uri
+
         Write-Verbose "Call Invoke-SMARestMethod $uri"
         $customerRaw = Invoke-SMARestMethod @invokeParam
-        #debug $customerraw
+
         Write-Verbose 'Returning name of customer'
         $customerRaw.message
     }
@@ -933,9 +937,12 @@ function Set-SMACustomer
     )
 
     try {
-        Write-Verbose "Creating URL root"
-        $urlRoot = New-SMAUrlRoot -SMAHost $SMAHost -SMAPort $SMAPort
-        $uri = "{0}{1}/{2}" -f $urlroot, 'customer', $name
+        Write-Verbose "Creating URL path"
+        $uriPath = "{0}/{1}" -f 'customer', $name
+
+        Write-Verbose "Building full request uri"
+        $boundParam = @{name=$name}
+        $uri = New-SMAQueryString -uriPath $uriPath #-qParam $boundParam
 
         Write-Verbose 'Crafting mandatory $body JSON'
         $bodyht = @{}
@@ -1069,41 +1076,24 @@ function Remove-SMAcustomer
     )
 
     try {
-        Write-Verbose "Creating URL root"
-        $urlRoot = New-SMAUrlRoot -SMAHost $SMAHost -SMAPort $SMAPort
-        $uri = "{0}{1}/{2}" -f $urlroot, 'customer', $name
+        Write-Verbose "Creating URL path"
+        $uriPath = "{0}/{1}" -f 'customer', $name
 
-        if ($pscmdlet.ParameterSetName -eq 'DeleteAll') {
-            Write-Verbose "Using parameterset $($pscmdLet.ParameterSetName)"
-            $paramValue = $null
-            if ($deleteEverything -eq $true) {
-                $paramValue = 'true'
-            }
-            else {
-                $paramValue = 'false'
-            }
-            $uri = "{0}?deleteEverything={2}" -f $uri, $paramvalue
-        }
-        else {
-            Write-Verbose "Using parameterset $($pscmdLet.ParameterSetName)"
-            $boundParam = ConvertTo-OrderedDictionary $pscmdlet.MyInvocation.BoundParameters
-            Wait-Debugger
-            if ($boundParam.count -gt 2) {
-                Write-Verbose 'Add parameters function for multiple parameters'
-                # TBD
-                }
-            else {
-                Write-Verbose 'Add parameters function for a single parameters'
-                # TBD
-                }
-        }
+        Write-Verbose "Building param query"
+        $boundParam = $pscmdlet.MyInvocation.BoundParameters
+        $boundParam.Remove('name')|out-null
+
+        Write-Verbose "Building full request uri"
+        $uri = New-SMAQueryString -qParam $boundParam
 
         Write-verbose "Crafting Invokeparam for Invoke-SMARestMethod"
         $invokeParam = @{
             Uri         = $uri 
             Method      = 'DELETE'
-            }
-        Write-Verbose "Call Invoke-SMARestMethod $uri" 
+        }
+        
+        Write-Verbose "Call Invoke-SMARestMethod $uri"
+        Wait-Debugger
         $customerRaw = Invoke-SMARestMethod @invokeParam
         Write-Verbose 'Returning Delete details'
         $customerRaw.psobject.Properties.Value  
@@ -1310,6 +1300,7 @@ function Import-SMACustomer
     }
 }
 #>
+
 
 # SIG # Begin signature block
 # MIIL1wYJKoZIhvcNAQcCoIILyDCCC8QCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
