@@ -1,33 +1,4 @@
 # Place for module - internal functions
-<#
-.SYNOPSIS
-    Creates a URL out of FQDN and the admin-Port defined in the configuation file
-.DESCRIPTION
-    This is for module internal use only
-#>
-function New-SMAUrlRoot {
-    [CmdletBinding()]
-    param (
-        [Parameter(
-            Mandatory                       = $false,
-            ValueFromPipelineByPropertyName = $true
-            )]
-        $SMAHost,
-        
-        [Parameter(
-            Mandatory                       = $false,
-            ValueFromPipelineByPropertyName = $true
-            )]
-        $SMAPort = '8445'
-    )
-    begin {
-    }
-    process {
-        'https://' + $SMAHost + ':' + $SMAPort + '/v1/'
-    }
-    end {
-    }
-}
 
 function New-SMAQueryString {
     [CmdletBinding()]
@@ -77,7 +48,6 @@ function New-SMAQueryString {
         Write-Error "Error $_ occured!"
     }
 }
-
 
 function ConvertFrom-SMAPIFormat {
     [CmdletBinding()]

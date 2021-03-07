@@ -33,15 +33,17 @@ function Get-SMAUser
     )
 
     try {
-        Write-Verbose "Creating URL root"
-        $urlRoot = New-SMAUrlRoot -SMAHost $SMAHost -SMAPort $SMAPort
-        if ($customer) {
-            $uri = "{0}{1}/{2}?customer={3}" -f $urlroot, 'user', $eMail, $customer
-        }
-        else {
-            $uri = "{0}{1}/{2}" -f $urlroot, 'user', $eMail
-        }
+        Write-Verbose "Creating URL path"
+        $uriPath = "{0}/{1}" -f 'user', $eMail
 
+        Write-Verbose "Building full request uri"
+        if ($customer) {
+            $boundParam = @{
+                customer = $customer
+            }
+        }
+        $uri = New-SMAQueryString -uriPath $uriPath -qParam $boundParam
+        
         Write-verbose "Crafting Invokeparam for Invoke-SMARestMethod"
         $invokeParam = @{
             Uri         = $uri 
@@ -110,21 +112,9 @@ function Find-SMAUser
     )
 
     try {
-        Write-Verbose "Creating URL root"
-        $urlRoot = New-SMAUrlRoot -SMAHost $SMAHost -SMAPort $SMAPort
-
-        if (($customer) -and (!($list))) {
-            $uri = "{0}{1}?customer={2}" -f $urlroot, 'user', $customer
-        }
-        elseif (($customer) -and ($list)){
-            $uri = "{0}{1}?customer={2}{3}" -f $urlroot, 'user', $customer, '&list=true'
-        }
-        elseif ($list) {
-            $uri = "{0}{1}{2}" -f $urlroot, 'user', '?list=true'
-        }
-        else {
-            $uri = "{0}{1}" -f $urlroot, 'user'
-        }
+        Write-Verbose "Building full request uri"
+        $boundParam = $psCmdLet.MyInvocation.BoundParameters
+        $uri = New-SMAQueryString -uriPath 'user' -qParam $boundParam
 
         Write-verbose "Crafting Invokeparam for Invoke-SMARestMethod"
         $invokeParam = @{
@@ -267,9 +257,8 @@ function New-SMAUser
     )
 
     try {
-        Write-Verbose "Creating URL root"
-        $urlRoot = New-SMAUrlRoot -SMAHost $SMAHost -SMAPort $SMAPort
-        $uri = "{0}{1}/" -f $urlroot, 'user'
+        Write-Verbose "Building full request uri"
+        $uri = New-SMAQueryString -uriPath 'user'
 
         Write-Verbose 'Crafting mandatory $body JSON'
         $bodyht = @{
@@ -402,9 +391,14 @@ function Set-SMAUser
     )
 
     try {
-        Write-Verbose "Creating URL root"
-        $urlRoot = New-SMAUrlRoot -SMAHost $SMAHost -SMAPort $SMAPort
-        $uri = "{0}{1}/{2}" -f $urlroot, 'user', $eMail
+        Write-Verbose "Creating URL path"
+        $uriPath = "{0}/{1}" -f 'user', $eMail
+
+        Write-Verbose "Building full request uri"
+        if ($customer) {
+            $boundParam = @{customer=$customer}
+        }
+        $uri = New-SMAQueryString -uriPath $uriPath -qParam $boundParam
 
         Write-Verbose 'Crafting mandatory $body JSON'
         $bodyht = @{
@@ -482,14 +476,16 @@ function Remove-SMAUser
     )
 
     try {
-        Write-Verbose "Creating URL root"
-        $urlRoot = New-SMAUrlRoot -SMAHost $SMAHost -SMAPort $SMAPort
-        if ($customer) {
-            $uri = "{0}{1}/{2}?customer={3}" -f $urlroot, 'user', $eMail, $customer
-            }
-        else {
-            $uri = "{0}{1}/{2}" -f $urlroot, 'user', $eMail
-            }
+        Write-Verbose "Creating URL path"
+        $uriPath = "{0}/{1}" -f 'user', $eMail
+
+        Write-Verbose "Building full request uri"
+        $boundParam = $psCmdLet.MyInvocation.BoundParameters
+        if ($psCmdLet.MyInvocation.BoundParameters.customer -eq 'True') {
+            $boundparam.Remove('customer')|out-null
+        }
+        $boundparam.Remove('eMail')|out-null
+        $uri = New-SMAQueryString -uriPath $uriPath -qParam $boundParam
 
         Write-verbose "Crafting Invokeparam for Invoke-SMARestMethod"
         $invokeParam = @{
@@ -531,15 +527,14 @@ function Find-SMACustomer
     )
 
     try {
-        Write-Verbose "Creating URL root"
-        $urlRoot = New-SMAUrlRoot -SMAHost $SMAHost -SMAPort $SMAPort
+        Write-Verbose "Creating URL Path"
+        $uriPath = 'customer'
 
-        if ($list) {
-            $uri = "{0}{1}{2}" -f $urlroot, 'customer', '?list=true'
-        }
-        else {
-            $uri = "{0}{1}" -f $urlroot, 'customer'
-        }
+        Write-verbose "Build Parameter hashtable"
+        $boundParam = @{list=$true}
+        
+        Write-Verbose "Build QueryString"
+        $uri = New-SMAQueryString -uriPath $uriPath -qParam $boundParam
 
         Write-verbose "Crafting Invokeparam for Invoke-SMARestMethod"
         $invokeParam = @{
@@ -1084,7 +1079,7 @@ function Remove-SMAcustomer
         $boundParam.Remove('name')|out-null
 
         Write-Verbose "Building full request uri"
-        $uri = New-SMAQueryString -qParam $boundParam
+        $uri = New-SMAQueryString -uriPath $uriPath -qParam $boundParam
 
         Write-verbose "Crafting Invokeparam for Invoke-SMARestMethod"
         $invokeParam = @{
@@ -1157,9 +1152,11 @@ function Export-SMACustomer
 
     try {
         
-        Write-Verbose "Creating URL root"
-        $urlRoot = New-SMAUrlRoot -SMAHost $SMAHost -SMAPort $SMAPort
-        $uri = "{0}{1}/{2}/{3}" -f $urlroot, 'customer', $name, 'export'
+        Write-Verbose "Creating URL path"
+        $uriPath = "{0}/{1}/{2}" -f 'customer', $name, 'export'
+
+        Write-Verbose "Building full request uri"
+        $uri = New-SMAQueryString -uriPath $uriPath
 
         Write-verbose "Packing password into body JSON"
         $encryptionPasswordPlain = ConvertFrom-SMASecureString -securePassword $encryptionPassword
@@ -1291,8 +1288,6 @@ function Import-SMACustomer
 
         Write-Verbose "Call Invoke-SMARestMethod $uri" 
         $ImportRaw = Invoke-SMARestMethod @invokeParam
-
-        Wait-Debugger
 
     }
     catch {
