@@ -465,14 +465,7 @@ function Remove-SMAUser
             ValueFromPipelineByPropertyName = $true,
             HelpMessage                     = 'if true certificates and private keys will not be deleted'
             )]
-        [switch]$keepKeys,
-
-        [Parameter(
-            Mandatory                       = $false,
-            ValueFromPipelineByPropertyName = $true,
-            HelpMessage                     = 'For MSP´s and multi-customer environments'
-            )]
-        [string]$customer
+        [switch]$keepKeys
     )
 
     try {
@@ -481,9 +474,6 @@ function Remove-SMAUser
 
         Write-Verbose "Building full request uri"
         $boundParam = $psCmdLet.MyInvocation.BoundParameters
-        if ($psCmdLet.MyInvocation.BoundParameters.customer -eq 'True') {
-            $boundparam.Remove('customer')|out-null
-        }
         $boundparam.Remove('eMail')|out-null
         $uri = New-SMAQueryString -uriPath $uriPath -qParam $boundParam
 
