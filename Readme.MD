@@ -62,13 +62,19 @@ Immediately after loading the module you will be asked for 2 values:
 * Hostname - this is the FQDN of the SEPPmail appliance
 * REST-API Key: The key you generated and stored in your SEPPmail Appliance for REST-Access
 
-You may set these values prior loading the module (i.e for autonomous scripts) so you get not askes interactively. an example to do so would be:
+You may set these values prior loading the module (i.e for autonomous scripts) so you get not askes interactively. An example to do so would be:
 
 ```powershell
+# The Host you want to use the API with
 $SMAHost = "securemail.yourdomain.com"
+# The API Key you entered in the Admin-Console for authentication
 $SMAkey = Convertto-SecureString -AsPlainText 'aloooongcoooomplexsecretkeyyyyyyyyyyyy' -Force
+# The Port the machine is listening
 $SMAPort = '8445'
+# If your SEPPmail doesnt have a valid SSL certificate for the Admin and API Interface set this to $true
 $SMAskipCertCheck = $true
+# The API Version. This module will always have the latest released version as default.
+$SMAPIVersion = 'v1'
 ```
 The module assumes you have a SEPPmail with a valid SLL certificate and use Port 8445 for REST-API communication. If this is not the case set 2 additional values, $SMAPort and $SMAskipCetCheck = $true as in the example above.
 
