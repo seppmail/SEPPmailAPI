@@ -83,8 +83,11 @@ Set-SMAUser -email 'sberger@fabrikam.com' -mayNotSign $true -MayNotEncrypt $true
 ```powershell
 # The below example shows a CSV which changes all users status to $locked 
 $SampleCSVPath = (Split-Path (Get-Module SEPPmailapi).path) + '\examples\UpdateUsers.csv'
-$changeusers = Import-CSV $SampleCSVPath
-foreach ($i in $changeusers) {Set-SMAUser -eMail $i.eMail -locked ([boolean]$i.locked)}
+Import-Csv $sampleCSVPath |
+    ForEach-Object {$_.Locked = [bool]($_.Locked -as [int]); $_ }|
+    Foreach-Object {$_.maynotsign = [bool]($_.maynotsign -as [int]); $_ }|
+    Foreach-Object {$_.maynotencrypt = [bool]($_.maynotencrypt -as [int]); $_ }|
+    Set-SMAuser
 ```
 
 For more examples use the commandlet help.
