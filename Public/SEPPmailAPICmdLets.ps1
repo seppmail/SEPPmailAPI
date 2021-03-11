@@ -180,7 +180,7 @@ function Find-SMAUser
 #>
 function New-SMAUser
 {
-    [CmdletBinding()]
+    [CmdletBinding(SupportsShouldProcess=$true)]
     param (
         [Parameter(
             Mandatory                       = $true,
@@ -256,44 +256,53 @@ function New-SMAUser
     
     )
 
-    try {
-        Write-Verbose "Building full request uri"
-        $uri = New-SMAQueryString -uriPath 'user'
+    begin {
+        try {
+            Write-Verbose "Building full request uri"
+            $uri = New-SMAQueryString -uriPath 'user'
+        }
+        catch {
+            Write-Error "Error $error.CategoryInfo occured"
+        }
+    }
 
-        Write-Verbose 'Crafting mandatory $body JSON'
-        $bodyht = @{
-            uid = $uid
-            name = $name
-            email = $email
+    process {
+        try {
+            Write-Verbose 'Crafting mandatory $body JSON'
+            $bodyht = @{
+                uid = $uid
+                name = $name
+                email = $email
+            }
+            Write-Verbose 'Adding Optional values to $body JSON'
+            if ($customer) {$bodyht.customer = $customer}
+            if ($locked) {$bodyht.locked = $locked}
+            if ($mayNotEncrypt) {$bodyht.mayNotEncrypt = $mayNotEncrypt}
+            if ($mayNotSign) {$bodyht.mayNotSign = $mayNotSign}
+            if ($mpkiSubjectPart) {$bodyht.mpkiSubjectPart = $mpkiSubjectPart}
+            if ($notifications) {$bodyht.notifications = $notifications}
+            
+            $body = $bodyht|ConvertTo-JSON
+            Write-verbose "Crafting Invokeparam for Invoke-SMARestMethod"
+            $invokeParam = @{
+                Uri         = $uri 
+                Method      = 'POST'
+                body        = $body
+            }
+
+            if ($PSCmdLet.ShouldProcess($($bodyht.Email),"Create user (E-Mail address)")) {
+                Write-Verbose "Call Invoke-SMARestMethod $uri"
+                $UserRaw = Invoke-SMARestMethod @invokeParam
+                #debug $userraw
+                Write-Verbose 'Returning e-Mail address of new users'
+                ($userraw.message -split ' ')[3]
+            }
         }
-        Write-Verbose 'Adding Optional values to $body JSON'
-        if ($customer) {$bodyht.customer = $customer}
-        if ($locked) {$bodyht.locked = $locked}
-        if ($mayNotEncrypt) {$bodyht.mayNotEncrypt = $mayNotEncrypt}
-        if ($mayNotSign) {$bodyht.mayNotSign = $mayNotSign}
-        if ($mpkiSubjectPart) {$bodyht.mpkiSubjectPart = $mpkiSubjectPart}
-        if ($notifications) {$bodyht.notifications = $notifications}
-        
-<#      Write-Verbose 'Converting body HashTable to UTF-8 JSON body'
-        $utf7bodyht = ConvertTo-SMAPIFormat -inputobject $bodyht
-#>
-        $body = $bodyht|ConvertTo-JSON
-        Write-verbose "Crafting Invokeparam for Invoke-SMARestMethod"
-        $invokeParam = @{
-            Uri         = $uri 
-            Method      = 'POST'
-            body        = $body
+        catch {
+            Write-Error "An error occured, see $error"
         }
-        #debug $uri
-        Write-Verbose "Call Invoke-SMARestMethod $uri"
-        $UserRaw = Invoke-SMARestMethod @invokeParam
-        #debug $userraw
-        Write-Verbose 'Returning e-Mail addresses of new users'
-        ($userraw.message -split ' ')[3]
     }
-    catch {
-        Write-Error "An error occured, see $error"
-    }
+    end {}
 }
 
 <#
@@ -652,7 +661,7 @@ function Get-SMACustomer
 #>
 function New-SMACustomer
 {
-    [CmdletBinding()]
+    [CmdletBinding(SupportsShouldProcess)]
     param (
         [Parameter(
             Mandatory                       = $true,
@@ -750,47 +759,57 @@ function New-SMACustomer
         [bool]$sendBackupToAdmin
     )
 
-    try {
-        Write-Verbose "Creating URL path"
-        $uriPath = "{0}" -f 'customer'
+    begin {
+        try {
+            Write-Verbose "Creating URL path"
+            $uriPath = "{0}" -f 'customer'
         
-        Write-verbose "Crafting Invokeparam for Invoke-SMARestMethod"
-        $uri = New-SMAQueryString -uriPath $uriPath
-        
-        Write-Verbose 'Crafting mandatory $body JSON'
-        $bodyht = @{
-            name = $name
+            Write-verbose "Crafting Invokeparam for Invoke-SMARestMethod"
+            $uri = New-SMAQueryString -uriPath $uriPath
         }
-        Write-Verbose 'Adding Optional values to $body JSON'
-        if ($adminEmail) {$bodyht.adminEmail = $adminEmail}
-        if ($admins) {$bodyht.admins = $admins}
-        if ($backupPassword) {$bodyht.backupPassword = $backupPassword}
-        if ($comment) {$bodyht.comment = $comment}
-        if ($defaultGINADomain) {$bodyht.defaultGINADomain = $defaultGINADomain}
-        if ($deleteOldMessagesGracePeriod) {$bodyht.deleteOldMessagesGracePeriod = $deleteOldMessagesGracePeriod}
-        if ($deleteUnregistered) {$bodyht.deleteUnregistered = $deleteUnregistered}
-        if ($description) {$bodyht.description = $description}
-        if ($mailRoutes) {$bodyht.mailRoutes = $mailRoutes}
-        if ($maximumEncryptionLicenses) {$bodyht.maximumEncryptionLicenses = $maximumEncryptionLicenses}
-        if ($maximumLFTLicenses) {$bodyht.maximumLFTLicenses = $maximumLFTLicenses}
-        if ($sendBackupToAdmin) {$bodyht.sendBackupToAdmin = $sendBackupToAdmin}
-
-        $body = $bodyht|ConvertTo-JSON
-
-        $invokeParam = @{
-            Uri         = $uri 
-            Method      = 'POST'
-            body        = $body
+        catch {
+            Write-Error "Error $error,CategoryInfo occured"
         }
-
-        Write-Verbose "Call Invoke-SMARestMethod $uri"
-        $customerRaw = Invoke-SMARestMethod @invokeParam
-
-        Write-Verbose 'Returning name of customer'
-        $customerRaw.message
     }
-    catch {
-        Write-Error "An error occured, see $error"
+    process {
+        try {
+            Write-Verbose 'Crafting mandatory $body JSON'
+            $bodyht = @{
+                name = $name
+            }
+            Write-Verbose 'Adding Optional values to $body JSON'
+            if ($adminEmail) {$bodyht.adminEmail = $adminEmail}
+            if ($admins) {$bodyht.admins = $admins}
+            if ($backupPassword) {$bodyht.backupPassword = $backupPassword}
+            if ($comment) {$bodyht.comment = $comment}
+            if ($defaultGINADomain) {$bodyht.defaultGINADomain = $defaultGINADomain}
+            if ($deleteOldMessagesGracePeriod) {$bodyht.deleteOldMessagesGracePeriod = $deleteOldMessagesGracePeriod}
+            if ($deleteUnregistered) {$bodyht.deleteUnregistered = $deleteUnregistered}
+            if ($description) {$bodyht.description = $description}
+            if ($mailRoutes) {$bodyht.mailRoutes = $mailRoutes}
+            if ($maximumEncryptionLicenses) {$bodyht.maximumEncryptionLicenses = $maximumEncryptionLicenses}
+            if ($maximumLFTLicenses) {$bodyht.maximumLFTLicenses = $maximumLFTLicenses}
+            if ($sendBackupToAdmin) {$bodyht.sendBackupToAdmin = $sendBackupToAdmin}
+    
+            $body = $bodyht|ConvertTo-JSON
+    
+            $invokeParam = @{
+                Uri         = $uri 
+                Method      = 'POST'
+                body        = $body
+            }
+
+            if ($PSCmdLet.ShouldProcess($($bodyht.Name),"Create customer")) {
+                Write-Verbose "Call Invoke-SMARestMethod $uri"
+                $customerRaw = Invoke-SMARestMethod @invokeParam
+        
+                Write-Verbose 'Returning name of customer'
+                $customerRaw.message
+            }
+        }
+        catch {
+            Write-Error "An error occured, see $error.CategoryInfo"
+        }
     }
 }
 

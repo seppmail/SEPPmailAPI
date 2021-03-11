@@ -15,7 +15,7 @@ To ge a List of all users on the SEPPmail appliance type:
 
 ```powershell
 Find-SMAuser # Displays all info of all users
-Find-SMAuser |select Name,email # Displays name and email of all users
+Find-SMAuser |Select-Object Name,Email # Displays name and email of all users
 ```
 
 This will return a list of existing users on your system, at least the default admin with e-mail admin@local if you are on a brand-new installation.
