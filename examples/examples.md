@@ -119,4 +119,32 @@ $oldusers = import-csv $SampleCSVPath
 foreach ($user in $oldusers) {Remove-SMAUser -email $user.email}
 ```
 
+## Manage Customers
+
+This section explains CRUD (Create, Read, Modify and Delete) operations on SEPPmail customer objects.
+For mass-changes use external sources CSV-files for modifications.
+
+### Finding customers
+
+When you start exploring this module and your SEPPmail appliance, finding out which customers exist on the system may be a good starting point.
+
+To ge a list of all customers on the SEPPmail appliance type:
+
+```powershell
+Find-SMAcustomer # Displays all info of all users
+```
+
+This will return a list of existing customers on your system, at least the [none] customer will appear.
+
+__NOTE!__": Values in the -name parameter are _case sensitive_.
+
+```powershell
+Find-SMAcustomer -name 'Fabrikam'
+```
+
+### Create new SEPPmail customers
+
+#### Create a single SEPPmailv customer.
+
+
 --- This is the end of the file ---

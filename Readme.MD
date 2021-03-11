@@ -9,12 +9,12 @@ This PowerShell module is a wrapper around this API to allow more convenient ope
 
 The module requires minimum SEPPmail version 12.1.0 and minimum Powershell 5.1 on Windows
 
-PowerShell 7 on Windows, Linux or macOS is currently not supported, but in planning
+PowerShell 7 on Windows, Linux or macOS may work, are currently not supported, but support is in planning.
 
 On the SEPPmail Appliance, you need to have REST-API Access configured.
 Go to System ==> Advanced view ==> REST-API.
 Select a Port (Default 8445) and create a RESTAPI key.
-Preferrably we recommend to create a GUID (in Portshell "(New-Guid).Guid") and remember this key.
+Preferrably we recommend to create a GUID (in Portshell "(New-Guid).Guid") or something even more complex and remember this key for authentication.
 
 ## Installation and Setup Info
 
