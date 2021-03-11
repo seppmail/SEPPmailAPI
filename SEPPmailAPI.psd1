@@ -12,7 +12,7 @@
 RootModule = '.\SEPPmailAPI.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.6.0'
+ModuleVersion = '0.8.0'
 
 # Supported PSEditions
 CompatiblePSEditions = @('Desktop','Core')
@@ -141,10 +141,12 @@ PrivateData = @{
 050221: User management stable - working with SM Dev Release 12.1.0
 
 080221: 0.5.3 - Fixed TLS issue on older PS5 (WS2016) machines, cleanup exported commands
+
+110321: 0.8.0 - All v1 CmdLets done, cosmetics and testing starting now
 '@
 
         # Prerelease string of this module
-        Prerelease = 'beta1'
+        Prerelease = 'beta2'
 
         # Flag to indicate whether the module requires explicit user acceptance for install/update/save
         # RequireLicenseAcceptance = $false
