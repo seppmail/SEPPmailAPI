@@ -10,7 +10,10 @@
     Get information about a SEPPmail user
 .EXAMPLE
     PS C:\> Get-SMAUser -eMailAddress 'alice.miller@contoso.com' -Customer 'Contoso'
-    Get information about a SEPPmail user
+    Get information about a SEPPmail user of a specific customer
+.EXAMPLE
+    PS C:\> 'alice.miller@contoso.com','bob.brown@contoso.com'|Get-SMAUser
+    Use the pipeline to retrieve users
 #>
 function Get-SMAUser
 {
@@ -33,43 +36,52 @@ function Get-SMAUser
         [string]$customer
     )
 
-    try {
-        Write-Verbose "Creating URL path"
-        $uriPath = "{0}/{1}" -f 'user', $eMail
+    begin {
 
-        Write-Verbose "Building full request uri"
-        if ($customer) {
-            $boundParam = @{
-                customer = $customer
+    }
+    process {
+        try {
+            Write-Verbose "Creating URL path"
+            $uriPath = "{0}/{1}" -f 'user', $eMail
+    
+            Write-Verbose "Building full request uri"
+            if ($customer) {
+                $boundParam = @{
+                    customer = $customer
+                }
+            }
+            $uri = New-SMAQueryString -uriPath $uriPath -qParam $boundParam
+            
+            Write-verbose "Crafting Invokeparam for Invoke-SMARestMethod"
+            $invokeParam = @{
+                Uri         = $uri 
+                Method      = 'GET'
+            }
+    
+            Write-Verbose "Call Invoke-SMARestMethod $uri" 
+            $UserRaw = Invoke-SMARestMethod @invokeParam
+    
+            Write-Verbose 'Filter data and return as PSObject'
+            $GetUser = $userraw.Psobject.properties.value
+    
+            Write-Verbose 'Converting Umlauts from ISO-8859-1'
+            $user = ConvertFrom-SMAPIFormat -inputObject $Getuser
+    
+            # Userobject
+            if ($User) {
+                return $User
+            }
+            else {
+                Write-Information 'Nothing to return'
             }
         }
-        $uri = New-SMAQueryString -uriPath $uriPath -qParam $boundParam
-        
-        Write-verbose "Crafting Invokeparam for Invoke-SMARestMethod"
-        $invokeParam = @{
-            Uri         = $uri 
-            Method      = 'GET'
+        catch {
+            Write-Error "An error occured, see $error"
         }
-
-        Write-Verbose "Call Invoke-SMARestMethod $uri" 
-        $UserRaw = Invoke-SMARestMethod @invokeParam
-
-        Write-Verbose 'Filter data and return as PSObject'
-        $GetUser = $userraw.Psobject.properties.value
-
-        Write-Verbose 'Converting Umlauts from ISO-8859-1'
-        $user = ConvertFrom-SMAPIFormat -inputObject $Getuser
-
-        # Userobject
-        if ($User) {
-            return $User
-        }
-        else {
-            Write-Information 'Nothing to return'
-        }
+    
     }
-    catch {
-        Write-Error "An error occured, see $error"
+    end {
+
     }
 }
 
@@ -98,6 +110,7 @@ function Find-SMAUser
         [Parameter(
             Mandatory                       = $false,
             ValueFromPipelineByPropertyName = $true,
+            ValueFromPipeline               = $true,
             HelpMessage                     = 'For MSP´s and multi-customer environments, limit query for a specific customer'
             )]
         [string]$customer,

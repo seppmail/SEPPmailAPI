@@ -16,7 +16,6 @@ function Find-SMACustomer
     param (
         [Parameter(
             Mandatory                       = $false,
-            ValueFromPipelineByPropertyName = $true,
             HelpMessage                     = 'Show list with e-mail address only'
             )]
         [switch]$list
@@ -74,6 +73,10 @@ function Find-SMACustomer
     PS C:\> Get-SMACustomer -name 'Fabrikam'
     Get information about a SEPPmail customer.
     NOTE!: Customer names are case-sensitive
+.EXAMPLE
+    PS C:\> 'Contoso','Fabrikam'|Get-SMACustomer
+    Use the pipeline to query multiple customers
+    NOTE!: Customer names are case-sensitive
 #>
 function Get-SMACustomer
 {
@@ -81,45 +84,50 @@ function Get-SMACustomer
     param (
         [Parameter(
             Mandatory                       = $true,
-            ValueFromPipelineByPropertyName = $true,
+            ValueFromPipeline               = $true,
             HelpMessage                     = 'Customer name (Case sensitive!)'
             )]
         [ValidatePattern('[a-zA-Z0-9\-_]')]
         [string]$name
     )
 
-    try {
-        Write-Verbose "Creating URL Path"
-        $uriPath = "{0}/{1}" -f 'customer', $name
-
-        Write-Verbose "Build QueryString"
-        $uri = New-SMAQueryString -uriPath $uriPath
-
-        Write-verbose "Crafting Invokeparam for Invoke-SMARestMethod"
-        $invokeParam = @{
-            Uri         = $uri 
-            Method      = 'GET'
+    begin {
+    }
+    process {
+        try {
+            Write-Verbose "Creating URL Path"
+            $uriPath = "{0}/{1}" -f 'customer', $name
+    
+            Write-Verbose "Build QueryString"
+            $uri = New-SMAQueryString -uriPath $uriPath
+    
+            Write-verbose "Crafting Invokeparam for Invoke-SMARestMethod"
+            $invokeParam = @{
+                Uri         = $uri 
+                Method      = 'GET'
+            }
+            Write-Verbose "Call Invoke-SMARestMethod $uri" 
+            $customerRaw = Invoke-SMARestMethod @invokeParam
+    
+            Write-Verbose 'Filter data and return as PSObject'
+            $GetCustomer = $customerRaw.Psobject.properties.value
+    
+            Write-Verbose 'Converting Umlauts from ISO-8859-1'
+            $customer = ConvertFrom-SMAPIFormat -inputObject $getCustomer
+    
+            # CustomerObject
+            if ($customer) {
+                return $customer
+            }
+            else {
+                Write-Information 'Nothing to return'
+            }
         }
-
-        Write-Verbose "Call Invoke-SMARestMethod $uri" 
-        $customerRaw = Invoke-SMARestMethod @invokeParam
-
-        Write-Verbose 'Filter data and return as PSObject'
-        $GetCustomer = $customerRaw.Psobject.properties.value
-
-        Write-Verbose 'Converting Umlauts from ISO-8859-1'
-        $customer = ConvertFrom-SMAPIFormat -inputObject $getCustomer
-
-        # CustomerObject
-        if ($customer) {
-            return $customer
-        }
-        else {
-            Write-Information 'Nothing to return'
+        catch {
+            Write-Error "An error occured, see $error"
         }
     }
-    catch {
-        Write-Error "An error occured, see $error"
+    end {
     }
 }
 
@@ -135,7 +143,7 @@ function Get-SMACustomer
     PS C:\> New-SMACustomer -Name 'Fabrikam' -adminEmail admin@fabrikam.com
     Create the customer 'Fabrikam' with default values.
 .EXAMPLE
-    New-SMACustomer -Name 'Fabrikam' -admins @('admin@fabrikam.com','admin2@fabrikam.com')
+    PS C:\> New-SMACustomer -Name 'Fabrikam' -admins @('admin@fabrikam.com','admin2@fabrikam.com')
     Create a new customer and set 2 admins by defining their E-Mail adresses
 .EXAMPLE
     PS C:\> $customerInfo = @{
@@ -163,6 +171,7 @@ function New-SMACustomer
         [Parameter(
             Mandatory                       = $true,
             ValueFromPipelineByPropertyName = $true,
+            ValueFromPipeline               = $true,
             HelpMessage                     = 'The customers display name'
             )]
         [ValidatePattern('[a-zA-Z0-9\-_]')]
@@ -490,20 +499,28 @@ function Set-SMACustomer
 .EXAMPLE
     PS C:\> Remove-SMAcustomer -name 'Fabrikam'
     Delete a customer.
+.EXAMPLE
+    PS C:\> 'Contoso','Fabrikam'|Remove-SMAcustomer
+    Delete a customer by using the pipeline
+.EXAMPLE
+    PS C:\> Remove-SMAcustomer -name 'Fabrikam' -WhatIf
+    Simulate the customer deletion
 #>
 function Remove-SMAcustomer
 {
-    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    [CmdletBinding(DefaultParameterSetName = 'Default',SupportsShouldProcess)]
     param (
         [Parameter(
             Mandatory                       = $true,
             ValueFromPipelineByPropertyName = $true,
+            ValueFromPipeline               = $true,
             ParameterSetName                = 'Default',
             HelpMessage                     = 'The customer´s name you want to delete'
             )]
         [Parameter(
             Mandatory                       = $true,
             ValueFromPipelineByPropertyName = $true,
+            ValueFromPipeline               = $true,
             ParameterSetName                = 'DeleteAll',
             HelpMessage                     = 'The customer´s name you want to delete'
             )]
@@ -516,7 +533,7 @@ function Remove-SMAcustomer
             ParameterSetName                = 'Default',
             HelpMessage                     = 'If set, deletes all related users of this customer'
             )]
-        [bool]$deleteUsers = $false,
+        [switch]$deleteUsers = $false,
 
         [Parameter(
             Mandatory                       = $false,
@@ -524,7 +541,7 @@ function Remove-SMAcustomer
             ParameterSetName                = 'Default',
             HelpMessage                     = 'If set, deletes all related GINA users of this customer'
             )]
-        [bool]$deleteGINAUsers = $false,
+        [switch]$deleteGINAUsers = $false,
 
         [Parameter(
             Mandatory                       = $false,
@@ -532,7 +549,7 @@ function Remove-SMAcustomer
             ParameterSetName                = 'Default',
             HelpMessage                     = 'If set, deletes all Admin Users of this customer'
             )]
-        [bool]$deleteAdminUsers = $false,
+        [switch]$deleteAdminUsers = $false,
 
         [Parameter(
             Mandatory                       = $false,
@@ -540,7 +557,7 @@ function Remove-SMAcustomer
             ParameterSetName                = 'Default',
             HelpMessage                     = 'If set, deletes all managed domains related to this customer'
             )]
-        [bool]$deleteManagedDomains = $false,
+        [switch]$deleteManagedDomains = $false,
 
         [Parameter(
             Mandatory                       = $false,
@@ -548,7 +565,7 @@ function Remove-SMAcustomer
             ParameterSetName                = 'Default',
             HelpMessage                     = 'If set, deletes all GINA domains related to this customer'
             )]
-        [bool]$deleteGINADomains = $false,
+        [switch]$deleteGINADomains = $false,
 
         [Parameter(
             Mandatory                       = $false,
@@ -556,7 +573,7 @@ function Remove-SMAcustomer
             ParameterSetName                = 'Default',
             HelpMessage                     = 'If set, deletes all policies of this customer'
             )]
-        [bool]$deletePolicies = $false,
+        [switch]$deletePolicies = $false,
 
         [Parameter(
             Mandatory                       = $false,
@@ -564,7 +581,7 @@ function Remove-SMAcustomer
             ParameterSetName                = 'Default',
             HelpMessage                     = 'If set, deletes all smarhost credentials used EXCLUSIVELY by this customer'
             )]
-        [bool]$deleteSmarthostCredentials = $false,
+        [switch]$deleteSmarthostCredentials = $false,
 
         [Parameter(
             Mandatory                       = $false,
@@ -572,36 +589,45 @@ function Remove-SMAcustomer
             ParameterSetName                = 'DeleteAll',
             HelpMessage                     = 'If set, deletes everything related to this customer'
             )]
-        [bool]$deleteEverything = $false
+        [switch]$deleteEverything = $false
 
     )
 
-    try {
-        Write-Verbose "Creating URL path"
-        $uriPath = "{0}/{1}" -f 'customer', $name
-
-        Write-Verbose "Building param query"
-        $boundParam = $pscmdlet.MyInvocation.BoundParameters
-        $boundParam.Remove('name')|out-null
-
-        Write-Verbose "Building full request uri"
-        $uri = New-SMAQueryString -uriPath $uriPath -qParam $boundParam
-
-        Write-verbose "Crafting Invokeparam for Invoke-SMARestMethod"
-        $invokeParam = @{
-            Uri         = $uri 
-            Method      = 'DELETE'
+    begin {}
+    process {
+        try {
+            Write-Verbose "Creating URL path"
+            $uriPath = "{0}/{1}" -f 'customer', $name
+    
+            Write-Verbose "Building param query"
+            $boundParam = $pscmdlet.MyInvocation.BoundParameters
+            $boundParam.Remove('name')|out-null
+            $boundParam.Remove('whatif')|out-null
+            
+            Write-Verbose "Building full request uri"
+            $uri = New-SMAQueryString -uriPath $uriPath -qParam $boundParam
+    
+            Write-verbose "Crafting Invokeparam for Invoke-SMARestMethod"
+            $invokeParam = @{
+                Uri         = $uri 
+                Method      = 'DELETE'
+            }
+            if ($PSCmdLet.ShouldProcess($name, "Remove customer")){
+                Write-Verbose "Call Invoke-SMARestMethod $uri"
+                # Wait-Debugger
+                $customerRaw = Invoke-SMARestMethod @invokeParam
+                Write-Verbose 'Returning Delete details'
+                $customerRaw.psobject.Properties.Value
+            }
         }
-        
-        Write-Verbose "Call Invoke-SMARestMethod $uri"
-        Wait-Debugger
-        $customerRaw = Invoke-SMARestMethod @invokeParam
-        Write-Verbose 'Returning Delete details'
-        $customerRaw.psobject.Properties.Value  
+        catch {
+            Write-Error "An error occured, see $error"
+        }
     }
-    catch {
-        Write-Error "An error occured, see $error"
+    end {
+
     }
+
 }
 
 <#
@@ -656,62 +682,65 @@ function Export-SMACustomer
         [string]$literalPath
         )
 
-    try {
+        begin {}
+        process {
+            try {
         
-        Write-Verbose "Creating URL path"
-        $uriPath = "{0}/{1}/{2}" -f 'customer', $name, 'export'
-
-        Write-Verbose "Building full request uri"
-        $uri = New-SMAQueryString -uriPath $uriPath
-
-        Write-verbose "Packing password into body JSON"
-        $encryptionPasswordPlain = ConvertFrom-SMASecureString -securePassword $encryptionPassword
-
-        $bodyHt = @{
-            encryptionpassword = $encryptionPasswordPlain
-        }
-        $body = ConvertTo-Json $bodyHt
-
-        Write-verbose "Crafting Invokeparam for Invoke-SMARestMethod"
-        $invokeParam = @{
-            Uri         = $uri 
-            Method      = 'POST'
-            body        = $body
-        }
-
-        Write-Verbose "Call Invoke-SMARestMethod $uri" 
-        $ExportRaw = Invoke-SMARestMethod @invokeParam
-
-        Write-Verbose "Converting JSON Zip data to ZipFile"
-        $bytes = [System.Convert]::FromBase64String($ExportRaw.zippedData)
-        if ($pscmdlet.ParameterSetName -eq 'Path') {
-            Write-Verbose "Will create a file according to $path definition"
-            $ZipfileRoot = (Split-Path $path -Parent|resolve-path).Path
-            $ZipfileName = Split-Path $path -leaf
-            $ZipfilePath = Join-Path -Path $ZipFileRoot -ChildPath $ZipFileName
-            [IO.File]::WriteAllBytes($ZipFilePath, $bytes)
-            Write-Information "Written file to $ZipFilePath"
-        }
-        if ($pscmdlet.ParameterSetName -eq 'literalPath') {
-            $fileParent = Split-Path $literalPath -Parent
-            if (!(test-path $fileparent)) {
-                Write-Verbose "Directory of $literalpath didnt exist, trying to create it"
-                New-Item -ItemType Directory -Path $fileParent
+                Write-Verbose "Creating URL path"
+                $uriPath = "{0}/{1}/{2}" -f 'customer', $name, 'export'
+        
+                Write-Verbose "Building full request uri"
+                $uri = New-SMAQueryString -uriPath $uriPath
+        
+                Write-verbose "Packing password into body JSON"
+                $encryptionPasswordPlain = ConvertFrom-SMASecureString -securePassword $encryptionPassword
+        
+                $bodyHt = @{
+                    encryptionpassword = $encryptionPasswordPlain
+                }
+                $body = ConvertTo-Json $bodyHt
+        
+                Write-verbose "Crafting Invokeparam for Invoke-SMARestMethod"
+                $invokeParam = @{
+                    Uri         = $uri 
+                    Method      = 'POST'
+                    body        = $body
+                }
+        
+                Write-Verbose "Call Invoke-SMARestMethod $uri" 
+                $ExportRaw = Invoke-SMARestMethod @invokeParam
+        
+                Write-Verbose "Converting JSON Zip data to ZipFile"
+                $bytes = [System.Convert]::FromBase64String($ExportRaw.zippedData)
+                if ($pscmdlet.ParameterSetName -eq 'Path') {
+                    Write-Verbose "Will create a file according to $path definition"
+                    $ZipfileRoot = (Split-Path $path -Parent|resolve-path).Path
+                    $ZipfileName = Split-Path $path -leaf
+                    $ZipfilePath = Join-Path -Path $ZipFileRoot -ChildPath $ZipFileName
+                    [IO.File]::WriteAllBytes($ZipFilePath, $bytes)
+                    Write-Information "Written file to $ZipFilePath"
+                }
+                if ($pscmdlet.ParameterSetName -eq 'literalPath') {
+                    $fileParent = Split-Path $literalPath -Parent
+                    if (!(test-path $fileparent)) {
+                        Write-Verbose "Directory of $literalpath didnt exist, trying to create it"
+                        New-Item -ItemType Directory -Path $fileParent
+                    }
+                    Write-Verbose "Will create a file according to $literalpath definition"
+                    [IO.File]::WriteAllBytes($literalpath, $bytes)
+                    Write-Information "Written file to $literalPath"
+                }
             }
-            Write-Verbose "Will create a file according to $literalpath definition"
-            [IO.File]::WriteAllBytes($literalpath, $bytes)
-            Write-Information "Written file to $literalPath"
+            catch {
+                Write-Error "An error occured, see $error"
+            }
         }
-    }
-    catch {
-        Write-Error "An error occured, see $error"
-    }
 }
 #>
 
 function Import-SMACustomer
 {
-    [CmdletBinding(DefaultParameterSetName = 'Path')]
+    [CmdletBinding(DefaultParameterSetName = 'Path',SupportsShouldProcess)]
     param (
         [Parameter(
             Mandatory                       = $true,
@@ -724,7 +753,7 @@ function Import-SMACustomer
         [Parameter(
             Mandatory                       = $true,
             ValueFromPipelineByPropertyName = $true,
-            HelpMessage                     = 'Password for encrypted ZIP'
+            HelpMessage                     = 'Secure password for encrypted ZIP'
             )]
         [SecureString]$encryptionPassword,
 
@@ -792,8 +821,10 @@ function Import-SMACustomer
             body        = $body
         }
 
-        Write-Verbose "Call Invoke-SMARestMethod $uri" 
-        $ImportRaw = Invoke-SMARestMethod @invokeParam
+        if ($PSCmdLet.ShouldProcess($name,"Import customer")) {
+            Write-Verbose "Call Invoke-SMARestMethod $uri" 
+            Invoke-SMARestMethod @invokeParam
+        }
 
     }
     catch {
