@@ -1,6 +1,7 @@
 [CmdLetBinding()]
 $ModulePath = $PSScriptroot
-. $ModulePath\Public\SEPPmailAPICmdLets.ps1
+. $ModulePath\Public\SEPPmailAPI-User.ps1
+. $ModulePath\Public\SEPPmailAPI-Customer.ps1
 
 
 # SIG # Begin signature block
