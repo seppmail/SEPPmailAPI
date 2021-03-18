@@ -11,10 +11,10 @@ The module requires minimum SEPPmail version 12.1.0 and minimum Powershell 5.1 o
 
 PowerShell 7 on Windows, Linux or macOS may work, are currently not supported, but support is in planning.
 
-On the SEPPmail Appliance, you need to have REST-API Access configured.
-Go to System ==> Advanced view ==> REST-API.
-Select a Port (Default 8445) and create a RESTAPI key.
-Preferrably we recommend to create a GUID (in Portshell "(New-Guid).Guid") or something even more complex and remember this key for authentication.
+* On the SEPPmail Appliance, you need to have REST-API Access configured.
+* Go to System ==> Advanced view ==> REST-API.
+* Select a Port (Default 8445) and create a RESTAPI key.
+* Preferrably we recommend to create a GUID (in Portshell "(New-Guid).Guid") or something even more complex and remember this key for authentication.
 
 ## Installation and Setup Info
 
@@ -76,9 +76,17 @@ $SMAskipCertCheck = $true
 # The API Version. This module will always have the latest released version as default.
 $SMAPIVersion = 'v1'
 ```
-The module assumes you have a SEPPmail with a valid SLL certificate and use Port 8445 for REST-API communication. If this is not the case set 2 additional values, $SMAPort and $SMAskipCetCheck = $true as in the example above.
 
-Usage examples can be found in the module example folder \examples.
+The module assumes you have a SEPPmail with a valid SLL certificate and use Port 8445 for REST-API communication. If this is not the case set 2 additional values:
+
+```powershell
+# The Host you want to use the API with another Port
+* $SMAPort = '8446' 
+# No valid certificate ? 
+* $SMAskipCetCheck = $true
+```
+
+Usage examples can be found in the module example folder "\examples".
 
 ## Finding Help
 

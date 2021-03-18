@@ -197,7 +197,7 @@ function New-SMACustomer
             ValueFromPipelineByPropertyName = $true,
             HelpMessage                     = 'Backup password'
             )]
-        [string]$backupPassword,
+        [secureString]$backupPassword,
 
         [Parameter(
             Mandatory                       = $false,
@@ -286,7 +286,7 @@ function New-SMACustomer
             Write-Verbose 'Adding Optional values to $body JSON'
             if ($adminEmail) {$bodyht.adminEmail = $adminEmail}
             if ($admins) {$bodyht.admins = $admins}
-            if ($backupPassword) {$bodyht.backupPassword = $backupPassword}
+            if ($backupPassword) {$bodyht.backupPassword = (ConvertFrom-SMASecureString -securePassword $backupPassword)}
             if ($comment) {$bodyht.comment = $comment}
             if ($defaultGINADomain) {$bodyht.defaultGINADomain = $defaultGINADomain}
             if ($deleteOldMessagesGracePeriod) {$bodyht.deleteOldMessagesGracePeriod = $deleteOldMessagesGracePeriod}

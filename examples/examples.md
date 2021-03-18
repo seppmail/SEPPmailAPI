@@ -54,9 +54,8 @@ New-SMAUser -uid 'sandra.berger@fab.int' -email 'sberger@fabrikam.com' -Name 'Sa
 #### Creating multiple users via CSV import
 
 ```powershell
-$SampleCSVPath = (Split-Path (Get-Module SEPPmailapi).path) + '\examples\NewUsers.csv'
-$newusers = import-csv $SampleCSVPath
-foreach ($user in $newusers) {$user|new-SMAUser}
+$SampleCSVPath = (Split-Path (Get-Module SEPPmailapi).path) + '\test\NewUsers.csv'
+Import-Csv $SampleCSVPath |New-SMAuser
 ```
 
 For more examples use the CmdLet help.
