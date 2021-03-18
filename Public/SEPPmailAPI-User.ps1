@@ -413,8 +413,10 @@ function Set-SMAUser
         [string]$mpkiSubjectPart
     
     )
-    begin {
-        try {
+    begin {}
+    process {
+        try  {
+            
             Write-Verbose "Creating URL path"
             $uriPath = "{0}/{1}" -f 'user', $eMail
             Write-Verbose "Building full request uri"
@@ -424,13 +426,7 @@ function Set-SMAUser
                 }
             }
             $uri = New-SMAQueryString -uriPath $uriPath -qParam $boundParam
-        }
-        catch {
-            Write-Error "Error $error.CategoryInfo occured"
-        }
-    }
-    process {
-        try {
+            
             Write-Verbose 'Crafting mandatory $body JSON'
             $bodyht = @{
                 email = $email
