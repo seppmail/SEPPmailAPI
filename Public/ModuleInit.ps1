@@ -24,14 +24,13 @@ try {
         Write-Warning "No SEPPmail Host set - Add a Variable i.e. https://securemail.contoso.de"
         $global:SMAHost = Read-Host "Enter SEPPmail host name in FQDN format (i.e.securemail.contoso.de)"
         }
-    if ((!($SMAKey)) -or ($SMAKey.GetType().Name -ne 'SecureString')){
-        Write-Warning "No REST-API Key set or API Key is a not SecureString - Enter the API Key below"
-        $global:SMAKey = Read-Host "Enter SEPPmail REST-API Key (the one from the Admin-Portal)" -AsSecurestring
+    if ((!($SMACred)) -or ($SMACred.GetType().Name -ne 'PSCredential')){
+        Write-Warning "No REST-API Access Credentials found or API access credentials are not a credential object - Enter the API key and secret below"
+        $global:SMACred = Get-Credential -Message 'Enter API key and secret you have entered in the "System"==>"Advanced View" section of your SEPPmail'
         }
     if (!($SMASkipCertCheck)) {
         Write-Verbose 'Variable $SMASkipCertCheck not found setting to default value $false'
         $global:SMASkipCertCheck = $false
-        Write-Warning 'If your SEPPmail Appliance does not have a valid SSL certificate, set the valiable $SMASkipCertCheck to $true'
         }
     if (!($global:SMAPort)) {
         Write-Verbose 'Variable $global:SMAPort not found. Setting to default value 8445'
