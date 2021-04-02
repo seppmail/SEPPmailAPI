@@ -127,10 +127,6 @@ function Invoke-SMARestMethod {
     )
 
     begin {
-        # Write-Verbose "convert Securestring to encrypted Key"
-        # $BSTR = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($SMACred.Password)
-        # $RESTKey = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
-        # $RestSecret = ConvertFrom-SMASecureString -securePassword $SMACred.Password
         Write-Verbose "Crafting Header-JSON"
         $headers = @{
             'X-SM-API-TOKEN' = $SMACred.UserName

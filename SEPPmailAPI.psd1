@@ -12,7 +12,7 @@
 RootModule = '.\SEPPmailAPI.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.8.0'
+ModuleVersion = '0.8.1'
 
 # Supported PSEditions
 CompatiblePSEditions = @('Desktop','Core')
@@ -145,6 +145,8 @@ PrivateData = @{
 080221: 0.5.3 - Fixed TLS issue on older PS5 (WS2016) machines, cleanup exported commands
 
 110321: 0.8.0 - All v1 CmdLets done, cosmetics and testing starting now
+
+020421: 0.8.1 - Adding Support for Credential based security with Token/secret
 '@
 
         # Prerelease string of this module
