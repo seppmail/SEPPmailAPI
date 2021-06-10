@@ -38,7 +38,7 @@ try {
         }
     if (!($global:SMAPIVersion)) {
         Write-Verbose 'Variable $global:SMAPIVersion not found. Setting to default value v1'
-            $global:SMAVersion = 'v1'
+            $global:SMAPIVersion = 'v1'
         }
     
         Write-Verbose 'Check/set TLS Version 1.2'
