@@ -97,4 +97,6 @@ Get-Help Find-SMAUser
 Get-Help Get-SMAUser
 ```
 
+In the future we will support the PowerShellSecretManagement Module to store configurations securely.
+
 --- This is the end of the file ---
