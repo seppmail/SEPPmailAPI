@@ -137,7 +137,7 @@ PrivateData = @{
         ProjectUri = 'https://github.com/seppmail/SEPPmailAPI'
 
         # A URL to an icon representing this module.
-        # IconUri = ''
+        IconUri = 'https://avatars1.githubusercontent.com/u/55975553?s=400&u=ab22c52a439397dca458e58dfcec9f0a9dd347db&v=4'
 
         # ReleaseNotes of this module
         ReleaseNotes = 
