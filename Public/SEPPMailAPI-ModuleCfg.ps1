@@ -40,7 +40,6 @@ Lists all configurations.
 .EXAMPLE
 Get-SMAConfiguration 
 Lists the currently active configuration.
-Test
 #>
 [cmdletbinding(DefaultParametersetName='__AllParameter')]    
 param([Parameter(ParameterSetName='CfgFromVault',Mandatory = $false,

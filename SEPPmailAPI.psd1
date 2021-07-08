@@ -12,7 +12,7 @@
 RootModule = '.\SEPPmailAPI.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.8.1'
+ModuleVersion = '0.9.0'
 
 # Supported PSEditions
 CompatiblePSEditions = @('Desktop','Core')
@@ -90,6 +90,11 @@ FunctionsToExport = @(
                 'Import-SMACustomer'
                 'Add-SMACustomerAdmin'
                 'Remove-SMACustomerAdmin'
+                'Set-SMAConfiguration'
+                'Get-SMAConfiguration'
+                'New-SMAConfiguration'
+                'Remove-SMAConfiguration'
+                'Test-SMAConfiguration'
 )
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
@@ -147,6 +152,8 @@ PrivateData = @{
 110321: 0.8.0 - All v1 CmdLets done, cosmetics and testing starting now
 
 020421: 0.8.1 - Adding Support for Credential based security with Token/secret
+
+070721: 0.9.0 - Adding Support for multiple configs and SecretStore
 '@
 
         # Prerelease string of this module

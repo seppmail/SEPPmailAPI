@@ -18,8 +18,33 @@ function Find-SMACustomer
             Mandatory                       = $false,
             HelpMessage                     = 'Show list with e-mail address only'
             )]
-        [switch]$list
+        [switch]$list,
+
+        [Parameter(Mandatory = $false)]
+        [String]$host = $Script:activeCfg.SMAHost,
+
+        [Parameter(Mandatory = $false)]
+        [int]$port = $Script:activeCfg.SMAPort,
+
+        [Parameter(Mandatory = $false)]
+        [String]$version = $Script:activeCfg.SMAPIVersion,
+
+        [Parameter(
+            Mandatory=$false
+            )]
+            [System.Management.Automation.PSCredential]$cred=$Script:activeCfg.SMACred,
+
+            [Parameter(
+                Mandatory=$false
+                )]
+            [switch]$SkipCertCheck=$Script:activeCfg.SMAskipCertCheck
     )
+
+    
+    if (!(verifyVars -VarList $Script:requiredVarList))
+    {
+        Throw($missingVarsMessage);
+    }; # end if
 
     try {
         Write-Verbose "Creating URL Path"
@@ -29,12 +54,19 @@ function Find-SMACustomer
         $boundParam = @{list=$true}
         
         Write-Verbose "Build QueryString"
-        $uri = New-SMAQueryString -uriPath $uriPath -qParam $boundParam
+        $smaParams=@{
+            Host=$Host;
+            Port=$Port;
+            Version=$Version;
+        }; # end smaParams
+        $uri = New-SMAQueryString -uriPath $uriPath -qParam $boundParam @smaParams;
 
         Write-verbose "Crafting Invokeparam for Invoke-SMARestMethod"
         $invokeParam = @{
             Uri         = $uri 
             Method      = 'GET'
+            Cred        =  $cred
+            SkipCertCheck = $SkipCertCheck
         }
 
         Write-Verbose "Call Invoke-SMARestMethod $uri" 
@@ -88,10 +120,33 @@ function Get-SMACustomer
             HelpMessage                     = 'Customer name (Case sensitive!)'
             )]
         [ValidatePattern('[a-zA-Z0-9\-_]')]
-        [string]$name
+        [string]$name,
+
+        [Parameter(Mandatory = $false)]
+        [String]$host = $Script:activeCfg.SMAHost,
+
+        [Parameter(Mandatory = $false)]
+        [int]$port = $Script:activeCfg.SMAPort,
+
+        [Parameter(Mandatory = $false)]
+        [String]$version = $Script:activeCfg.SMAPIVersion,
+
+        [Parameter(
+            Mandatory=$false
+            )]
+            [System.Management.Automation.PSCredential]$cred=$Script:activeCfg.SMACred,
+
+            [Parameter(
+                Mandatory=$false
+                )]
+            [switch]$SkipCertCheck=$Script:activeCfg.SMAskipCertCheck
     )
 
     begin {
+        if (! (verifyVars -VarList $Script:requiredVarList))
+    {
+        Throw($missingVarsMessage);
+    }; # end if
     }
     process {
         try {
@@ -99,12 +154,19 @@ function Get-SMACustomer
             $uriPath = "{0}/{1}" -f 'customer', $name
     
             Write-Verbose "Build QueryString"
-            $uri = New-SMAQueryString -uriPath $uriPath
+            $smaParams=@{
+                Host=$Host;
+                Port=$Port;
+                Version=$Version;
+            }; # end smaParams
+            $uri = New-SMAQueryString -uriPath $uriPath @smaParams;
     
             Write-verbose "Crafting Invokeparam for Invoke-SMARestMethod"
             $invokeParam = @{
                 Uri         = $uri 
                 Method      = 'GET'
+                Cred        =  $cred
+                SkipCertCheck = $SkipCertCheck
             }
             Write-Verbose "Call Invoke-SMARestMethod $uri" 
             $customerRaw = Invoke-SMARestMethod @invokeParam
@@ -262,16 +324,44 @@ function New-SMACustomer
             ValueFromPipelineByPropertyName = $true,
             HelpMessage                     = 'Automatically send backup to Customer Admin E-mail'
             )]
-        [bool]$sendBackupToAdmin
+        [bool]$sendBackupToAdmin,
+
+        [Parameter(Mandatory = $false)]
+        [String]$host = $Script:activeCfg.SMAHost,
+
+        [Parameter(Mandatory = $false)]
+        [int]$port = $Script:activeCfg.SMAPort,
+
+        [Parameter(Mandatory = $false)]
+        [String]$version = $Script:activeCfg.SMAPIVersion,
+
+        [Parameter(
+            Mandatory=$false
+            )]
+            [System.Management.Automation.PSCredential]$cred=$Script:activeCfg.SMACred,
+
+            [Parameter(
+                Mandatory=$false
+                )]
+            [switch]$SkipCertCheck=$Script:activeCfg.SMAskipCertCheck
     )
 
     begin {
+        if (! (verifyVars -VarList $Script:requiredVarList))
+        {
+            Throw($missingVarsMessage);
+        }; # end if
         try {
             Write-Verbose "Creating URL path"
             $uriPath = "{0}" -f 'customer'
         
             Write-verbose "Crafting Invokeparam for Invoke-SMARestMethod"
-            $uri = New-SMAQueryString -uriPath $uriPath
+            $smaParams=@{
+                Host=$Host;
+                Port=$Port;
+                Version=$Version;
+            }; # end smaParams
+            $uri = New-SMAQueryString -uriPath $uriPath @smaParams;
         }
         catch {
             Write-Error "Error $error,CategoryInfo occured"
@@ -303,6 +393,8 @@ function New-SMACustomer
                 Uri         = $uri 
                 Method      = 'POST'
                 body        = $body
+                Cred        =  $cred
+                SkipCertCheck = $SkipCertCheck
             }
 
             if ($PSCmdLet.ShouldProcess($($bodyht.Name),"Create customer")) {
@@ -443,16 +535,44 @@ function Set-SMACustomer
             ValueFromPipelineByPropertyName = $true,
             HelpMessage                     = 'Automatically send backup to Customer Admin E-mail'
             )]
-        [bool]$sendBackupToAdmin
+        [bool]$sendBackupToAdmin,
+
+        [Parameter(Mandatory = $false)]
+        [String]$host = $Script:activeCfg.SMAHost,
+
+        [Parameter(Mandatory = $false)]
+        [int]$port = $Script:activeCfg.SMAPort,
+
+        [Parameter(Mandatory = $false)]
+        [String]$version = $Script:activeCfg.SMAPIVersion,
+
+        [Parameter(
+            Mandatory=$false
+            )]
+            [System.Management.Automation.PSCredential]$cred=$Script:activeCfg.SMACred,
+
+            [Parameter(
+                Mandatory=$false
+                )]
+            [switch]$SkipCertCheck=$Script:activeCfg.SMAskipCertCheck
     )
 
+    if (! (verifyVars -VarList $Script:requiredVarList))
+    {
+        Throw($missingVarsMessage);
+    }; # end if
     try {
         Write-Verbose "Creating URL path"
         $uriPath = "{0}/{1}" -f 'customer', $name
 
         Write-Verbose "Building full request uri"
         $boundParam = @{name=$name}
-        $uri = New-SMAQueryString -uriPath $uriPath #-qParam $boundParam
+        $smaParams=@{
+            Host=$Host;
+            Port=$Port;
+            Version=$Version;
+        }; # end smaParams
+        $uri = New-SMAQueryString -uriPath $uriPath @smaParams; #-qParam $boundParam
 
         Write-Verbose 'Crafting mandatory $body JSON'
         $bodyht = @{}
@@ -478,6 +598,8 @@ function Set-SMACustomer
             Uri         = $uri 
             Method      = 'PUT'
             body        = $body
+            Cred        =  $cred
+            SkipCertCheck = $SkipCertCheck
         }
         #debug $uri
         Write-Verbose "Call Invoke-SMARestMethod $uri"
@@ -589,11 +711,35 @@ function Remove-SMAcustomer
             ParameterSetName                = 'DeleteAll',
             HelpMessage                     = 'If set, deletes everything related to this customer'
             )]
-        [switch]$deleteEverything = $false
+        [switch]$deleteEverything = $false,
+
+        [Parameter(Mandatory = $false)]
+        [String]$host = $Script:activeCfg.SMAHost,
+
+        [Parameter(Mandatory = $false)]
+        [int]$port = $Script:activeCfg.SMAPort,
+
+        [Parameter(Mandatory = $false)]
+        [String]$version = $Script:activeCfg.SMAPIVersion,
+
+        [Parameter(
+            Mandatory=$false
+            )]
+            [System.Management.Automation.PSCredential]$cred=$Script:activeCfg.SMACred,
+
+            [Parameter(
+                Mandatory=$false
+                )]
+            [switch]$SkipCertCheck=$Script:activeCfg.SMAskipCertCheck
 
     )
 
-    begin {}
+    begin {
+        if (! (verifyVars -VarList $Script:requiredVarList))
+        {
+            Throw($missingVarsMessage);
+        }; # end if
+    }
     process {
         try {
             Write-Verbose "Creating URL path"
@@ -605,12 +751,19 @@ function Remove-SMAcustomer
             $boundParam.Remove('whatif')|out-null
             
             Write-Verbose "Building full request uri"
-            $uri = New-SMAQueryString -uriPath $uriPath -qParam $boundParam
+            $smaParams=@{
+                Host=$Host;
+                Port=$Port;
+                Version=$Version;
+            }; # end smaParams
+            $uri = New-SMAQueryString -uriPath $uriPath -qParam $boundParam @smaParams;
     
             Write-verbose "Crafting Invokeparam for Invoke-SMARestMethod"
             $invokeParam = @{
                 Uri         = $uri 
                 Method      = 'DELETE'
+                Cred        =  $cred
+                SkipCertCheck = $SkipCertCheck
             }
             if ($PSCmdLet.ShouldProcess($name, "Remove customer")){
                 Write-Verbose "Call Invoke-SMARestMethod $uri"
@@ -679,10 +832,35 @@ function Export-SMACustomer
             ParameterSetName                = 'LiteralPath',
             HelpMessage                     = 'Literal path for ZIP-File, i.e. c:\temp\contoso.zip'
             )]
-        [string]$literalPath
+        [string]$literalPath,
+
+        [Parameter(Mandatory = $false)]
+        [String]$host = $Script:activeCfg.SMAHost,
+
+        [Parameter(Mandatory = $false)]
+        [int]$port = $Script:activeCfg.SMAPort,
+
+        [Parameter(Mandatory = $false)]
+        [String]$version = $Script:activeCfg.SMAPIVersion,
+
+        [Parameter(
+            Mandatory=$false
+            )]
+            [System.Management.Automation.PSCredential]$cred=$Script:activeCfg.SMACred,
+
+            [Parameter(
+                Mandatory=$false
+                )]
+            [switch]$SkipCertCheck=$Script:activeCfg.SMAskipCertCheck
+
         )
 
-        begin {}
+        begin {
+            if (! (verifyVars -VarList $Script:requiredVarList))
+            {
+                Throw($missingVarsMessage);
+            }; # end if
+        }
         process {
             try {
         
@@ -690,7 +868,12 @@ function Export-SMACustomer
                 $uriPath = "{0}/{1}/{2}" -f 'customer', $name, 'export'
         
                 Write-Verbose "Building full request uri"
-                $uri = New-SMAQueryString -uriPath $uriPath
+                $smaParams=@{
+                    Host=$Host;
+                    Port=$Port;
+                    Version=$Version;
+                }; # end smaParams
+                $uri = New-SMAQueryString -uriPath $uriPath @smaParams;
         
                 Write-verbose "Packing password into body JSON"
                 $encryptionPasswordPlain = ConvertFrom-SMASecureString -securePassword $encryptionPassword
@@ -705,6 +888,8 @@ function Export-SMACustomer
                     Uri         = $uri 
                     Method      = 'POST'
                     body        = $body
+                    Cred        =  $cred
+                    SkipCertCheck = $SkipCertCheck
                 }
         
                 Write-Verbose "Call Invoke-SMARestMethod $uri" 
@@ -771,13 +956,35 @@ function Import-SMACustomer
             ParameterSetName                = 'LiteralPath',
             HelpMessage                     = 'Literal path for ZIP-File, i.e. c:\temp\contoso.zip'
             )]
-        [string]$literalPath
+        [string]$literalPath,
+
+        [Parameter(
+            Mandatory=$false
+            )]
+            [System.Management.Automation.PSCredential]$cred=$Script:activeCfg.SMACred,
+            [Parameter(Mandatory = $false)]
+            [String]$host = $Script:activeCfg.SMAHost,
+
+            [Parameter(Mandatory = $false)]
+            [int]$port = $Script:activeCfg.SMAPort,
+            [Parameter(
+                Mandatory=$false
+                )]
+            [switch]$SkipCertCheck=$Script:activeCfg.SMAskipCertCheck,
+
+            [Parameter(Mandatory = $false)]
+            [String]$version = $Script:activeCfg.SMAPIVersion
         )
+
+    if (! (verifyVars -VarList $Script:requiredVarList))  # no version needed
+    {
+        Throw($missingVarsMessage);
+    }; # end if
 
     try {
         
         Write-Verbose "Creating URL root"
-        $urlRoot = New-SMAUrlRoot -SMAHost $SMAHost -SMAPort $SMAPort
+        $urlRoot = New-SMAUrlRoot -SMAHost $Host -SMAPort $Port
         $uri = "{0}{1}/{2}" -f $urlroot, 'customer', 'import'
 
         Write-verbose "Packing password into body JSON"
@@ -819,6 +1026,8 @@ function Import-SMACustomer
             Uri         = $uri 
             Method      = 'POST'
             body        = $body
+            Cred        =  $cred
+            SkipCertCheck = $SkipCertCheck
         }
 
         if ($PSCmdLet.ShouldProcess($name,"Import customer")) {
@@ -859,11 +1068,35 @@ function Add-SMAcustomerAdmin
 			ValueFromPipelineByPropertyName = $true,
 			HelpMessage                     = 'Customer name'
 			)]
-		[string]$customer
+		[string]$customer,
+
+        [Parameter(Mandatory = $false)]
+        [String]$host = $Script:activeCfg.SMAHost,
+
+        [Parameter(Mandatory = $false)]
+        [int]$port = $Script:activeCfg.SMAPort,
+
+        [Parameter(Mandatory = $false)]
+        [String]$version = $Script:activeCfg.SMAPIVersion,
+
+        [Parameter(
+            Mandatory=$false
+            )]
+            [System.Management.Automation.PSCredential]$cred=$Script:activeCfg.SMACred,
+
+            [Parameter(
+                Mandatory=$false
+                )]
+            [switch]$SkipCertCheck=$Script:activeCfg.SMAskipCertCheck 
 	)
 
 	begin {
-		try {
+		if (! (verifyVars -VarList $Script:requiredVarList))
+        {
+            Throw($missingVarsMessage);
+        }; # end if
+
+        try {
 			Write-Verbose "Creating URL path"
 			$uriPath = "{0}/{1}/{2}" -f 'customer', $customer, 'adminuser'
 		}
@@ -874,7 +1107,12 @@ function Add-SMAcustomerAdmin
 	process {
 		try {
 			Write-Verbose "Building full request uri"
-			$uri = New-SMAQueryString -uriPath $uriPath -qParam $boundParam
+            $smaParams=@{
+                Host=$Host;
+                Port=$Port;
+                Version=$Version;
+            }; # end smaParams
+			$uri = New-SMAQueryString -uriPath $uriPath -qParam $boundParam @smaParams;
 
 			Write-verbose "Crafting body ht for list of admins"
             $bodyht = @{
@@ -887,6 +1125,8 @@ function Add-SMAcustomerAdmin
 				Uri         = $uri 
 				Method      = 'POST'
                 body        = $body
+                Cred        =  $cred
+                SkipCertCheck = $SkipCertCheck
 				}
 			
 			if ($PSCmdLet.ShouldProcess($customer,"Adding admin users")) {
@@ -930,10 +1170,34 @@ function Remove-SMAcustomerAdmin
 			ValueFromPipelineByPropertyName = $true,
 			HelpMessage                     = 'Customer name'
 			)]
-		[string]$customer
+		[string]$customer,
+
+        [Parameter(Mandatory = $false)]
+        [String]$host = $Script:activeCfg.SMAHost,
+
+        [Parameter(Mandatory = $false)]
+        [int]$port = $Script:activeCfg.SMAPort,
+
+        [Parameter(Mandatory = $false)]
+        [String]$version = $Script:activeCfg.SMAPIVersion,
+
+        [Parameter(
+            Mandatory=$false
+            )]
+            [System.Management.Automation.PSCredential]$cred=$Script:activeCfg.SMACred,
+
+            [Parameter(
+                Mandatory=$false
+                )]
+            [switch]$SkipCertCheck=$Script:activeCfg.SkipCertCheck 
 	)
 
 	begin {
+        if (! (verifyVars -VarList $Script:requiredVarList))
+        {
+            Throw($missingVarsMessage);
+        }; # end if
+        
 		try {
 			Write-Verbose "Creating URL path"
 			$uriPath = "{0}/{1}/{2}" -f 'customer', $customer, 'adminuser'
@@ -945,7 +1209,12 @@ function Remove-SMAcustomerAdmin
 	process {
 		try {
 			Write-Verbose "Building full request uri"
-			$uri = New-SMAQueryString -uriPath $uriPath -qParam $boundParam
+            $smaParams=@{
+                Host=$Host;
+                Port=$Port;
+                Version=$Version;
+            }; # end smaParams
+			$uri = New-SMAQueryString -uriPath $uriPath -qParam $boundParam @smaParams;
 
 			Write-verbose "Crafting body ht for list of admins"
             $bodyht = @{
@@ -958,6 +1227,8 @@ function Remove-SMAcustomerAdmin
 				Uri         = $uri 
 				Method      = 'PUT'
                 body        = $body
+                Cred        =  $cred
+                SkipCertCheck = $SkipCertCheck
 				}
 			
 			if ($PSCmdLet.ShouldProcess($customer,"Removing admin users")) {

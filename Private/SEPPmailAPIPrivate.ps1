@@ -123,14 +123,26 @@ function Invoke-SMARestMethod {
         [Parameter(
             Mandatory=$false
             )]
-        [string[]]$body
+        [string[]]$body,
+
+        [Parameter(
+            Mandatory=$false
+            )]
+            [System.Management.Automation.PSCredential]$cred=$SMACred,
+
+            [Parameter(
+                Mandatory=$false
+                )]
+            [switch]$SkipCertCheck=$SMAskipCertCheck    
     )
 
     begin {
         Write-Verbose "Crafting Header-JSON"
         $headers = @{
-            'X-SM-API-TOKEN' = $SMACred.UserName
-            'X-SM-API-SECRET' = (ConvertFrom-SMASecureString -securePassword $SMACred.Password)
+            ##'X-SM-API-TOKEN' = $SMACred.UserName
+            'X-SM-API-TOKEN' = $Cred.UserName;
+            ##'X-SM-API-SECRET' = (ConvertFrom-SMASecureString -securePassword $SMACred.Password)
+            'X-SM-API-SECRET' = (ConvertFrom-SMASecureString -securePassword $Cred.Password)
             'accept' = 'application/json'
         }
         
@@ -154,7 +166,7 @@ function Invoke-SMARestMethod {
     }
     process {
         # Core and Skip
-        if (($PSversiontable.PSEdition -like 'Core') -and ($SMAskipCertCheck)) {
+        if (($PSversiontable.PSEdition -like 'Core') -and ($SkipCertCheck)) {
             Write-verbose 'Calling Invoke-RestMethod on Core edition with skip Certificate'
             try {
                 Invoke-RestMethod @SMinvokeParam -SkipCertificateCheck -ContentType 'application/json; charset=utf-8'
@@ -166,7 +178,7 @@ function Invoke-SMARestMethod {
             }
         }
         # Desktop and skip
-        elseif (($PSversiontable.PSedition -like 'Desktop') -and ($SMAskipCertCheck)) {
+        elseif (($PSversiontable.PSedition -like 'Desktop') -and ($SkipCertCheck)) {
             Write-Verbose "Change endpoint to skipCertificateCheck and call url"
             if ([System.Net.ServicePointManager]::CertificatePolicy -like 'System.Net.DefaultCertPolicy') {
                 $DefaultPolicy = [System.Net.ServicePointManager]::CertificatePolicy
