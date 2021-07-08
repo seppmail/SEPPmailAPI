@@ -71,30 +71,29 @@ PowerShellVersion = '5.1'
 # Modules to import as nested modules of the module specified in RootModule/ModuleToProcess
 NestedModules = @(
         '.\Private\SEPPmailAPIPrivate.ps1'
-        '.\Public\ModuleInit.ps1'
         )
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
 FunctionsToExport = @(
-                'Get-SMAUser'
-                'Find-SMAUser'
-                'New-SMAUser'
-                'Set-SMAUser'
+                   'Get-SMAUser'
+                  'Find-SMAUser'
+                   'New-SMAUser'
+                   'Set-SMAUser'
                 'Remove-SMAUser'
-                'Find-SMACustomer'
-                'Get-SMACustomer'
-                'New-SMACustomer'
-                'Set-SMACustomer'
+                  'Find-SMACustomer'
+                   'Get-SMACustomer'
+                   'New-SMACustomer'
+                   'Set-SMACustomer'
                 'Remove-SMACustomer'
                 'Export-SMACustomer'
                 'Import-SMACustomer'
-                'Add-SMACustomerAdmin'
+                   'Add-SMACustomerAdmin'
                 'Remove-SMACustomerAdmin'
-                'Set-SMAConfiguration'
-                'Get-SMAConfiguration'
-                'New-SMAConfiguration'
+                   'Set-SMAConfiguration'
+                   'Get-SMAConfiguration'
+                   'New-SMAConfiguration'
                 'Remove-SMAConfiguration'
-                'Test-SMAConfiguration'
+                  'Test-SMAConfiguration'
 )
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
@@ -157,7 +156,7 @@ PrivateData = @{
 '@
 
         # Prerelease string of this module
-        Prerelease = 'beta2'
+        Prerelease = 'beta3'
 
         # Flag to indicate whether the module requires explicit user acceptance for install/update/save
         # RequireLicenseAcceptance = $false
