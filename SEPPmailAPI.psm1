@@ -21,7 +21,7 @@ $Script:ModuleName=(([System.IO.Path]::GetFileNameWithoutExtension(($mfp))).ToUp
 $mList=(Get-Module -Name $Script:ModuleName -ListAvailable); # get list of names of the module (more then one if diffrent versions)
 $refPath=[System.IO.Path]::ChangeExtension($mfp,'psd1'); # get path of the module file
 New-Variable -Name 'ModuleCfgVer' -Value 1 -Scope Script -Option Constant;
-New-Variable -Name 'SMAPIPrefix' -Value 'SMA' -Scope Script -Option Constant; # prefix for entries in vault
+New-Variable -Name 'SMAPIPrefix' -Value 'SEPPmail' -Scope Script -Option Constant; # prefix for entries in vault
 New-Variable -Name 'VaultName' -Value ($script:SMAPIPrefix) -Scope Script -Option Constant; # name of the vault the module using (it will be created if not exist)
 New-Variable -Name 'SecureVaultModuleName' -Value 'Microsoft.PowerShell.SecretStore' -Scope Script -Option Constant; # name of the microsoft vault
 New-Variable -Name 'SMAModuleCfgName' -Value ($script:SMAPIPrefix+'_ModuleCfg') -Scope Script -Option Constant;
