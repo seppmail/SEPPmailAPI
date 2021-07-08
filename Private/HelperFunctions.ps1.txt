@@ -1,0 +1,121 @@
+function verifyVars
+{
+[cmdletbinding()]
+param([Parameter(Mandatory = $true, Position = 0)][array]$VarList
+     )    
+return $true
+    $checkVal=0;
+    $controlVal=0;
+    $tmpVal=1;
+    for ($i=0;$i -lt $VarList.Count;$i++)
+    {        
+        if (Test-Path -Path variable:$($VarList[$i]))
+        {
+            $checkVal = ($checkVal -bor ($tmpVal));            
+        } # end if
+        else {
+            Write-Warning ('The variable ' + $VarList[$i] + ' is not assigned');
+        }; # end if
+        
+        $controlVal=($controlVal -bor ($tmpVal));
+        $tmpVal = ($tmpVal -shl 1);  
+    }; # end for
+    return ($checkVal -eq $controlVal);
+}; # end function 
+
+
+<#
+class getModuleData
+{        
+    getModuleData () {
+        
+    } # end getModuleData
+
+
+    [array]GetConfigList ()
+    {        
+        $tmpList=@(Get-SecretInfo -Name ('SMACfg_*') -Vault Local);     
+        if ($tmpList.Count -eq 0)
+        {
+            $cfgList=@('no config available');
+        } # end if
+        else {            
+            $cfgList=[System.Collections.ArrayList]::new();
+            foreach ($entry in $tmpList.Name)
+            {
+                [void]$cfgList.Add($entry.Replace('SMACfg_',''));
+            }; # end if
+        }; # end else  
+                  
+        return $cfgList;        
+    } # end method getModuleList
+
+   
+    
+}; # end class getModuleData
+#>
+
+function loadDefConfig
+{
+[cmdletbinding()]
+param()  
+    
+    try {
+        $errMsg=('Failed to load the configurtion ' + $Configuration); 
+        if (Test-Path -Path variable:'__CMM_ModuleData')
+        {
+            if ($tmp=$__CMM_ModuleData.GetDefaultConfig($Script:moduleName,$Script:ModuleVersion)) 
+            {
+                $script:DefCfg=$tmp.split('_')[4]         
+                setActiveConfig -Configuration $script:DefCfg;
+                Write-Host ('Configuration ' + ($script:DefCfg) + ' as default config loaded');             
+            } # end if
+            else
+            {
+                Write-Warning 'No default configuration found.'
+                $script:ActiveConfig=@{};
+            }; # end else
+        } # end if
+        else {
+            Write-Warning 'Missing module CMM.';
+        }; # end else<
+    } # end try
+    catch {
+        Write-Host $errMsg -ForegroundColor red;
+        Write-Host ($_.Exception.Message);
+    }; # end catch
+        
+}; # end function loadDefConfig
+
+function setActiveConfig
+{
+[CmdLetBinding()]            
+param([Parameter(Mandatory = $true, Position = 0)][string]$Configuration,
+      [Parameter(Mandatory = $false, Position = 1)][Version]$Version=$Script:ModuleVersion,
+      [Parameter(Mandatory = $false, Position = 2)][Switch]$SkipTemplateFiltering=$false
+     )  
+
+    try {
+        $tmpCfg=$__CMM_ModuleData.GetConfig($Script:ModuleName,$Version,$Configuration,$SkipTemplateFiltering);
+        $script:ActiveConfig=$tmpCfg.Data;
+        $script:ActiveCfgNuV=@{
+            Name=$tmpCfg.ConfigName;
+            Version=$tmpCfg.ConfigVersion;
+        }; # end ActiveCfgNuV
+        foreach ($key in $tmpCfg.Data.Keys)
+        {
+            if (Test-Path -Path variable:script:$($key))
+            {
+                Set-Variable -Name $key -Value ($tmpCfg.Data.$key) -Scope Script;
+            } # end if
+            else {            
+                New-Variable -Name $key -Value ($tmpCfg.Data.$key) -Scope Script;
+            }; # end else
+        }; # end foreach
+    } # end try
+    catch {
+        Write-Warning ('Failed to load the configuration ' + $ConfigName);
+    }; # end catch
+    
+}; # end function setActiveConfig
+
