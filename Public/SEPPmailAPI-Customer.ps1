@@ -468,7 +468,7 @@ function Set-SMACustomer
             ValueFromPipelineByPropertyName = $true,
             HelpMessage                     = 'Backup password'
             )]
-        [string]$backupPassword,
+        [secureString]$backupPassword,
 
         [Parameter(
             Mandatory                       = $false,
@@ -578,7 +578,7 @@ function Set-SMACustomer
         Write-Verbose 'Adding optional values to $body JSON'
         if ($adminEmail) {$bodyht.adminEmail = $adminEmail}
         if ($admins) {$bodyht.admins = $admins}
-        if ($backupPassword) {$bodyht.backupPassword = $backupPassword}
+        if ($backupPassword) {$bodyht.backupPassword = (ConvertFrom-SMASecureString -securePassword $backupPassword)}
         if ($comment) {$bodyht.comment = $comment}
         if ($defaultGINADomain) {$bodyht.defaultGINADomain = $defaultGINADomain}
         if ($deleteOldMessagesGracePeriod) {$bodyht.deleteOldMessagesGracePeriod = $deleteOldMessagesGracePeriod}
@@ -588,7 +588,6 @@ function Set-SMACustomer
         if ($maximumEncryptionLicenses) {$bodyht.maximumEncryptionLicenses = $maximumEncryptionLicenses}
         if ($maximumLFTLicenses) {$bodyht.maximumLFTLicenses = $maximumLFTLicenses}
         if ($sendBackupToAdmin) {$bodyht.sendBackupToAdmin = $sendBackupToAdmin}
-
         
         $body = $bodyht|ConvertTo-JSON
         Write-verbose "Crafting Invokeparam for Invoke-SMARestMethod"
@@ -635,6 +634,7 @@ function Remove-SMAcustomer
             ValueFromPipelineByPropertyName = $true,
             ValueFromPipeline               = $true,
             ParameterSetName                = 'Default',
+            Position                        = 0,
             HelpMessage                     = 'The customer´s name you want to delete'
             )]
         [Parameter(
@@ -642,6 +642,7 @@ function Remove-SMAcustomer
             ValueFromPipelineByPropertyName = $true,
             ValueFromPipeline               = $true,
             ParameterSetName                = 'DeleteAll',
+            Position                        = 0,
             HelpMessage                     = 'The customer´s name you want to delete'
             )]
         [ValidatePattern('[a-zA-Z0-9\-_]')]
@@ -981,23 +982,34 @@ function Import-SMACustomer
 
     try {
         
-        Write-Verbose "Creating URL root"
-        $urlRoot = New-SMAUrlRoot -SMAHost $Host -SMAPort $Port
-        $uri = "{0}{1}/{2}" -f $urlroot, 'customer', 'import'
+        Write-Verbose "Creating URI path"
+        $uripath = "{0}/{1}" -f 'customer', 'import'
+    
+        Write-verbose "Creating SMA Query String"
+        $smaParams = @{
+            Host    = $Host
+            Port    = $Port
+            Version = $Version
+        } # end smaParams
+        $uri = New-SMAQueryString -uriPath $uriPath @smaParams
 
         Write-verbose "Packing password into body JSON"
         $encryptionPasswordPlain = ConvertFrom-SMASecureString -securePassword $encryptionPassword
 
         $jsonZIP = $null
         Write-Verbose "Convert ZIPFile to JSON Zip Data"
-        if ($psCmdLet.ParameterSetName -eq 'Path') {
-            if (!(Test-path $path)) {
+        if ($psCmdLet.ParameterSetName -eq 'Path')
+        {
+            if (!(Test-Path $path))
+            {
                 Write-Error "$Path does not exist - please enter a valid path"
                 break
-            } else {
-                $truePath = Resolve-Path $path
+            }
+            else
+            {
+                  $truePath = Resolve-Path $path
                 $zipContent = [IO.File]::ReadAllBytes($truePath)
-                $jsonZip = [System.Convert]::ToBase64String($zipContent)
+                   $jsonZip = [System.Convert]::ToBase64String($zipContent)
             }
         }
 
@@ -1021,15 +1033,16 @@ function Import-SMACustomer
 
         Write-verbose "Crafting Invokeparam for Invoke-SMARestMethod"
         $invokeParam = @{
-            Uri         = $uri 
-            Method      = 'POST'
-            body        = $body
-            Cred        =  $cred
+            Uri           = $uri 
+            Method        = 'POST'
+            body          = $body
+            Cred          = $cred
             SkipCertCheck = $SkipCertCheck
         }
 
         if ($PSCmdLet.ShouldProcess($name,"Import customer")) {
             Write-Verbose "Call Invoke-SMARestMethod $uri" 
+            Wait-Debugger
             Invoke-SMARestMethod @invokeParam
         }
 

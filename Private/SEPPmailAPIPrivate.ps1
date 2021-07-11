@@ -40,6 +40,8 @@ function New-SMAQueryString {
             }
             $queryString.Query = $ParamCollection.ToString().Replace('=True','=true').Replace('=False','=false')
         }
+
+        Write-Verbose "Finally building Querystring"
         $queryString.Port = $port
         $queryString.Path = "/$version/" + $uriPath
         return $queryString.Uri.OriginalString

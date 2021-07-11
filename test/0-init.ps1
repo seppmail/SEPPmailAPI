@@ -16,6 +16,7 @@ Set-SMAConfiguration -ConfigurationName 'smaTest' -SetActive
 
 [String]$TestNum = "{0:s}" -f (Get-Date) -replace ':',''
 
+#Region create customer for Tests
 
 # Create a new Customer for tests
 $secBackupPwd = ConvertTo-Securestring -String 'someReallydifficultPassword456' -AsPlainText -Force
@@ -52,6 +53,22 @@ $customerInfo = @{
 }
 
 Set-SMACustomer @customerInfo
+
+# Export customer
+$TestCustomer = $TestNum + 'Contoso'
+$ZipPwd = ConvertTo-Securestring -String '3xporT' -AsPlainText -Force
+$ZipFileName = $testNum + '.zip'
+$ZipPath = Join-Path -Path $env:temp -ChildPath $ZipFileName
+Export-SMACustomer -name $TestCustomer -encryptionPassword $ZipPwd -path $ZipPath
+
+# Remove-Customer
+Remove-SMACustomer -name $TestCustomer
+
+# Import Customer
+Import-SMACustomer -name $TestCustomer -path $ZipPath -encryptionPassword $ZipPwd
+
+
+#endregion
 
 
 
