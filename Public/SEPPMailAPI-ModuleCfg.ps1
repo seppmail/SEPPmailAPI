@@ -75,6 +75,8 @@ param([Parameter(ParameterSetName='CfgFromVault',Mandatory = $false,
     process {
         try {
             $getData=$true;
+            $msg='Failed to get the default configuration'
+            $DefaultCfgName = Get-SecretInfo -Vault $script:vaultName -Name ($script:SMAModuleCfgName );
             $msg='Failed to read the configuration';
             switch ($PSCmdlet.ParameterSetName)
             {
@@ -103,7 +105,7 @@ param([Parameter(ParameterSetName='CfgFromVault',Mandatory = $false,
                 'Default'       {
                     $msg=('Failed to read the default config ');
                     writeLogOutput -LogString ('Reading default config from module configuration')
-                    $DefaultCfgName = Get-SecretInfo -Vault $script:vaultName -Name ($script:SMAModuleCfgName );
+                    #$DefaultCfgName = Get-SecretInfo -Vault $script:vaultName -Name ($script:SMAModuleCfgName );
                     if ([System.String]::IsNullOrEmpty($DefaultCfgName.Metadata.DefaultCfgName))
                     {
                         $getData=$false;
@@ -128,7 +130,7 @@ param([Parameter(ParameterSetName='CfgFromVault',Mandatory = $false,
                         return;
                     } # end if
                     else {
-                        $cfgData=formatConfigData -ActiveConfigData;
+                        $cfgData=formatConfigData -ActiveConfigData -DefaultCfgName ($DefaultCfgName.Metadata.DefaultCfgName);
                         $getData=$false;
                     }; # end else
                    
@@ -136,7 +138,7 @@ param([Parameter(ParameterSetName='CfgFromVault',Mandatory = $false,
             }; # end switch
             if ($getData)
             {
-                $cfgData=formatConfigData -ConfigData $cfgList;
+                $cfgData=formatConfigData -ConfigData $cfgList -DefaultCfgName ($DefaultCfgName.Metadata.DefaultCfgName);
             }; # end if            
         } # end try
         catch {

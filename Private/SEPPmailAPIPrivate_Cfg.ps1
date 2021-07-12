@@ -334,7 +334,8 @@ function formatConfigData
 {
 [cmdletbinding()]
 param([Parameter(ParametersetName='StoreCfg',Mandatory = $true, Position = 0)][Array]$ConfigData,
-      [Parameter(ParametersetName='ActiveCfg',Mandatory = $true, Position = 0)][switch]$ActiveConfigData
+      [Parameter(ParametersetName='ActiveCfg',Mandatory = $true, Position = 0)][switch]$ActiveConfigData,
+      [Parameter(Mandatory = $true, Position = 1)][string]$DefaultCfgName
      )
     
     $fieldList=@(
@@ -343,7 +344,9 @@ param([Parameter(ParametersetName='StoreCfg',Mandatory = $true, Position = 0)][A
         @('SMAHost',[System.String]),
         @('SMAPort',[system.int32]),
         @('SMASkipCertCheck',[System.Boolean]),
-        @('SMAPIVersion',[System.String])
+        @('SMAPIVersion',[System.String]),
+        @('Active Cfg',[System.Boolean]),
+        @('Default Cfg',[System.Boolean])
     ); # end fieldList
     $dataTable=createNewTable -TableName 'SMACfg' -FieldList $fieldList;
     if ($PSCmdlet.ParameterSetName -eq 'StoreCfg')
@@ -358,12 +361,33 @@ param([Parameter(ParametersetName='StoreCfg',Mandatory = $true, Position = 0)][A
                 $msg=('Failed to get the user name for the configuration ' + $entry.name)
                 writeLogError -ErrorMessage $msg -PSErrMessage ($_.Exception.Message) -PSErrStack $_;
             }; # end catch
-            [void]($dataTable.Rows.Add((($cfgEntry.name).Replace($script:cfgNamePrefix,'')).Replace(($Script:cfgNamePrefix),''),$userName,$cfgEntry.MetaData.SMAHost,$cfgEntry.MetaData.SMAPort,([bool]$cfgEntry.MetaData.SMASkipCertCheck),$cfgEntry.MetaData.SMAPIVersion));
+            $entryName=(($cfgEntry.name).Replace($script:cfgNamePrefix,'')).Replace(($Script:cfgNamePrefix),'');
+            $dataRow=@(
+                $entryName,
+                $userName,
+                $cfgEntry.MetaData.SMAHost,
+                $cfgEntry.MetaData.SMAPort,
+                ([bool]$cfgEntry.MetaData.SMASkipCertCheck),
+                $cfgEntry.MetaData.SMAPIVersion,
+                ($entryName -eq $Script:activeCfg.SMACfgName),
+                ($DefaultCfgName -eq $entryName)
+            ); # end dataRow
+            [void]($dataTable.Rows.Add($dataRow));
         }; # end foreach
     } # end if
     else
-    {        
-        [void]($dataTable.Rows.Add(($Script:activeCfg.SMACfgName),$Script:activeCfg.SMACred.userName,$Script:activeCfg.SMAHost,$Script:activeCfg.SMAPort,([bool]$Script:activeCfg.SMASkipCertCheck),$Script:activeCfg.SMAPIVersion));
+    {                
+        $dataRow=@(
+            ($Script:activeCfg.SMACfgName),
+            $Script:activeCfg.SMACred.userName,
+            $Script:activeCfg.SMAHost,
+            $Script:activeCfg.SMAPort,
+            ([bool]$Script:activeCfg.SMASkipCertCheck),
+            ($Script:activeCfg.SMAPIVersion),
+            $true,
+            ($DefaultCfgName -eq ($Script:activeCfg.SMACfgName))
+        );
+        [void]($dataTable.Rows.Add($dataRow));
     };
     return ,$dataTable;
 }; # end function formatConfigData
