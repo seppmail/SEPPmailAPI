@@ -31,6 +31,7 @@ New-Variable -Name 'cfgNamePrefix' -Value ($script:SMAPIPrefix+'Cfg_') -Scope Sc
 New-Variable -Name 'LoadCfgIfOnlyOneExist' -Value $true -Scope Script -Option Constant; # if only one config exist, and not default, load it on module start
 New-Variable -Name 'DefaultAPIVer' -Value 'v1' -Scope Script -Option Constant; # version of the SeppMail appliance API
 New-Variable -Name 'ShowIntConversionWarning' -Value $false -Scope Script -Option Constant; # set it only for development to TRUE
+New-Variable -Name 'SuppressNativeTestError' -Value $false -Scope Script -Option Constant; # if set to TRUE the native error, in cmdlet Test-SMAConfiguration,  from Get-SMAUser, will be suppressed
 
 $script:activeCfg=@{
     SMACfgName='';

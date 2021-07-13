@@ -142,8 +142,8 @@ function testPort
 {
 [CmdLetBinding()]            
 param([Parameter(Mandatory = $true, Position = 0)][string]$ComputerName,
-      [Parameter(Mandatory = $true, Position = 1)][int]$Port, 
-      [Parameter(Mandatory = $false, Position = 2)][int]$TcpTimeout=100    
+      [Parameter(Mandatory = $true, Position = 1)][int]$Port
+     # [Parameter(Mandatory = $false, Position = 2)][int]$TcpTimeout=100    
      )
 
     begin {        
@@ -151,7 +151,16 @@ param([Parameter(Mandatory = $true, Position = 0)][string]$ComputerName,
     
     process {
         writeLogOutput -LogString ('Testing port ' + $Port.ToString() + ' on computer ' + $computerName);
-        $TcpClient = New-Object System.Net.Sockets.TcpClient
+        $msg=('Failed to access server ' + $ComputerName + ' on port ' + $Port);
+        try {
+            $tmp=Test-NetConnection -ComputerName $ComputerName -Port $Port;
+            return ($tmp.TcpTestSucceeded);
+        }
+        catch {
+            writeLogError -ErrorMessage $msg -PSErrMessage ($_.Exception.Message) -PSErrStack $_;
+            return $false;
+        }; # end catch
+        <#$TcpClient = New-Object System.Net.Sockets.TcpClient
         $Connect = $TcpClient.BeginConnect($ComputerName, $Port, $null, $null)
         $Wait = $Connect.AsyncWaitHandle.WaitOne($TcpTimeout, $false)
         if (!$Wait) 
@@ -162,12 +171,13 @@ param([Parameter(Mandatory = $true, Position = 0)][string]$ComputerName,
         else 
         {	        
 	        return $true;
-        }; # end else        
+        }; # end else    
+        #>    
     } # end process
 
     end {        
-        $TcpClient.Close();
-        $TcpClient.Dispose();
+        #$TcpClient.Close();
+        #$TcpClient.Dispose();
     } # end END
 
 }; # end function testPort
@@ -452,9 +462,29 @@ param([Parameter(Mandatory = $true, Position = 0)][string]$SMAHost,
       [Parameter(Mandatory = $true, Position = 4)][PSCredential]$SMACred
      )
 
-     return $true;
-     ## dummy code, add working code!!!!!!
+     begin {
 
+        $errAP=$ErrorActionPreference;
+        if ($Script:SuppressNativeTestError -eq $true)
+        {
+            $ErrorActionPreference='Stop'; # set errorActionPreference to STOP
+        }; # end if
+     }; # end begin
+
+     process {
+
+         try {
+            $tmpRv=Get-SMAUser -email 'admin@local' -cred $SMACred -host $SMAHost -port $SMAPort -version $SMAPIVersion -SkipCertCheck:$SMASkipCertCheck;
+            return ($null -ne $tmpRv);
+         } # end try
+         catch {
+            return $false;
+         }; # end catch     
+     }; # end process
+
+     end {
+        $ErrorActionPreference=$errAP;
+     }; # end END
 }; # end funciton testSMALocalAdmin
 
 function setDefaultCfg
@@ -561,11 +591,25 @@ param([Parameter(Mandatory = $true, Position = 0)][string]$ConfigurationName,
       [Parameter(Mandatory = $true, Position = 2)][System.Collections.ArrayList]$KeyList
      )
 
+    
+    try {
+        $msg=('Failed to read the configuration for ' + $ConfigurationName);
+        $tmpCfg=(getCfgMetadataHash -ConfigurationName $ConfigurationName -CfgRawName ($script:cfgNamePrefix + $ConfigurationName)); 
+        if ($tmpCfg.count -eq 0)
+        {
+            writeLogError -ErrorMessage $msg -PSErrMessage ($_.Exception.Message) -PSErrStack $_;
+            return;
+        };    
+    } # end try
+    catch {
+        writeLogError -ErrorMessage $msg -PSErrMessage ($_.Exception.Message) -PSErrStack $_;
+            return;
+    }; # end catch
     if ($CfgItems.ContainsKey('SMACredential'))
     {
         try {
             writeLogOutput -LogString ('Saving credentials to configuration ' + $ConfigurationName);
-            Set-Secret -Name ($script:cfgNamePrefix + $ConfigurationName) -Vault $Script:vaultName -Secret $CfgItems.SMACredential -ErrorAction Stop;
+            Set-Secret -Name ($script:cfgNamePrefix + $ConfigurationName) -Vault $Script:vaultName -Secret $CfgItems.SMACredential -Metadata $tmpCfg -ErrorAction Stop;
         } # end try
         catch {
             $msg=('Failed to save the new credentials for configuration ' + $ConfigurationName);
@@ -577,8 +621,8 @@ param([Parameter(Mandatory = $true, Position = 0)][string]$ConfigurationName,
     try {
         $msg=('Failed to read the config for configuration ' + $ConfigurationName);
         
-        $tmpCfg=(getCfgMetadataHash -ConfigurationName $ConfigurationName -CfgRawName ($script:cfgNamePrefix + $ConfigurationName));        
-        if ($CfgItems.count -gt 0)
+        #$tmpCfg=(getCfgMetadataHash -ConfigurationName $ConfigurationName -CfgRawName ($script:cfgNamePrefix + $ConfigurationName));        
+        if ($keyList.count -gt 0)
         {            
             foreach($item in $keyList)
             {                

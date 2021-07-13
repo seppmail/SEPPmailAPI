@@ -437,7 +437,7 @@ param([Parameter(Mandatory = $true, HelpMessage='Enter the name of the configura
                 catch {
                     writeLogError -ErrorMessage $msg -PSErrMessage ($_.Exception.Message) -PSErrStack $_;
                 }; # end catch
-                $msg=('Failed to test prot ' + ($tmp.Metadata.SMAPort) + ' on server ' + $smaHostName)
+                $msg=('Failed to test port ' + ($tmp.Metadata.SMAPort) + ' on server ' + $smaHostName)
                 If (! (testPort -ComputerName $smaHostName -Port $tmp.Metadata.SMAPort))
                 {
                     writeLogOutput -LogString ('Failed to reach the host ' + $smaHostName + ' on port ' + ($tmp.Metadata.SMAPort)) -LogType Warning;
@@ -452,7 +452,7 @@ param([Parameter(Mandatory = $true, HelpMessage='Enter the name of the configura
                 }; # end paramList
                 if (! (testSMALocalAdmin @paramList))
                 {
-                    writeLogOutput -LogString ('Failed to access SeppMail on server ' + $smaHostName) -LogType Warning;
+                    writeLogOutput -LogString ('Failed to access SeppMail on server ' + $smaHostName + ' and port ' + $tmp.Metadata.SMAPort) -LogType Error;
                 }; # end if
             } # end if
             else {
