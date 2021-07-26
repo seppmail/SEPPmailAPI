@@ -2,6 +2,7 @@
 $ModulePath = $PSScriptroot
 . $ModulePath\Public\SEPPmailAPI-User.ps1
 . $ModulePath\Public\SEPPmailAPI-Customer.ps1
+. $ModulePath\Public\SEPPmailAPI-Info.ps1
 . $ModulePath\Public\SEPPMailAPI-ModuleCfg.ps1
 . $ModulePath\Private\SEPPmailAPIPrivate_Cfg.ps1;
 

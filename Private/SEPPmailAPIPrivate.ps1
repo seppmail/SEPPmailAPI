@@ -41,6 +41,9 @@ function New-SMAQueryString {
             $queryString.Query = $ParamCollection.ToString().Replace('=True','=true').Replace('=False','=false')
         }
 
+        Write-Verbose "Correctinng %40 value for @"
+        $queryString.Query = ($queryString.Query).Replace('%40','@')
+
         Write-Verbose "Finally building Querystring"
         $queryString.Port = $port
         $queryString.Path = "/$version/" + $uriPath
