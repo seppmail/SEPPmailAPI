@@ -11,13 +11,18 @@
 .EXAMPLE
     PS C:\> Get-SMAEncInfo -email 'john.doe@domain.com'
     This provides te same information as without parameters, just filters to one specific user
-    
 .EXAMPLE
-    PS C:\> TBD
-    
+    PS C:\> Get-SMAEncInfo -email 'john.doe@domain.com' -Mode smime
+    Filter to a specific user and a specific encryption mode    
 .EXAMPLE
-    PS C:\> TBD
-    
+    PS C:\> Get-SMAEncInfo -email 'john.doe@domain.com' -Range domain
+    Filter to a specific user and a specific encryption mode    
+.EXAMPLE
+    PS C:\> Get-SMAEncInfo -Mode hin
+    Filter to a hin encryption only
+.EXAMPLE
+    PS C:\> Get-SMAEncInfo -Mode pgp -Range domain
+    Filter to a pgp encryption only and focis on domains
 #>
 function Get-SMAEncInfo
 {
