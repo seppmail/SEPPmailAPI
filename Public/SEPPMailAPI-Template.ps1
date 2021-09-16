@@ -618,7 +618,7 @@ This CmdLet lets you read the detailed properties of your template includes.
     PS C:\> Find-SMATemplateInclude -List
     Emits all template names
 #>
-function Find-SMATemplate
+function Find-SMATemplateInclude
 {
     [CmdletBinding()]
     param (

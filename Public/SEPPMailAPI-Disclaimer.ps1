@@ -632,7 +632,7 @@ This CmdLet lets you read the detailed properties of your disclaimer includes.
     PS C:\> Find-SMADisclaimerInclude -List
     Emits all disclaimer names
 #>
-function Find-SMADisclaimer
+function Find-SMADisclaimerInclude
 {
     [CmdletBinding()]
     param (
