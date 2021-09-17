@@ -1,5 +1,3 @@
-function Get-SMAConfiguration
-{
 <#
 .SYNOPSIS 
 Lists the configuration for SEPPmailAPI.
@@ -41,6 +39,8 @@ Lists all configurations.
 Get-SMAConfiguration 
 Lists the currently active configuration.
 #>
+function Get-SMAConfiguration
+{
 [cmdletbinding(DefaultParametersetName='__AllParameter')]    
 param(
     [Parameter(
@@ -199,10 +199,8 @@ param(
 
     }; # end END
     
-}; # end funciton Get-SMAConfiguration
+} # end funciton Get-SMAConfiguration
 
-function New-SMAConfiguration
-{
 <#
 .SYNOPSIS 
 Creates a new configuration.
@@ -244,24 +242,53 @@ A configuration with default values for
 -	Version (v1)
 will be created. The certificate will be checked.
 #>
+function New-SMAConfiguration
+{
 [cmdletbinding()]    
-param([Parameter(Mandatory = $true, 
-      HelpMessage='Enter a unique configuration name',
-      Position = 0)]
-      [string]$ConfigurationName,
-      [Parameter(Mandatory = $true, 
-      HelpMessage='Enter the name of the SeppMail host',
-      Position = 1)][string]$SMAHost,
-      [Parameter(Mandatory = $true, 
-      HelpMessage='Enter the SeppMail credential',
-      Position = 2)][System.Management.Automation.PSCredential]$Credential,
-      [Parameter(Mandatory = $false, Position = 3)][int]$SMAPort=$Script:SMADefaultPort, #$__SEPPmailAPI_ModuleData.SMADefaultPort,
-      [Parameter(Mandatory = $false,
-      HelpMessage='Enter the SeppMail API version',
-      Position = 3)][SMAPIVer]$SMAIPVersion=$Script:DefaultAPIVer,
-      [Parameter(Mandatory = $false,
-      Position = 4)][switch]$SMASkipCertCheck=$false
-     )
+    param(  
+        [Parameter(
+            Mandatory = $true, 
+            HelpMessage='Enter a unique configuration name',
+            Position = 0)
+        ]
+        [string]$ConfigurationName,
+
+        [Parameter(
+            Mandatory = $true, 
+            HelpMessage='Enter the name of the SeppMail host',
+            Position = 1)
+        ]
+        [string]$SMAHost,
+
+        [Parameter(
+            Mandatory = $true, 
+            HelpMessage='Enter the SeppMail credential',
+            Position = 2)
+        ]
+        [System.Management.Automation.PSCredential]$Credential,
+
+        [Parameter(
+            Mandatory = $false,
+            Position = 3
+            )
+        ]
+        [int]$SMAPort=$Script:SMADefaultPort, #$__SEPPmailAPI_ModuleData.SMADefaultPort,
+
+        [Parameter(
+            Mandatory = $false,
+            HelpMessage='Enter the SeppMail API version',
+            Position = 3
+            )
+        ]
+        [SMAPIVer]$SMAIPVersion=$Script:DefaultAPIVer,
+
+        [Parameter(
+            Mandatory = $false,
+            Position = 4
+            )
+        ]
+        [switch]$SMASkipCertCheck=$false
+    )
 
     begin {
 
@@ -301,11 +328,8 @@ param([Parameter(Mandatory = $true,
     end {
 
     }; # end END
-}; # end function New-SMAConfiguration
+} # end function New-SMAConfiguration
 
-
-function Remove-SMAConfiguration
-{
 <#
 .SYNOPSIS 
 Removes a configuration.
@@ -329,35 +353,56 @@ Removes a particular configuration.
 Remove-SMAConfiguraiton -ConfigurationName <name of config> -Force
 Removes a particular configuration. Even the configuration is configured as default or active configuration, the configuration will be removed.
 #>
-
-[cmdletbinding(SupportsShouldProcess=$true,ConfirmImpact='High')]    
-param([Parameter(Mandatory = $true, HelpMessage='Enter the name of the configuration to remove',Position = 0)][ArgumentCompleter( {
-    param ( $CommandName,
-        $ParameterName,
-        $WordToComplete,
-        $CommandAst,
-        $FakeBoundParameters )  
-    $tmpList=$__SEPPmailAPI_ModuleData.getConfigList();
-    $cfgList=@();
-    foreach ($item in $tmpList)
-    {
-        if ($item.contains(' '))
-        {
-            $cfgList+="'"+$item+"'";
-        } # end if
-        else {
-            $cfgList+=$item;
-        }; # end else
-    };
-    $cfgList.Where({ $_ -like "$wordToComplete*" });
-    } )][string]$ConfigurationName,
-    [Parameter(Mandatory = $false, Position = 2)][switch]$Force
-            
-     )
+function Remove-SMAConfiguration
+{
+    [cmdletbinding(
+            SupportsShouldProcess=$true,
+            ConfirmImpact='High'
+        )
+    ]    
+    param(
+        [Parameter(
+            Mandatory = $true,
+            HelpMessage='Enter the name of the configuration to remove',
+            Position = 0
+            )
+        ]
+        [ArgumentCompleter( 
+                {
+                param ( 
+                    $CommandName,
+                    $ParameterName,
+                    $WordToComplete,
+                    $CommandAst,
+                    $FakeBoundParameters 
+                )  
+                $tmpList=$__SEPPmailAPI_ModuleData.getConfigList();
+                $cfgList=@();
+                foreach ($item in $tmpList)
+                {
+                    if ($item.contains(' '))
+                    {
+                        $cfgList+="'"+$item+"'";
+                    } # end if
+                    else {
+                        $cfgList+=$item;
+                    }; # end else
+                }
+                $cfgList.Where({ $_ -like "$wordToComplete*" })
+                }
+            )
+        ]
+        [string]$ConfigurationName,
+        [Parameter(
+            Mandatory = $false,
+            Position = 2)
+        ]
+        [switch]$Force
+    )
 
     begin {
 
-    }; # end begin
+    } # end begin
 
     process {
         
@@ -407,8 +452,6 @@ param([Parameter(Mandatory = $true, HelpMessage='Enter the name of the configura
     
 }; # end function Remove-SMAConfiguration
 
-function Test-SMAConfiguration
-{
 <#
 .SYNOPSIS 
 Test a configuration.
@@ -421,29 +464,44 @@ The name of a configuration, which should be tested against a SeppMail appliance
 .EXAMPLE
 Test-SMAConfiguration -ConfigurationName <name of config>
 #>
-[cmdletbinding()]    
-param([Parameter(Mandatory = $true, HelpMessage='Enter the name of the configuration to test',Position = 0)][ArgumentCompleter( {
-    param ( $CommandName,
-        $ParameterName,
-        $WordToComplete,
-        $CommandAst,
-        $FakeBoundParameters )  
-    $tmpList=$__SEPPmailAPI_ModuleData.getConfigList();
-    $cfgList=@();
-    foreach ($item in $tmpList)
-    {
-        if ($item.contains(' '))
-        {
-            $cfgList+="'"+$item+"'";
-        } # end if
-        else {
-            $cfgList+=$item;
-        }; # end else
-    };
-    $cfgList.Where({ $_ -like "$wordToComplete*" });
-    } )][string]$ConfigurationName
-            
-     )
+
+function Test-SMAConfiguration
+{
+    [cmdletbinding()]    
+        param(
+            [Parameter(
+                Mandatory = $true,
+                HelpMessage='Enter the name of the configuration to test',
+                Position = 0
+                )
+            ]
+            [ArgumentCompleter( 
+                    {
+                    param (
+                        $CommandName,
+                        $ParameterName,
+                        $WordToComplete,
+                        $CommandAst,
+                        $FakeBoundParameters 
+                        )  
+                        $tmpList=$__SEPPmailAPI_ModuleData.getConfigList();
+                        $cfgList=@();
+                        foreach ($item in $tmpList)
+                            {
+                                if ($item.contains(' '))
+                                {
+                                    $cfgList+="'"+$item+"'";
+                                } # end if
+                                else {
+                                    $cfgList+=$item;
+                                }; # end else
+                            };
+                        $cfgList.Where({ $_ -like "$wordToComplete*" });
+                    } 
+                )
+            ]
+            [string]$ConfigurationName
+         )
 
     begin {
 
@@ -503,9 +561,6 @@ param([Parameter(Mandatory = $true, HelpMessage='Enter the name of the configura
 }; # end function Test-SMAConfiguration
 
 
-
-function Set-SMAConfiguration
-{
 <#
 .SYNOPSIS 
 Updates a configuration.
@@ -569,43 +624,95 @@ Set-SMAConfiguration -ConfigurationName <config name> -SMAHost <host name FQDN>
 The attribute SMAHost of the configuration will be updated.
 
 #>
-[cmdletbinding(DefaultParameterSetName='__AllParameter',SupportsShouldProcess=$true)]
-param([Parameter(Mandatory = $true, HelpMessage='Enter the name of the configuration to reconfigure', Position = 0)][ArgumentCompleter( {
-    param ( $CommandName,
-        $ParameterName,
-        $WordToComplete,
-        $CommandAst,
-        $FakeBoundParameters )  
-    $tmpList=$__SEPPmailAPI_ModuleData.getConfigList();
-    $cfgList=@();
-    foreach ($item in $tmpList)
-    {
-        if ($item.contains(' '))
-        {
-            $cfgList+="'"+$item+"'";
-        } # end if
-        else {
-            $cfgList+=$item;
-        }; # end else
-    };
-    $cfgList.Where({ $_ -like "$wordToComplete*" });
-    } )][string]$ConfigurationName,
+function Set-SMAConfiguration
+{
+    [cmdletbinding(
+        DefaultParameterSetName='__AllParameter',
+        SupportsShouldProcess=$true)
+    ]
+    param(
+        [Parameter(
+            Mandatory = $true,
+            HelpMessage='Enter the name of the configuration to reconfigure',
+            Position = 0)
+        ]
+        [ArgumentCompleter(
+            {
+                param ( 
+                    $CommandName,
+                    $ParameterName,
+                    $WordToComplete,
+                    $CommandAst,
+                    $FakeBoundParameters
+                    )  
+                $tmpList=$__SEPPmailAPI_ModuleData.getConfigList();
+                $cfgList=@();
+                foreach ($item in $tmpList)
+                {
+                    if ($item.contains(' '))
+                    {
+                        $cfgList+="'"+$item+"'";
+                    } # end if
+                    else {
+                        $cfgList+=$item;
+                    }; # end else
+                };
+                $cfgList.Where({ $_ -like "$wordToComplete*" });
+                } 
+            )
+        ]
+        [string]$ConfigurationName,
 
-      [Parameter(ParametersetName='Cfg',Mandatory = $false,
-      Position = 1)][string]$SMAHost,
-      [Parameter(ParametersetName='Cfg',Mandatory = $false,
-      Position = 2)][System.Management.Automation.PSCredential]$SMACredential,
-      [Parameter(ParametersetName='Cfg',Mandatory = $false,
-      Position = 3)][int]$SMAPort,
-      [Parameter(ParametersetName='Cfg',Mandatory = $false,
-      Position = 4)][SMAPIVer]$SMAPIVersion,
-      [Parameter(ParametersetName='Cfg',Mandatory = $false,
-      Position = 5)][Boolean]$SMASkipCertCheck,
-      [Parameter(ParametersetName='SetDef',Mandatory = $false,
-      Position = 6)][switch]$SetAsDefault=$false,
-      [Parameter(ParametersetName='SetActive',Mandatory = $false,
-      Position = 6)][switch]$SetActive=$false
-     )
+        [Parameter(
+            ParametersetName='Cfg',
+            Mandatory = $false,
+            Position = 1
+            )
+        ]
+        [string]$SMAHost,
+        [Parameter(
+            ParametersetName='Cfg',
+            Mandatory = $false,
+            Position = 2
+            )
+        ]
+        [System.Management.Automation.PSCredential]$SMACredential,
+        [Parameter(
+            ParametersetName='Cfg',
+            Mandatory = $false,
+            Position = 3
+            )
+        ]
+        [int]$SMAPort,
+        [Parameter(
+            ParametersetName='Cfg',
+            Mandatory = $false,
+            Position = 4
+            )
+        ]
+        [SMAPIVer]$SMAPIVersion,
+        [Parameter(
+            ParametersetName='Cfg',
+            Mandatory = $false,
+            Position = 5
+            )
+        ]
+        [Boolean]$SMASkipCertCheck,
+        [Parameter(
+            ParametersetName='SetDef',
+            Mandatory = $false,
+            Position = 6
+            )
+        ]
+        [switch]$SetAsDefault=$false,
+        [Parameter(
+            ParametersetName='SetActive',
+            Mandatory = $false,
+            Position = 6
+            )
+        ]
+        [switch]$SetActive=$false
+    )
 
     begin {
 
@@ -684,13 +791,13 @@ param([Parameter(Mandatory = $true, HelpMessage='Enter the name of the configura
                         setDefaultCfg -ConfigurationName $ConfigurationName;                
                     }; # end if
                     break;
-                }; # end setDef                
-            }; # end switch
+                } # end setDef                
+            } # end switch
             
-        }; # end else        
-    }; #end process
+        } # end else        
+    } #end process
     
     end {
 
-    }; # end END
-}; # end function Set-SMAConfiguration
+    } # end END
+} # end function Set-SMAConfiguration
