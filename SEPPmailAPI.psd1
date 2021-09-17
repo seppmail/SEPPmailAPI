@@ -117,6 +117,7 @@ FunctionsToExport = @(
        'New-SMAManagedDomain'
        'Set-SMAManagedDomain'
     'Remove-SMAManagedDomain'
+       'Get-SMAStatistics'
 )
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
@@ -126,7 +127,7 @@ CmdletsToExport = @()
 VariablesToExport = '*'
 
 # Aliases to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no aliases to export.
-AliasesToExport = @()
+AliasesToExport = @('*')
 
 # DSC resources to export from this module
 # DscResourcesToExport = @()
@@ -152,6 +153,7 @@ FileList = @(
     '.\Public\SEPPmailAPI-Info.ps1',
     '.\Public\SEPPmailAPI-ManagedDomain.ps1',
     '.\Public\SEPPMailAPI-ModuleCfg.ps1',
+    '.\Public\SEPPMailAPI-Statistics.psd1',
     '.\Public\SEPPMailAPI-Template.ps1',
     '.\Public\SEPPmailAPI-User.ps1'
 )
@@ -167,8 +169,8 @@ PrivateData = @{
                 'REST-API',
                 'PSEdition_Desktop',
                 'PSEdition_Core',
-                'Windows'
-                #'Linux',
+                'Windows',
+                'Linux'
                 #'MacOS'
                 )
 
@@ -202,7 +204,7 @@ PrivateData = @{
 '@
 
         # Prerelease string of this module
-        Prerelease = 'beta3'
+        Prerelease = 'beta4'
 
         # Flag to indicate whether the module requires explicit user acceptance for install/update/save
         # RequireLicenseAcceptance = $false

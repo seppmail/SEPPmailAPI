@@ -1,80 +1,38 @@
 <#
 .SYNOPSIS
-    Gets Information about encryption possibilities of a domain od a user
+    Gets Information about statistics of your SEPPmail appliance
 .DESCRIPTION
-    This CmdLet emits information about what encryption options an recipient address may have. There are 3 parameter sets 
-    on how you can use the CmdLet. 
+    This CmdLet emits information about what the SEPPmail has done over time. Options are all/user or domain .
 .EXAMPLE
-    PS C:\> Get-SMAEncInfo
-    With this CmdLet you get information about the encryption options you have for all users.
-    Be careful, as this returns all options for all users
+    PS C:\> Get-SMAStatistics
+    With this CmdLet you get information about the statistics information.
+    This returns all available statistics (Default value -type all)
 .EXAMPLE
-    PS C:\> Get-SMAEncInfo -email 'john.doe@domain.com'
-    This provides te same information as without parameters, just filters to one specific user
+    PS C:\> Get-SMAEncInfo -type user
+    This provides the same information as without parameters, just filters to users
 .EXAMPLE
-    PS C:\> Get-SMAEncInfo -email 'john.doe@domain.com' -Mode smime
-    Filter to a specific user and a specific encryption mode    
+    PS C:\> Get-SMAEncInfo -type domain
+    This provides the same information as without parameters, just filters to users
 .EXAMPLE
-    PS C:\> Get-SMAEncInfo -email 'john.doe@domain.com' -Range domain -Mode smime
-    Filter to a specific user for domain encryption and and a specific encryption mode (smime)
-.EXAMPLE
-    PS C:\> Get-SMAEncInfo -Mode hin
-    Filter to a hin encryption only
-.EXAMPLE
-    PS C:\> Get-SMAEncInfo -Mode pgp -Range domain
-    Filter to a pgp encryption only and focis on domains
+    PS C:\> Get-SMAStatistics -rebuildList
+    The -rebuild switch parameter rebuilds the statistic database to get accurate information. Makes the request slower. The -rebuildList switch can be combined with the -type parameter -type
 #>
-function Get-SMAEncInfo
+function Get-SMAStatistics
 {
     [CmdletBinding()]
     param (
-
-        #region email param for all 3 Parametersets
         [Parameter(
-            ParameterSetName = 'Plain',
                    Mandatory = $false,
-                 HelpMessage = 'Filter to a specific e-mail address'
+                 HelpMessage = 'Rebuild statistics database'
         )]
-        [Parameter(
-            ParameterSetName = 'Mode',
-                   Mandatory = $false,
-                 HelpMessage = 'Filter to a specific e-mail address'
-        )]
-        [Parameter(
-            ParameterSetName = 'Range',
-                   Mandatory = $false,
-                 HelpMessage = 'Filter to a specific e-mail address'
-        )]
-        [Alias('eMailAddress')]
-        [String]$eMail,
+        [switch]$rebuildList,
     
-        #region Mode parameter for 2 parameter sets
         [Parameter(
-            ParameterSetName = 'Mode',
-            Mandatory = $true,
-                 HelpMessage = 'Filter to a specific encryption mode'
+                   Mandatory = $false,
+                 HelpMessage = 'Filter to a specific statistics type'
         )]
-        [Parameter(
-            ParameterSetName = 'Range',
-                   Mandatory = $true,
-                 HelpMessage = 'Filter to a specific encryption range'
-        )]
-        [ValidateSet('smime','pgp', 'hin', 'tls','webmail')]
-        [Alias('encMode','encryptionMode')]
-        [String]$Mode,
-        #endregion
-
-        #region ParamSet Range
-        [Parameter(
-            ParameterSetName = 'Range',
-                   Mandatory = $true,
-                 HelpMessage = 'Filter to a specific encryption range'
-        )]
-        [ValidateSet('domain','personal')]
-        [Alias('encRange','encryptionRange')]
-        [String]$Range,
-        #endregion
-              
+        [ValidateSet('user', 'domain', 'all')]
+        [String]$type = 'all',
 
         #region Config parameters block
         [Parameter(Mandatory = $false)]
@@ -104,20 +62,8 @@ function Get-SMAEncInfo
             Throw($missingVarsMessage);
         }; # end if
         try {
-            if ($psCmdlet.ParameterSetName -eq 'Plain') {
                 Write-Verbose "Creating URL path"
-                $uriPath = "{0}/{1}" -f 'info', 'encryption'
-            }
-
-            if ($psCmdlet.ParameterSetName -eq 'Mode') {
-                Write-Verbose "Creating URL path"
-                $uriPath = "{0}/{1}/{2}" -f 'info', 'encryption', $Mode
-            }
-
-            if ($psCmdlet.ParameterSetName -eq 'Range') {
-                Write-Verbose "Creating URL path"
-                $uriPath = "{0}/{1}/{2}/{3}" -f 'info', 'encryption', $Mode, $Range
-            }
+                $uriPath = "statistics"
         }
         catch {
             Write-Error "Error$.categoryInfo happened setting REST-Path variables "
@@ -127,22 +73,18 @@ function Get-SMAEncInfo
         try {
     
             Write-Verbose "Building full request uri"
-            $smaParams=@{
-                Host=$Host
-                Port=$Port
-                Version=$Version
+            $smaParams = @{
+                Host    = $Host
+                Port    = $Port
+                Version = $Version
             } # end smaParams
 
             $uri = $null
-            if ($email) {
-                $boundParam = @{
-                    email = $email
-                }
-                $uri = New-SMAQueryString -uriPath $uriPath -qParam $boundParam @smaParams
+            $boundParam = @{
+                type = $type
+                rebuildList = if ($rebuildList) {$true} else {$false}
             }
-            else {
-                $uri = New-SMAQueryString -uriPath $uriPath @smaParams
-            }
+            $uri = New-SMAQueryString -uriPath $uriPath -qParam $boundParam @smaParams
 
             
             Write-verbose "Crafting Invokeparam for Invoke-SMARestMethod"
@@ -157,14 +99,14 @@ function Get-SMAEncInfo
             $invokeparam.Uri = ($invokeParam.Uri).Replace('%40','@')
 
             Write-Verbose "Call Invoke-SMARestMethod $uri" 
-            $encInfo = Invoke-SMARestMethod @invokeParam
+            $statsInfo = Invoke-SMARestMethod @invokeParam
 
             #Write-Verbose 'Converting Umlauts from ISO-8859-1'
             #Encinfo = ConvertFrom-SMAPIFormat -inputObject $encInfoRaw
     
             # Userobject
-            if ($encInfo) {
-                return $encInfo
+            if ($statsInfo) {
+                return $statsInfo
             }
             else {
                 Write-Information 'Nothing to return'
@@ -180,7 +122,7 @@ function Get-SMAEncInfo
     }
 }
 
-
+New-Alias -Name Get-SMAStat -Value Get-SMAStatistics
 
 # SIG # Begin signature block
 # MIIL1wYJKoZIhvcNAQcCoIILyDCCC8QCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB

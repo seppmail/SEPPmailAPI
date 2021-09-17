@@ -1,10 +1,15 @@
 [CmdLetBinding()]
 $ModulePath = $PSScriptroot
-. $ModulePath\Public\SEPPmailAPI-User.ps1
-. $ModulePath\Public\SEPPmailAPI-Customer.ps1
-. $ModulePath\Public\SEPPmailAPI-Info.ps1
-. $ModulePath\Public\SEPPMailAPI-ModuleCfg.ps1
 . $ModulePath\Private\SEPPmailAPIPrivate_Cfg.ps1;
+
+. $ModulePath\Public\SEPPmailAPI-Customer.ps1
+. $ModulePath\Public\SEPPmailAPI-Disclaimer.ps1
+. $ModulePath\Public\SEPPmailAPI-Info.ps1
+. $ModulePath\Public\SEPPmailAPI-ManagedDomain.ps1
+. $ModulePath\Public\SEPPMailAPI-ModuleCfg.ps1
+. $ModulePath\Public\SEPPmailAPI-Statistics.ps1
+. $ModulePath\Public\SEPPmailAPI-Template.ps1
+. $ModulePath\Public\SEPPmailAPI-User.ps1
 
 $script:requiredVarList=@(
     'Host',
@@ -56,6 +61,9 @@ foreach ($entry in $mList)
 $vName='__' + $Script:ModuleName +'_ModuleData'; 
 New-Variable -Name $vName -Value ([GetModuleData]::new()); # export object, needed for argument completer
 Export-ModuleMember -Variable $vName;
+
+#As some CmdLets get pretty long, we add aliases here.
+Export-ModuleMember -Alias * -Function *
 
 initEnumerator;
 initModule;

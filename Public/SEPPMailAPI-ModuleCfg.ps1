@@ -42,31 +42,64 @@ Get-SMAConfiguration
 Lists the currently active configuration.
 #>
 [cmdletbinding(DefaultParametersetName='__AllParameter')]    
-param([Parameter(ParameterSetName='CfgFromVault',Mandatory = $false,
-    Position = 0)][ArgumentCompleter( {
-    param ( $CommandName,
-        $ParameterName,
-        $WordToComplete,
-        $CommandAst,
-        $FakeBoundParameters )  
-    $tmpList=$__SEPPmailAPI_ModuleData.getConfigList();
-    $cfgList=@();
-    foreach ($item in $tmpList)
-    {
-        if ($item.contains(' '))
-        {
-            $cfgList+="'"+$item+"'";
-        } # end if
-        else {
-            $cfgList+=$item;
-        }; # end else
-    };
-    $cfgList.Where({ $_ -like "$wordToComplete*" });
-    } )][string]$ConfigurationName,
-      [Parameter(ParameterSetName='Default',Mandatory = $false, Position = 0)][switch]$Default=$false,
-      [Parameter(ParameterSetName='ListAll',Mandatory = $false, Position = 0)][switch]$List=$false,
-      [Parameter(Mandatory = $false, Position = 2)][Validateset('Table','List','PassValue')][String]$Format='Table'      
-     )
+param(
+    [Parameter(
+        ParameterSetName='CfgFromVault',
+        Mandatory = $false,
+        Position = 0
+        )
+    ]
+    [ArgumentCompleter( 
+            {
+                param ( 
+                    $CommandName,
+                    $ParameterName,
+                    $WordToComplete,
+                    $CommandAst,
+                    $FakeBoundParameters
+                )  
+                $tmpList=$__SEPPmailAPI_ModuleData.getConfigList();
+                $cfgList=@();
+                
+                foreach ($item in $tmpList) {
+                    if ($item.contains(' ')) {
+                        $cfgList+="'"+$item+"'";
+                        } # end if
+                    else {
+                        $cfgList+=$item;
+                        }; # end else
+                    };
+                
+                    $cfgList.Where({ $_ -like "$wordToComplete*" }
+                );
+            } 
+        )
+    ]
+    [string]$ConfigurationName,
+      
+    [Parameter(
+        ParameterSetName='Default',
+        Mandatory = $false, 
+        Position = 0)
+    ]
+    [switch]$Default=$false,
+    
+    [Parameter(
+        ParameterSetName = 'ListAll',
+        Mandatory = $false,
+        Position = 0
+        )
+    ]
+    [switch]$List = $false,
+
+    [Parameter(
+        Mandatory = $false,
+        Position = 2
+        )
+    ]
+    [Validateset('Table','List','PassValue')]
+    [String]$Format='Table'      
+    )
 
     begin {
 
