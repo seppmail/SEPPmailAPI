@@ -12,7 +12,7 @@
 RootModule = '.\SEPPmailAPI.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.9.1'
+ModuleVersion = '0.9.3'
 
 # Supported PSEditions
 CompatiblePSEditions = @('Desktop','Core')
@@ -75,47 +75,47 @@ NestedModules = @(
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
 FunctionsToExport = @(
-    'Get-SMAUser'
-    'Find-SMAUser'
-    'New-SMAUser'
-    'Set-SMAUser'
+       'Get-SMAUser'
+      'Find-SMAUser'
+       'New-SMAUser'
+       'Set-SMAUser'
     'Remove-SMAUser'
-    'Find-SMACustomer'
-    'Get-SMACustomer'
-    'New-SMACustomer'
-    'Set-SMACustomer'
+      'Find-SMACustomer'
+       'Get-SMACustomer'
+       'New-SMACustomer'
+       'Set-SMACustomer'
     'Remove-SMACustomer'
     'Export-SMACustomer'
     'Import-SMACustomer'
-    'Get-SMAEncInfo'
-    'Add-SMACustomerAdmin'
+       'Get-SMAEncInfo'
+       'Add-SMACustomerAdmin'
     'Remove-SMACustomerAdmin'
-    'Set-SMAConfiguration'
-    'Get-SMAConfiguration'
-    'New-SMAConfiguration'
+       'Set-SMAConfiguration'
+       'Get-SMAConfiguration'
+       'New-SMAConfiguration'
     'Remove-SMAConfiguration'
-    'Test-SMAConfiguration'
-    'Find-SMATemplate'
-    'Get-SMATemplate'
-    'New-SMATemplate'
-    'Set-SMATemplate'
+      'Test-SMAConfiguration'
+      'Find-SMATemplate'
+       'Get-SMATemplate'
+       'New-SMATemplate'
+       'Set-SMATemplate'
     'Remove-SMATemplate'
-    'Find-SMATemplateInclude'
-    'Get-SMATemplateInclude'
-    'New-SMATemplateInclude'
+      'Find-SMATemplateInclude'
+       'Get-SMATemplateInclude'
+       'New-SMATemplateInclude'
     'Remove-SMATemplateInclude'
-    'Find-SMADisclaimer'
-    'Get-SMADisclaimer'
-    'New-SMADisclaimer'
-    'Set-SMADisclaimer'
+      'Find-SMADisclaimer'
+       'Get-SMADisclaimer'
+       'New-SMADisclaimer'
+       'Set-SMADisclaimer'
     'Remove-SMADisclaimer'
-    'Find-SMADisclaimerInclude'
-    'New-SMADisclaimerInclude'
+      'Find-SMADisclaimerInclude'
+       'New-SMADisclaimerInclude'
     'Remove-SMADisclaimerInclude'
-    'Find-SMAManagedDomain'
-    'Get-SMAManagedDomain'
-    'New-SMAManagedDomain'
-    'Set-SMAManagedDomain'
+      'Find-SMAManagedDomain'
+       'Get-SMAManagedDomain'
+       'New-SMAManagedDomain'
+       'Set-SMAManagedDomain'
     'Remove-SMAManagedDomain'
 )
 
@@ -135,7 +135,26 @@ AliasesToExport = @()
 # ModuleList = @()
 
 # List of all files packaged with this module
-# FileList = @()
+FileList = @(
+    '.\SEPPmailAPI.psm1',
+    '.\SEPPmailAPI.psd1',
+    '.\Readme.MD',
+    '.\LICENSE',
+    '.\examples\examples.md',
+    '.\examples\customers.csv',
+    '.\examples\NewUsers.csv',
+    '.\examples\RemoveUsers.csv',
+    '.\examples\UpdateUsers.csv',
+    '.\Private\SEPPmailAPIPrivate.ps1',
+    '.\Private\SEPPmailAPIPrivate_Cfg.ps1',
+    '.\Public\SEPPmailAPI-Customer.ps1',
+    '.\Public\SEPPMailAPI-Disclaimer.ps1',
+    '.\Public\SEPPmailAPI-Info.ps1',
+    '.\Public\SEPPmailAPI-ManagedDomain.ps1',
+    '.\Public\SEPPMailAPI-ModuleCfg.ps1',
+    '.\Public\SEPPMailAPI-Template.ps1',
+    '.\Public\SEPPmailAPI-User.ps1'
+)
 
 # Private data to pass to the module specified in RootModule/ModuleToProcess. This may also contain a PSData hashtable with additional module metadata used by PowerShell.
 PrivateData = @{
@@ -178,6 +197,8 @@ PrivateData = @{
 070721: 0.9.0 - Adding Support for multiple configs and SecretStore
 
 260721: 0.9.1 - Adding Support for Encryption Information
+
+170921: 0.9.2 - Adding Support for ManagedDomain, MailTemplate, Disclaimer
 '@
 
         # Prerelease string of this module
