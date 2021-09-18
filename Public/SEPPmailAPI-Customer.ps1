@@ -1254,8 +1254,16 @@ function Remove-SMAcustomerAdmin
 	}
 }
 
+Write-Verbose 'Create CmdLet Alias for Customers' 
+$custVerbs = ('Add','Remove','Get','Import','Export','Find','Set')
 
-#>
+Foreach ($custverb in $custVerbs) {
+    $aliasname1 = $custverb + '-SMACust'
+    $aliasname2 = $custverb + '-SMATen'
+    $cmdName = $custverb + '-SMACustomer'
+    New-Alias -Name $aliasName1 -Value $cmdName
+    New-Alias -Name $aliasName2 -Value $cmdName
+}
 
 
 # SIG # Begin signature block
