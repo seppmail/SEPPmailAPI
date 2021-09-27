@@ -278,18 +278,16 @@ function New-SMAGinaUser {
             HelpMessage = 'What password reset options are possible for this GINA user ?'
         )]
         [ValidateSet(
-            'Default',
+            'Default', 
             'Reset by e-mail verification',
-            'Reset by e-mail verification, no reminder question/answer',
+            'Reset by e-mail verification',
+            'no reminder question/answer',
             'Reset by hotline',
             'Reset by hotline, no reminder question/answer',
             'Reset by SMS',
             'Reset by SMS, no reminder question/answer',
-            'Reset by SMS',
-            'Let user choose between hotline and SMS',
-            'Let user choose between hotline and SMS, no reminder question/answer',
-            'Disable user profile and password management'
-        )]
+            'Let user choose between hotline and SMS'
+            )]
         [string]$passwordSecurityLevel = 'Default',
 
         [Parameter(
@@ -359,12 +357,12 @@ function New-SMAGinaUser {
             if ($customer) {$bodyHt.customer = $customer}
             if ($mobile) {$bodyHt.mobile = $mobile}
             if ($language) {$bodyHt.language = $language}
-            if ($zipAttachment) {$bodyHt.zipAttachment = $zipAttachment}
-            if ($mustChangePassword) {$bodyHt.mustChangePassword = $mustChangePassword}
+            if ($zipAttachment -ne $null) {$bodyHt.zipAttachment = $zipAttachment}
+            if ($mustChangePassword -ne $null) {$bodyHt.mustChangePassword = $mustChangePassword}
             if ($question) {$bodyHt.question = $question}
             if ($answer) {$bodyHt.answer = $answer}
             if ($accountStatus) {$bodyHt.accountStatus = $accountStatus}
-            if ($externalAuthentication) {$bodyHt.externalAuthentication = $externalAuthentication}
+            if ($externalAuthentication -ne $null) {$bodyHt.externalAuthentication = $externalAuthentication}
             if ($passwordSecurityLevel) {$bodyHt.passwordSecurityLevel = $passwordSecurityLevel}
             if ($authToken) {$bodyHt.authToken = $authToken}
 
@@ -514,18 +512,16 @@ function Set-SMAGinaUser {
             HelpMessage = 'What password reset options are possible for this GINA user ?'
         )]
         [ValidateSet(
-            'Default',
+            'Default', 
             'Reset by e-mail verification',
-            'Reset by e-mail verification, no reminder question/answer',
+            'Reset by e-mail verification',
+            'no reminder question/answer',
             'Reset by hotline',
             'Reset by hotline, no reminder question/answer',
             'Reset by SMS',
             'Reset by SMS, no reminder question/answer',
-            'Reset by SMS',
-            'Let user choose between hotline and SMS',
-            'Let user choose between hotline and SMS, no reminder question/answer',
-            'Disable user profile and password management'
-        )]
+            'Let user choose between hotline and SMS'
+            )]
         [string]$passwordSecurityLevel = 'Default',
 
         [Parameter(
@@ -592,13 +588,12 @@ function Set-SMAGinaUser {
             if ($customer) {$bodyHt.customer = $customer}
             if ($mobile) {$bodyHt.mobile = $mobile}
             if ($language) {$bodyHt.language = $language}
-            if ($zipAttachment) {$bodyHt.zipAttachment = $zipAttachment}
-            if ($mustChangePassword -eq $false) {$bodyHt.mustChangePassword = $false}
-            if ($mustChangePassword -eq $true) {$bodyHt.mustChangePassword = $true}
+            if ($zipAttachment -ne $null) {$bodyHt.zipAttachment = $zipAttachment}
+            if ($mustChangePassword -ne $null) {$bodyHt.mustChangePassword = $mustChangePassword}
             if ($question) {$bodyHt.question = $question}
             if ($answer) {$bodyHt.answer = $answer}
             if ($accountStatus) {$bodyHt.accountStatus = $accountStatus}
-            if ($externalAuthentication) {$bodyHt.externalAuthentication = $externalAuthentication}
+            if ($externalAuthentication -ne $null) {$bodyHt.externalAuthentication = $externalAuthentication}
             if ($passwordSecurityLevel) {$bodyHt.passwordSecurityLevel = $passwordSecurityLevel}
             if ($authToken) {$bodyHt.authToken = $authToken}
 
