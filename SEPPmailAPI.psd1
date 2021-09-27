@@ -12,7 +12,7 @@
 RootModule = '.\SEPPmailAPI.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.9.3'
+ModuleVersion = '0.9.4'
 
 # Supported PSEditions
 CompatiblePSEditions = @('Desktop','Core')
@@ -75,11 +75,6 @@ NestedModules = @(
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
 FunctionsToExport = @(
-       'Get-SMAUser'
-      'Find-SMAUser'
-       'New-SMAUser'
-       'Set-SMAUser'
-    'Remove-SMAUser'
       'Find-SMACustomer'
        'Get-SMACustomer'
        'New-SMACustomer'
@@ -95,6 +90,23 @@ FunctionsToExport = @(
        'New-SMAConfiguration'
     'Remove-SMAConfiguration'
       'Test-SMAConfiguration'
+      'Find-SMADisclaimer'
+       'Get-SMADisclaimer'
+       'New-SMADisclaimer'
+       'Set-SMADisclaimer'
+    'Remove-SMADisclaimer'
+      'Find-SMADisclaimerInclude'
+       'New-SMADisclaimerInclude'
+    'Remove-SMADisclaimerInclude'
+      'Find-SMAGinaUser'
+       'New-SMAGinaUser'
+       'Set-SMAGinaUser'
+    'Remove-SMAGinaUser'
+      'Find-SMAManagedDomain'
+       'Get-SMAManagedDomain'
+       'New-SMAManagedDomain'
+       'Set-SMAManagedDomain'
+    'Remove-SMAManagedDomain'
       'Find-SMATemplate'
        'Get-SMATemplate'
        'New-SMATemplate'
@@ -104,20 +116,12 @@ FunctionsToExport = @(
        'Get-SMATemplateInclude'
        'New-SMATemplateInclude'
     'Remove-SMATemplateInclude'
-      'Find-SMADisclaimer'
-       'Get-SMADisclaimer'
-       'New-SMADisclaimer'
-       'Set-SMADisclaimer'
-    'Remove-SMADisclaimer'
-      'Find-SMADisclaimerInclude'
-       'New-SMADisclaimerInclude'
-    'Remove-SMADisclaimerInclude'
-      'Find-SMAManagedDomain'
-       'Get-SMAManagedDomain'
-       'New-SMAManagedDomain'
-       'Set-SMAManagedDomain'
-    'Remove-SMAManagedDomain'
        'Get-SMAStatistics'
+       'Get-SMAUser'
+      'Find-SMAUser'
+       'New-SMAUser'
+       'Set-SMAUser'
+    'Remove-SMAUser'
 )
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
@@ -156,6 +160,7 @@ FileList = @(
     '.\Public\SEPPMailAPI-Statistics.psd1',
     '.\Public\SEPPMailAPI-Template.ps1',
     '.\Public\SEPPmailAPI-User.ps1'
+    '.\Public\SEPPmailAPI-Webmail.ps1'
 )
 
 # Private data to pass to the module specified in RootModule/ModuleToProcess. This may also contain a PSData hashtable with additional module metadata used by PowerShell.
@@ -201,6 +206,11 @@ PrivateData = @{
 260721: 0.9.1 - Adding Support for Encryption Information
 
 170921: 0.9.2 - Adding Support for ManagedDomain, MailTemplate, Disclaimer
+
+180921: 0.9.3 - Adding Support for Statistics
+
+270921: 0.9.4 - Adding Support for Webmail (GINA) users
+
 '@
 
         # Prerelease string of this module
@@ -222,8 +232,6 @@ HelpInfoURI = 'https://github.com/seppmail/SEPPmailAPI/blob/main/examples/exampl
 # Default prefix for commands exported from this module. Override the default prefix using Import-Module -Prefix.
 # DefaultCommandPrefix = ''
 }
-
-
 
 # SIG # Begin signature block
 # MIIL1wYJKoZIhvcNAQcCoIILyDCCC8QCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB

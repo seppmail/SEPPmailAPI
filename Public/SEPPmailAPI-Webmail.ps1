@@ -625,6 +625,120 @@ function Set-SMAGinaUser {
     
 }
 
+<#
+.SYNOPSIS
+    Remove an existing GINA User
+.DESCRIPTION
+    This CmdLet lets you delete an existinng GINA User
+.EXAMPLE
+    PS C:\> Remove-SMAGinaUser -email john.doe@contoso.com
+    Delete Gina user john.doe@contoso.com.
+#>
+function Remove-SMAGinaUser {
+    [CmdletBinding(SupportsShouldProcess)]
+    param (
+        #region REST-API Data parameters
+        #mandatory params
+
+        [Parameter(
+            Mandatory = $true,
+            ValueFromPipelineByPropertyName = $true,
+            HelpMessage = 'E-mail address of the GINA user'
+        )]
+        [ValidateNotNullorEmpty()]
+        [string]$email,
+
+        [Parameter(
+            Mandatory = $false,
+            ValueFromPipelineByPropertyName = $true,
+            HelpMessage = 'Case sensitive tenant/customer name'
+        )]
+        [string]$customer,
+        #endregion
+
+        #region Host configuration parameters
+        [Parameter(Mandatory = $false)]
+        [String]$host = $Script:activeCfg.SMAHost,
+
+        [Parameter(Mandatory = $false)]
+        [int]$port = $Script:activeCfg.SMAPort,
+
+        [Parameter(Mandatory = $false)]
+        [String]$version = $Script:activeCfg.SMAPIVersion,
+
+        [Parameter(
+            Mandatory=$false
+            )]
+            [System.Management.Automation.PSCredential]$cred=$Script:activeCfg.SMACred,
+
+        [Parameter(
+                Mandatory=$false
+            )]
+        [switch]$SkipCertCheck=$Script:activeCfg.SMAskipCertCheck
+        #endregion
+    )
+
+    begin {
+        if (! (verifyVars -VarList $Script:requiredVarList))
+        {
+            Throw($missingVarsMessage);
+        }; # end if
+
+        try {
+            Write-Verbose "Creating URL path"
+            $uriPath = "{0}/{1}/{2}" -f 'webmail', 'user', $email
+
+            Write-Verbose "Building full request uri"
+            $smaParams=@{
+                Host=$Host;
+                Port=$Port;
+                Version=$Version;
+            }
+
+            $uri = New-SMAQueryString -uriPath $uriPath @smaParams;
+        }
+        catch {
+            Write-Error "Error $error.CategoryInfo occured"
+        }
+    }
+    process {
+        try {
+            Write-Verbose 'Crafting mandatory $body JSON'
+            $bodyHt = @{
+            }
+            Write-Verbose 'Adding ptional values to $body JSON'
+            if ($customer) {$bodyHt.customer = $customer}
+
+            $body = $bodyHt|ConvertTo-JSON
+            Write-verbose "Crafting Invokeparam for Invoke-SMARestMethod"
+            $invokeParam = @{
+                  Uri         = $uri 
+                  Method      = 'DELETE'
+                  body        = $body
+                  Cred        = $cred
+                SkipCertCheck = $SkipCertCheck
+            }
+
+            if ($PSCmdLet.ShouldProcess($($bodyHt.Email),"Update user with e-mail $email")) {
+                
+                Write-Verbose "Call Invoke-SMARestMethod $uri"
+                $ginaUserRaw = Invoke-SMARestMethod @invokeParam
+                
+                return $ginaUserRaw
+                #Write-Verbose 'Returning e-Mail address of deleted users'
+                #($ginaUserraw.message -split ' ')[3]
+            }
+        }
+        catch {
+            Write-Error "An error occured, see $error"
+        }
+    }
+    end {}
+    
+}
+
+
+
 
 Write-Verbose 'Create CmdLet Alias for GINA users' 
 $custVerbs = ('New','Remove','Get','Find','Set')

@@ -19,6 +19,7 @@ function Get-SMAUser
 {
     [CmdletBinding()]
     param (
+        #region REST-API path and query parameters
         [Parameter(
             Mandatory                       = $true,
             ValueFromPipelineByPropertyName = $true,
@@ -33,14 +34,22 @@ function Get-SMAUser
             HelpMessage                     = 'For MSP´s and multi-customer environments, set the GINA users customer'
             )]
         [string]$customer,
+        #endregion
 
-        [Parameter(Mandatory = $false)]
+        # SMA host parameters
+        [Parameter(
+            Mandatory = $false
+            )]
         [String]$host = $Script:activeCfg.SMAHost,
 
-        [Parameter(Mandatory = $false)]
+        [Parameter(
+            Mandatory = $false
+            )]
         [int]$port = $Script:activeCfg.SMAPort,
 
-        [Parameter(Mandatory = $false)]
+        [Parameter(
+            Mandatory = $false
+            )]
         [String]$version = $Script:activeCfg.SMAPIVersion,
 
         [Parameter(
@@ -48,10 +57,10 @@ function Get-SMAUser
             )]
             [System.Management.Automation.PSCredential]$cred=$Script:activeCfg.SMACred,
 
-            [Parameter(
-                Mandatory=$false
-                )]
-            [switch]$SkipCertCheck=$Script:activeCfg.SMAskipCertCheck
+        [Parameter(
+            Mandatory=$false
+            )]
+        [switch]$SkipCertCheck=$Script:activeCfg.SMAskipCertCheck
     )
 
     begin {
@@ -76,7 +85,7 @@ function Get-SMAUser
                 Port=$Port;
                 Version=$Version;
             }; # end smaParams
-            $uri = New-SMAQueryString -uriPath $uriPath -qParam $boundParam @smaParams;
+            $uri = New-SMAQueryString -uriPath $uriPath -qParam $boundParam @smaParams
             
             Write-verbose "Crafting Invokeparam for Invoke-SMARestMethod"
             $invokeParam = @{
@@ -327,6 +336,7 @@ function New-SMAUser
             )]
         [string]$mpkiSubjectPart,
 
+        # Host configuration parameters
         [Parameter(Mandatory = $false)]
         [String]$host = $Script:activeCfg.SMAHost,
 
