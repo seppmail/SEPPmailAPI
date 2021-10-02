@@ -541,9 +541,9 @@ function Test-SMAConfiguration
                     SMASkipCertCheck=[bool]$tmp.Metadata.SMASkipCertCheck;
                     SMAPIVersion=$tmp.Metadata.SMAPIVersion;
                 }; # end paramList
-                if (! (testSMALocalAdmin @paramList))
+                if (! (testSMAUserStats @paramList))
                 {
-                    writeLogOutput -LogString ('Failed to access SeppMail on server ' + $smaHostName + ' and port ' + $tmp.Metadata.SMAPort) -LogType Error;
+                    writeLogOutput -LogString ('Failed to access Statistics on server ' + $smaHostName + ' and port ' + $tmp.Metadata.SMAPort) -LogType Error;
                 }; # end if
             } # end if
             else {

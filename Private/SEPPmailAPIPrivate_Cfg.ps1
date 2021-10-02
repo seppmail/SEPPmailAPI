@@ -452,14 +452,29 @@ param([Parameter(Mandatory = $true, Position = 0)][string]$ConfigurationName,
     }; # end if
     return (($testVal -eq 0) -or (($testVal -band 4) -eq 4));
 }; # end if
-function testSMALocalAdmin
+function testSMAUserStats
 {
 [CmdLetBinding()]            
-param([Parameter(Mandatory = $true, Position = 0)][string]$SMAHost,
-      [Parameter(Mandatory = $true, Position = 1)][int]$SMAPort, 
-      [Parameter(Mandatory = $false, Position = 2)][bool]$SMASkipCertCheck,
-      [Parameter(Mandatory = $true, Position = 3)][string]$SMAPIVersion,
-      [Parameter(Mandatory = $true, Position = 4)][PSCredential]$SMACred
+param([Parameter(
+          Mandatory = $true, 
+           Position = 0)]
+        [string]$SMAHost,
+      [Parameter(
+          Mandatory = $true, 
+           Position = 1)]
+        [int]$SMAPort, 
+      [Parameter(
+          Mandatory = $false,
+           Position = 2)]
+        [bool]$SMASkipCertCheck,
+      [Parameter(
+          Mandatory = $true,
+           Position = 3)]
+        [string]$SMAPIVersion,
+      [Parameter(
+          Mandatory = $true,
+          Position = 4)]
+        [PSCredential]$SMACred
      )
 
      begin {
@@ -474,7 +489,7 @@ param([Parameter(Mandatory = $true, Position = 0)][string]$SMAHost,
      process {
 
          try {
-            $tmpRv=Get-SMAUser -email 'admin@local' -cred $SMACred -host $SMAHost -port $SMAPort -version $SMAPIVersion -SkipCertCheck:$SMASkipCertCheck;
+            $tmpRv=Get-SMAStatistics -type 'user' -cred $SMACred -host $SMAHost -port $SMAPort -version $SMAPIVersion -SkipCertCheck:$SMASkipCertCheck;
             return ($null -ne $tmpRv);
          } # end try
          catch {
