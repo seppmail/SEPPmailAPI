@@ -624,7 +624,7 @@ function Remove-SMAUser
         [Parameter(
             Mandatory                       = $false,
             ValueFromPipelineByPropertyName = $true,
-            HelpMessage                     = 'if true certificates and private keys will not be deleted'
+            HelpMessage                     = 'If true certificates and private keys will not be deleted'
             )]
         [switch]$keepKeys,
 

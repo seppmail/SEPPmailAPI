@@ -1042,7 +1042,7 @@ function Import-SMACustomer
 
         if ($PSCmdLet.ShouldProcess($name,"Import customer")) {
             Write-Verbose "Call Invoke-SMARestMethod $uri" 
-            Wait-Debugger
+            #Wait-Debugger
             Invoke-SMARestMethod @invokeParam
         }
 
