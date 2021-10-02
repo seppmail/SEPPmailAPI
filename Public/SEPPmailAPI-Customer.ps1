@@ -51,7 +51,7 @@ function Find-SMACustomer
         $uriPath = 'customer'
 
         Write-verbose "Build Parameter hashtable"
-        $boundParam = @{list=$true}
+        $boundParam = @{list=$list}
         
         Write-Verbose "Build QueryString"
         $smaParams=@{
