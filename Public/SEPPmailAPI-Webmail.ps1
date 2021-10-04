@@ -641,17 +641,18 @@ function Remove-SMAGinaUser {
         #mandatory params
 
         [Parameter(
-            Mandatory = $true,
+                                  Mandatory = $true,
+                          ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true,
-            HelpMessage = 'E-mail address of the GINA user'
+                                HelpMessage = 'E-mail address of the GINA user'
         )]
         [ValidateNotNullorEmpty()]
-        [string]$email,
+        [string]$eMail,
 
         [Parameter(
-            Mandatory = $false,
+                                  Mandatory = $false,
             ValueFromPipelineByPropertyName = $true,
-            HelpMessage = 'Case sensitive tenant/customer name'
+                                HelpMessage = 'Case sensitive tenant/customer name'
         )]
         [string]$customer,
         #endregion
@@ -704,18 +705,17 @@ function Remove-SMAGinaUser {
     process {
         try {
             Write-Verbose 'Crafting mandatory $body JSON'
-            $bodyHt = @{
-            }
+            $bodyHt = @{}
             Write-Verbose 'Adding ptional values to $body JSON'
             if ($customer) {$bodyHt.customer = $customer}
 
             $body = $bodyHt|ConvertTo-JSON
             Write-verbose "Crafting Invokeparam for Invoke-SMARestMethod"
             $invokeParam = @{
-                  Uri         = $uri 
-                  Method      = 'DELETE'
-                  body        = $body
-                  Cred        = $cred
+                Uri           = $uri 
+                Method        = 'DELETE'
+                body          = $body
+                Cred          = $cred
                 SkipCertCheck = $SkipCertCheck
             }
 
@@ -736,8 +736,6 @@ function Remove-SMAGinaUser {
     end {}
     
 }
-
-
 
 
 Write-Verbose 'Create CmdLet Alias for GINA users' 

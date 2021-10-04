@@ -388,12 +388,12 @@ function New-SMAUser
                 email = $email
             }
             Write-Verbose 'Adding Optional values to $body JSON'
-            if ($customer) {$bodyht.customer = $customer}
-            if ($locked) {$bodyht.locked = $locked}
-            if ($mayNotEncrypt) {$bodyht.mayNotEncrypt = $mayNotEncrypt}
-            if ($mayNotSign) {$bodyht.mayNotSign = $mayNotSign}
+                   if ($customer) {$bodyht.customer = $customer}
+                     if ($locked) {$bodyht.locked = $locked}
+              if ($mayNotEncrypt) {$bodyht.mayNotEncrypt = $mayNotEncrypt}
+                 if ($mayNotSign) {$bodyht.mayNotSign = $mayNotSign}
             if ($mpkiSubjectPart) {$bodyht.mpkiSubjectPart = $mpkiSubjectPart}
-            if ($notifications) {$bodyht.notifications = $notifications}
+              if ($notifications) {$bodyht.notifications = $notifications}
             
             $body = $bodyht|ConvertTo-JSON
             Write-verbose "Crafting Invokeparam for Invoke-SMARestMethod"
