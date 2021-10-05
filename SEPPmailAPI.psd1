@@ -12,7 +12,7 @@
 RootModule = '.\SEPPmailAPI.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.9.4'
+ModuleVersion = '0.9.5'
 
 # Supported PSEditions
 CompatiblePSEditions = @('Desktop','Core')
@@ -102,6 +102,10 @@ FunctionsToExport = @(
        'New-SMAGinaUser'
        'Set-SMAGinaUser'
     'Remove-SMAGinaUser'
+      'Find-SMAGroup'
+       'New-SMAGroup'
+       'Set-SMAGroup'
+ #   'Remove-SMAGroup'
       'Find-SMAManagedDomain'
        'Get-SMAManagedDomain'
        'New-SMAManagedDomain'
@@ -154,6 +158,7 @@ FileList = @(
     '.\Private\SEPPmailAPIPrivate_Cfg.ps1',
     '.\Public\SEPPmailAPI-Customer.ps1',
     '.\Public\SEPPMailAPI-Disclaimer.ps1',
+    '.\Public\SEPPMailAPI-Group.ps1',
     '.\Public\SEPPmailAPI-Info.ps1',
     '.\Public\SEPPmailAPI-ManagedDomain.ps1',
     '.\Public\SEPPMailAPI-ModuleCfg.ps1',
@@ -211,10 +216,12 @@ PrivateData = @{
 
 270921: 0.9.4 - Adding Support for Webmail (GINA) users
 
+031021: 0.9.5 - Adding Support for Groups
+
 '@
 
         # Prerelease string of this module
-        Prerelease = 'beta4'
+        Prerelease = 'beta5'
 
         # Flag to indicate whether the module requires explicit user acceptance for install/update/save
         # RequireLicenseAcceptance = $false

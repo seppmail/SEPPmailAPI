@@ -5,6 +5,7 @@ $ModulePath = $PSScriptroot
 . $ModulePath\Public\SEPPmailAPI-Customer.ps1
 . $ModulePath\Public\SEPPmailAPI-Disclaimer.ps1
 . $ModulePath\Public\SEPPmailAPI-Info.ps1
+. $ModulePath\Public\SEPPmailAPI-Group.ps1
 . $ModulePath\Public\SEPPmailAPI-ManagedDomain.ps1
 . $ModulePath\Public\SEPPMailAPI-ModuleCfg.ps1
 . $ModulePath\Public\SEPPmailAPI-Statistics.ps1
