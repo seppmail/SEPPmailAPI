@@ -335,7 +335,7 @@ function Set-SMAGroup {
                 return $groupRaw
             }
             else {
-                Write-Warning 'Nothing to return'
+                Write-Information 'Nothing to return'
             }
 
         }
@@ -345,53 +345,42 @@ function Set-SMAGroup {
     }
 }
 
-
-
 <#
 .SYNOPSIS
-    Find a locally existing users and details
+    Get a list of locally existing groups
 .DESCRIPTION
-    This CmdLet lets you read the detailed properties of multiple users.
+    This CmdLet shows locally existing grops from the SEPPmail appliance.
 .EXAMPLE
-    PS C:\> Find-SMAUser
-    Emits all users and their details - may take some time
-.EXAMPLE
-    PS C:\> Find-SMAUser -List
-    Emits all users - mail-addresses only
-.EXAMPLE
-    PS C:\> Find-SMAUser -customer 'Contoso'
-    Emits all users of a particular customer
-.EXAMPLE
-    PS C:\> Find-SMAUser -customer 'Contoso' -List
-    Emits e-mail addresses of all users of a particular customer
+    # Get details of a specific group
+    PS C:\> Get-SMAGroup -Name 'myGroup'
 #>
-<#function Find-SMAUser
+function Get-SMAGroup
 {
     [CmdletBinding()]
     param (
+        #region REST-API path and query parameters
         [Parameter(
-            Mandatory                       = $false,
+            Mandatory                       = $true,
             ValueFromPipelineByPropertyName = $true,
-            ValueFromPipeline               = $true,
-            HelpMessage                     = 'For MSP´s and multi-customer environments, limit query for a specific customer'
+            HelpMessage                     = 'The groupss full name'
             )]
-        [string]$customer,
+        [string]$name,
+        #endregion
 
-        
+        #region SMA host parameters
         [Parameter(
-            Mandatory                       = $false,
-            ValueFromPipelineByPropertyName = $true,
-            HelpMessage                     = 'Show list with e-mail address only'
+            Mandatory = $false
             )]
-        [switch]$list,
-
-        [Parameter(Mandatory = $false)]
         [String]$host = $Script:activeCfg.SMAHost,
 
-        [Parameter(Mandatory = $false)]
+        [Parameter(
+            Mandatory = $false
+            )]
         [int]$port = $Script:activeCfg.SMAPort,
 
-        [Parameter(Mandatory = $false)]
+        [Parameter(
+            Mandatory = $false
+            )]
         [String]$version = $Script:activeCfg.SMAPIVersion,
 
         [Parameter(
@@ -399,97 +388,101 @@ function Set-SMAGroup {
             )]
             [System.Management.Automation.PSCredential]$cred=$Script:activeCfg.SMACred,
 
-            [Parameter(
-                Mandatory=$false
-                )]
-            [switch]$SkipCertCheck=$Script:activeCfg.SMAskipCertCheck
-                
+        [Parameter(
+            Mandatory=$false
+            )]
+        [switch]$SkipCertCheck=$Script:activeCfg.SMAskipCertCheck
+        #endregion
     )
 
-    if (! (verifyVars -VarList $Script:requiredVarList))
-    {
-        Throw($missingVarsMessage);
-    }; # end if
-
-    try {
-        Write-Verbose "Building full request uri"
-        $boundParam = $psCmdLet.MyInvocation.BoundParameters
-        $smaParams=@{
-            Host=$Host;
-            Port=$Port;
-            Version=$Version;
-        }; # end smaParams
-
-        $uri = New-SMAQueryString -uriPath 'user' -qParam $boundParam @smaParams;
-
-        Write-verbose "Crafting Invokeparam for Invoke-SMARestMethod"
-        $invokeParam = @{
-            Uri         = $uri 
-            Method      = 'GET'
-            Cred        =  $cred
-            SkipCertCheck = $SkipCertCheck
-        }
-
-        Write-Verbose "Call Invoke-SMARestMethod $uri" 
-        $UserRaw = Invoke-SMARestMethod @invokeParam
-
-        Write-Verbose 'Filter data and return as PSObject'
-
-        if ($list) {
-            $Finduser = $userraw
-        }
-        else {
-            $FindUser = $userraw.Psobject.properties.value
-        }
-
-        Write-Verbose 'Converting Umlauts from ISO-8859-1 and DateTime correctly'
-        $user = foreach ($u in $finduser) {ConvertFrom-SMAPIFormat -inputobject $u}
-
-        if ($User) {
-            return $User
-        }
-        else {
-            Write-Information 'Nothing to return'
-        }
-
+    begin {
+        if (! (verifyVars -VarList $Script:requiredVarList))
+        {
+            Throw($missingVarsMessage);
+        }; # end if
     }
-    catch {
-        Write-Error "An error occured, see $error"
+    process {
+        try {
+            Write-Verbose "Creating URL path"
+            $uriPath = "{0}/{1}" -f 'group',$name
+    
+            $smaParams = @{
+                Host    = $Host;
+                Port    = $Port;
+                Version = $Version;
+            }
+            
+            $uri = New-SMAQueryString -uriPath $uriPath -qParam $boundParam @smaParams
+            
+            Write-verbose "Crafting Invokeparam for Invoke-SMARestMethod"
+            $invokeParam = @{
+                Uri           = $uri 
+                Method        = 'GET'
+                Cred          = $cred
+                SkipCertCheck = $SkipCertCheck
+            }
+    
+            Write-Verbose "Call Invoke-SMARestMethod $uri" 
+            $groupRaw = Invoke-SMARestMethod @invokeParam
+    
+            #Write-Verbose 'Filter data and return as PSObject'
+            #$getGroup = $groupRaw.Psobject.properties.value
+    
+            Write-Verbose 'Converting Umlauts from ISO-8859-1'
+            $group = ConvertFrom-SMAPIFormat -inputObject $groupRaw
+    
+            # Userobject
+            if ($group) {
+                return $group.psobject.properties.value
+            }
+            else {
+                Write-Information 'Nothing to return'
+            }
+        }
+        catch {
+            Write-Error "An error occured, see $error"
+        }
+    
+    }
+    end {
+
     }
 }
-#>
+
+
 
 <#
 .SYNOPSIS
-    Remove a SEPPmail user
+    Remove a SEPPmail group
 .DESCRIPTION
-    This CmdLet lets you delete a SEPPmail user. You need the e-Mail address of the user. Optionally it is possible to leave the certificates and keys in the appliance.
+    This CmdLet lets you delete a SEPPmail group. You need the name of the group.
 .EXAMPLE
-    PS C:\> Remove-SMAUser -email 'm.musterfrau@contoso.com'
-    Delete a user and all keys and certificates.
-.EXAMPLE
-    PS C:\> Remove-SMAUser -email 'm.musterfrau@contoso.com' -keepKeys
-    Delete a user but leave the keys. If you recreate the user with the same email address, the keys will be re-attached.
+    PS C:\> Remove-SMAgroup -name 'myGroup'
+    Delete a locally existing group.
 #>
-<#function Remove-SMAUser
+function Remove-SMAGroup
 {
     [CmdletBinding(SupportsShouldProcess)]
     param (
+        #region API Params
         [Parameter(
             Mandatory                       = $true,
             ValueFromPipelineByPropertyName = $true,
             ValueFromPipeline               = $true,
             HelpMessage                     = 'User E-Mail address'
             )]
-        [string]$eMail,
+        [string]$name,
 
         [Parameter(
             Mandatory                       = $false,
             ValueFromPipelineByPropertyName = $true,
-            HelpMessage                     = 'If true certificates and private keys will not be deleted'
+            HelpMessage                     = 'If all also users in this group will be deleted, if -allButKeepKeys- is selected the keys are preserved'
             )]
-        [switch]$keepKeys,
+        [validateSet('no', 'allButKeepKeys', 'all')]
+        [string]$deleteUsers = 'no',
+        #endregion
 
+        #region Hostpaameters
         [Parameter(Mandatory = $false)]
         [String]$host = $Script:activeCfg.SMAHost,
 
@@ -508,7 +501,7 @@ function Set-SMAGroup {
                 Mandatory=$false
                 )]
             [switch]$SkipCertCheck=$Script:activeCfg.SMAskipCertCheck 
-
+        #endregion
     )
 
     begin {
@@ -519,7 +512,7 @@ function Set-SMAGroup {
 
         try {
             Write-Verbose "Creating URL path"
-            $uriPath = "{0}/{1}" -f 'user', $eMail
+            $uriPath = "{0}/{1}" -f 'group', $name
         }
         catch {
             Write-Error "Error$.categoryInfo happened"
@@ -529,14 +522,15 @@ function Set-SMAGroup {
         try {
             Write-Verbose "Building full request uri"
             $boundParam = @{
-                keepkeys = $keepkeys
+                deleteUsers  = $deleteUsers
             }
-
-            $smaParams=@{
-                Host=$Host;
-                Port=$Port;
-                Version=$Version;
-            }; # end smaParams
+            
+            $smaParams = @{
+                Host    = $Host;
+                Port    = $Port;
+                Version = $Version;
+            }
+            
             $uri = New-SMAQueryString -uriPath $uriPath -qParam $boundParam @smaParams;
     
             Write-verbose "Crafting Invokeparam for Invoke-SMARestMethod"
@@ -549,9 +543,18 @@ function Set-SMAGroup {
             
             if ($PSCmdLet.ShouldProcess($email,"Remove User")) {
                 Write-Verbose "Call Invoke-SMARestMethod $uri"
-                $UserRaw = Invoke-SMARestMethod @invokeParam
-                Write-Verbose 'Returning e-Mail addresses of removed user'
-                ($userraw.message -split ' ')[3]
+                $groupRaw = Invoke-SMARestMethod @invokeParam
+
+                Write-Verbose 'Converting Umlauts from ISO-8859-1'
+                $group = ConvertFrom-SMAPIFormat -inputObject $groupRaw #|convertfrom-Json -AsHashtable
+    
+                # Gina-Userobject
+                if ($group) {
+                    return $group
+                }
+                else {
+                    Write-Information 'No matching group found, nothing to return'
+                }
             }
         }
         catch {
