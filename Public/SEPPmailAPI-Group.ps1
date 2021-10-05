@@ -450,7 +450,6 @@ function Get-SMAGroup
 }
 
 
-
 <#
 .SYNOPSIS
     Remove a SEPPmail group
@@ -564,7 +563,212 @@ function Remove-SMAGroup
 }
 #>
 
-Write-Verbose 'Create CmdLet Alias for GINA users' 
+<#
+.SYNOPSIS
+    Adds members to a SEPPmail group
+.DESCRIPTION
+    This CmdLet lets you modity an existing group and add additional users
+.EXAMPLE
+    PS C:\> Add-SMAGroupMember -name 'myGroup' -member 'admin1@contoso.de','admin2@contoso.de'
+    Add 2 new admins to the group 'myGroup'
+#>
+function Add-SMAGroupMember {
+    [CmdletBinding(SupportsShouldProcess)]
+    param (
+        #region
+        [Parameter(
+            Mandatory = $true,
+            ValueFromPipelineByPropertyName = $true,
+            HelpMessage = 'The group name'
+        )]
+        [string]$name,
+
+        [Parameter(
+            Mandatory = $true,
+            ValueFromPipelineByPropertyName = $true,
+            HelpMessage = 'Array of group members'
+        )]
+        [string[]]$members,
+        #endregion data parameter
+
+        #region Host parameter
+        [Parameter(Mandatory = $false)]
+        [String]$host = $Script:activeCfg.SMAHost,
+
+        [Parameter(Mandatory = $false)]
+        [int]$port = $Script:activeCfg.SMAPort,
+
+        [Parameter(Mandatory = $false)]
+        [String]$version = $Script:activeCfg.SMAPIVersion,
+
+        [Parameter(
+            Mandatory = $false
+        )]
+        [System.Management.Automation.PSCredential]$cred = $Script:activeCfg.SMACred,
+
+        [Parameter(
+            Mandatory = $false
+        )]
+        [switch]$SkipCertCheck = $Script:activeCfg.SMAskipCertCheck 
+        #endregion Host parameter
+    )
+    begin {
+        if (! (verifyVars -VarList $Script:requiredVarList)) {
+            Throw($missingVarsMessage);
+        }; # end if
+    }
+    process {
+        try {
+            
+            Write-Verbose "Creating URL path"
+            $uriPath = "{0}/{1}/{2}" -f 'group', $name, 'member'
+            Write-Verbose "Building full request uri"
+            $smaParams = @{
+                Host    = $Host;
+                Port    = $Port;
+                Version = $Version;
+            }
+
+            $uri = New-SMAQueryString -uriPath $uriPath -qParam $boundParam @smaParams;
+            
+            Write-Verbose 'Crafting mandatory $body JSON'
+            $bodyht = @{
+                members     = @($members)
+            }
+            
+            $body = $bodyht | ConvertTo-JSON
+
+            Write-verbose "Crafting Invokeparam for Invoke-SMARestMethod"
+            $invokeParam = @{
+                Uri           = $uri 
+                Method        = 'POST'
+                body          = $body
+                Cred          = $cred
+                SkipCertCheck = $SkipCertCheck
+            }
+            #debug $uri
+            if ($PSCmdLet.ShouldProcess($($bodyht.Email), "Change user")) {
+                Write-Verbose "Call Invoke-SMARestMethod $uri" 
+                $groupRaw = Invoke-SMARestMethod @invokeParam
+            }
+            if ($groupRaw) {
+                return $groupRaw
+            }
+            else {
+                Write-Information 'Nothing to return'
+            }
+
+        }
+        catch {
+            Write-Error "An error occured, see $error.CategoryInfo"
+        }
+    }
+}
+
+<#
+.SYNOPSIS
+    Removes members of a SEPPmail group
+.DESCRIPTION
+    This CmdLet lets you modity an existing group and add additional users
+.EXAMPLE
+    PS C:\> Add-SMAGroupMember -name 'myGroup' -member 'admin1@contoso.de','admin2@contoso.de'
+    Add 2 new admins to the group 'myGroup'
+#>
+function Remove-SMAGroupMember {
+    [CmdletBinding(SupportsShouldProcess)]
+    param (
+        #region
+        [Parameter(
+            Mandatory = $true,
+            ValueFromPipelineByPropertyName = $true,
+            HelpMessage = 'The group name'
+        )]
+        [string]$name,
+
+        [Parameter(
+            Mandatory = $true,
+            ValueFromPipelineByPropertyName = $true,
+            HelpMessage = 'Array of group members'
+        )]
+        [string[]]$members,
+        #endregion data parameter
+
+        #region Host parameter
+        [Parameter(Mandatory = $false)]
+        [String]$host = $Script:activeCfg.SMAHost,
+
+        [Parameter(Mandatory = $false)]
+        [int]$port = $Script:activeCfg.SMAPort,
+
+        [Parameter(Mandatory = $false)]
+        [String]$version = $Script:activeCfg.SMAPIVersion,
+
+        [Parameter(
+            Mandatory = $false
+        )]
+        [System.Management.Automation.PSCredential]$cred = $Script:activeCfg.SMACred,
+
+        [Parameter(
+            Mandatory = $false
+        )]
+        [switch]$SkipCertCheck = $Script:activeCfg.SMAskipCertCheck 
+        #endregion Host parameter
+    )
+    begin {
+        if (! (verifyVars -VarList $Script:requiredVarList)) {
+            Throw($missingVarsMessage);
+        }; # end if
+    }
+    process {
+        try {
+            
+            Write-Verbose "Creating URL path"
+            $uriPath = "{0}/{1}/{2}" -f 'group', $name, 'member'
+            Write-Verbose "Building full request uri"
+            $smaParams = @{
+                Host    = $Host;
+                Port    = $Port;
+                Version = $Version;
+            }
+
+            $uri = New-SMAQueryString -uriPath $uriPath -qParam $boundParam @smaParams;
+            
+            Write-Verbose 'Crafting mandatory $body JSON'
+            $bodyht = @{
+                members     = @($members)
+            }
+            
+            $body = $bodyht | ConvertTo-JSON
+
+            Write-verbose "Crafting Invokeparam for Invoke-SMARestMethod"
+            $invokeParam = @{
+                Uri           = $uri 
+                Method        = 'PUT'
+                body          = $body
+                Cred          = $cred
+                SkipCertCheck = $SkipCertCheck
+            }
+            #debug $uri
+            if ($PSCmdLet.ShouldProcess($($bodyht.Email), "Change user")) {
+                Write-Verbose "Call Invoke-SMARestMethod $uri" 
+                $groupRaw = Invoke-SMARestMethod @invokeParam
+            }
+            if ($groupRaw) {
+                return $groupRaw
+            }
+            else {
+                Write-Information 'Nothing to return'
+            }
+
+        }
+        catch {
+            Write-Error "An error occured, see $error.CategoryInfo"
+        }
+    }
+}
+
+
+Write-Verbose 'Create CmdLet Alias for groups' 
 $custVerbs = ('New','Remove','Get','Find','Set')
 
 Foreach ($custverb in $custVerbs) {
@@ -572,6 +776,16 @@ Foreach ($custverb in $custVerbs) {
     $cmdName = $custverb + '-SMAGroup'
     New-Alias -Name $aliasName1 -Value $cmdName
 }
+
+Write-Verbose 'Create CmdLet Alias for Group members' 
+$custVerbs = ('Remove','Add')
+
+Foreach ($custverb in $custVerbs) {
+    $aliasname1 = $custverb + '-SMAGRM'
+    $cmdName = $custverb + '-SMAGroupMember'
+    New-Alias -Name $aliasName1 -Value $cmdName
+}
+
 
 # SIG # Begin signature block
 # MIIL1wYJKoZIhvcNAQcCoIILyDCCC8QCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB

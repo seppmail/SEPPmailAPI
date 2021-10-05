@@ -107,6 +107,8 @@ FunctionsToExport = @(
        'New-SMAGroup'
        'Set-SMAGroup'
     'Remove-SMAGroup'
+       'Add-SMAGroupMember'
+    'Remove-SMAGroupMember'
       'Find-SMAManagedDomain'
        'Get-SMAManagedDomain'
        'New-SMAManagedDomain'
