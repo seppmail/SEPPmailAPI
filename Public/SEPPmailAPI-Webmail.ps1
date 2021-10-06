@@ -739,7 +739,7 @@ function Remove-SMAGinaUser {
 
 
 Write-Verbose 'Create CmdLet Alias for GINA users' 
-$custVerbs = ('New','Remove','Get','Find','Set')
+$custVerbs = ('New','Remove','Find','Set')
 
 Foreach ($custverb in $custVerbs) {
     $aliasname1 = $custverb + '-SMAGU'
