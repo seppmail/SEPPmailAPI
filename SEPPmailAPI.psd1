@@ -165,7 +165,7 @@ FileList = @(
     '.\Public\SEPPmailAPI-Info.ps1',
     '.\Public\SEPPmailAPI-ManagedDomain.ps1',
     '.\Public\SEPPMailAPI-ModuleCfg.ps1',
-    '.\Public\SEPPMailAPI-Statistics.psd1',
+    '.\Public\SEPPMailAPI-Statistics.ps1',
     '.\Public\SEPPMailAPI-Template.ps1',
     '.\Public\SEPPmailAPI-User.ps1'
     '.\Public\SEPPmailAPI-Webmail.ps1'
