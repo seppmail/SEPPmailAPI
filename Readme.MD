@@ -23,13 +23,13 @@ PowerShell 7 on Windows, Linux or macOS may work, are currently not supported, b
 We have published the module on the <https://www.PowerShellGallery.com>. You can install the module by running:
 
 ```powershell
-Install-module SEPPmailAPI -allowprerelease
+Install-module SEPPmailAPI
 ```
 
-To install it in the users scope use:
+To install it in the all users scope (you must run PS with admin Rights)use:
 
 ```powershell
-Install-module SEPPmailAPI -Scope CurrentUser -AllowPrerelease
+Install-module SEPPmailAPI -Scope AllUser
 ```
 
 ### Github
@@ -57,34 +57,8 @@ and load it into memory with
 Import-Module SEPPmailAPI
 ```
 
-Immediately after loading the module you will be asked for 2 values:
+Immediately after loading the module you will be ask for a configuration for your SEPPmail.
 
-* Hostname - this is the FQDN of the SEPPmail appliance
-* REST-API Key: The key you generated and stored in your SEPPmail Appliance for REST-Access
-
-You may set these values prior loading the module (i.e for autonomous scripts) so you get not askes interactively. An example to do so would be:
-
-```powershell
-# The Host you want to use the API with
-$SMAHost = "securemail.yourdomain.com"
-# The API Key you entered in the Admin-Console for authentication
-$SMAkey = Convertto-SecureString -AsPlainText 'aloooongcoooomplexsecretkeyyyyyyyyyyyy' -Force
-# The Port the machine is listening
-$SMAPort = '8445'
-# If your SEPPmail doesnt have a valid SSL certificate for the Admin and API Interface set this to $true
-$SMAskipCertCheck = $true
-# The API Version. This module will always have the latest released version as default.
-$SMAPIVersion = 'v1'
-```
-
-The module assumes you have a SEPPmail with a valid SLL certificate and use Port 8445 for REST-API communication. If this is not the case set 2 additional values:
-
-```powershell
-# The Host you want to use the API with another Port
-* $SMAPort = '8446' 
-# No valid certificate ? 
-* $SMAskipCetCheck = $true
-```
 
 Usage examples can be found in the module example folder "\examples".
 

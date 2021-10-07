@@ -12,7 +12,7 @@
 RootModule = '.\SEPPmailAPI.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.9.5'
+ModuleVersion = '1.0.0'
 
 # Supported PSEditions
 CompatiblePSEditions = @('Desktop','Core')
@@ -21,7 +21,7 @@ CompatiblePSEditions = @('Desktop','Core')
 GUID = 'fe22be24-92f4-4e63-ba8d-5e9f26779d9d'
 
 # Author of this module
-Author = 'stadlmair@seppmail.at'
+Author = 'The SEPPmail Dev-Team'
 
 # Company or vendor of this module
 CompanyName = 'SEPPmail AG'
@@ -184,7 +184,7 @@ PrivateData = @{
                 'PSEdition_Core',
                 'Windows',
                 'Linux'
-                #'MacOS'
+                'MacOS'
                 )
 
         # A URL to the license for this module.
@@ -221,10 +221,12 @@ PrivateData = @{
 
 031021: 0.9.5 - Adding Support for Groups
 
+071021: 1.0.0 - First Release compatible with SEPpmail 12.1
+
 '@
 
         # Prerelease string of this module
-        Prerelease = 'beta5'
+        # Prerelease = 'beta5'
 
         # Flag to indicate whether the module requires explicit user acceptance for install/update/save
         # RequireLicenseAcceptance = $false
