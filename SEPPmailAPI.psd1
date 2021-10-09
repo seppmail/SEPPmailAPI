@@ -8,196 +8,194 @@
 
 @{
 
-# Script module or binary module file associated with this manifest.
-RootModule = '.\SEPPmailAPI.psm1'
+   # Script module or binary module file associated with this manifest.
+   RootModule = '.\SEPPmailAPI.psm1'
 
-# Version number of this module.
-ModuleVersion = '1.0.1'
+   # Version number of this module.
+   ModuleVersion = '1.0.1'
 
-# Supported PSEditions
-CompatiblePSEditions = @('Desktop','Core')
+   # Supported PSEditions
+   CompatiblePSEditions = @('Desktop','Core')
 
-# ID used to uniquely identify this module
-GUID = 'fe22be24-92f4-4e63-ba8d-5e9f26779d9d'
+   # ID used to uniquely identify this module
+   GUID = 'fe22be24-92f4-4e63-ba8d-5e9f26779d9d'
 
-# Author of this module
-Author = 'The SEPPmail Dev-Team'
+   # Author of this module
+   Author = 'The SEPPmail Dev-Team'
 
-# Company or vendor of this module
-CompanyName = 'SEPPmail AG'
+   # Company or vendor of this module
+   CompanyName = 'SEPPmail AG'
 
-# Copyright statement for this module
-Copyright = '(c) SEPPmail AG. All rights reserved.'
+   # Copyright statement for this module
+   Copyright = '(c) SEPPmail AG. All rights reserved.'
 
-# Description of the functionality provided by this module
-Description = 'Receive and manipulate your SEPPmail Appliance beginning with SEPPmail Version 12.1.0.
-With the REST-API you can retrieve and set information via REST, including the option to mass-generate users.
-This PowerShell module is a wrapper around this API to allow more convenient operation and interaction from the command line.'
+   # Description of the functionality provided by this module
+   Description = 'Receive and manipulate your SEPPmail Appliance beginning with SEPPmail Version 12.1.0.
+   With the REST-API you can retrieve and set information via REST, including the option to mass-generate users.
+   This PowerShell module is a wrapper around this API to allow more convenient operation and interaction from the command line.'
 
-# Minimum version of the PowerShell engine required by this module
-PowerShellVersion = '5.1'
+   # Minimum version of the PowerShell engine required by this module
+   PowerShellVersion = '5.1'
 
-# Name of the PowerShell host required by this module
-# PowerShellHostName = ''
+   # Name of the PowerShell host required by this module
+   # PowerShellHostName = ''
 
-# Minimum version of the PowerShell host required by this module
-# PowerShellHostVersion = ''
+   # Minimum version of the PowerShell host required by this module
+   # PowerShellHostVersion = ''
 
-# Minimum version of Microsoft .NET Framework required by this module. This prerequisite is valid for the PowerShell Desktop edition only.
-# DotNetFrameworkVersion = ''
+   # Minimum version of Microsoft .NET Framework required by this module. This prerequisite is valid for the PowerShell Desktop edition only.
+   # DotNetFrameworkVersion = ''
 
-# Minimum version of the common language runtime (CLR) required by this module. This prerequisite is valid for the PowerShell Desktop edition only.
-# ClrVersion = ''
+   # Minimum version of the common language runtime (CLR) required by this module. This prerequisite is valid for the PowerShell Desktop edition only.
+   # ClrVersion = ''
 
-# Processor architecture (None, X86, Amd64) required by this module
-# ProcessorArchitecture = ''
+   # Processor architecture (None, X86, Amd64) required by this module
+   # ProcessorArchitecture = ''
 
-# Modules that must be imported into the global environment prior to importing this module
-# RequiredModules = @('Configuration','Microsoft.PowerShell.SecretsManagement')
-# RequiredModules = @()
+   # Modules that must be imported into the global environment prior to importing this module
+   # RequiredModules = @('Configuration','Microsoft.PowerShell.SecretsManagement')
+   # RequiredModules = @()
 
-# Assemblies that must be loaded prior to importing this module
-# RequiredAssemblies = @()
+   # Assemblies that must be loaded prior to importing this module
+   # RequiredAssemblies = @()
 
-# Script files (.ps1) that are run in the caller's environment prior to importing this module.
-# ScriptsToProcess = @()
+   # Script files (.ps1) that are run in the caller's environment prior to importing this module.
+   # ScriptsToProcess = @()
 
-# Type files (.ps1xml) to be loaded when importing this module
-# TypesToProcess = @()
+   # Type files (.ps1xml) to be loaded when importing this module
+   # TypesToProcess = @()
 
-# Format files (.ps1xml) to be loaded when importing this module
-# FormatsToProcess = @()
+   # Format files (.ps1xml) to be loaded when importing this module
+   # FormatsToProcess = @()
 
-# Modules to import as nested modules of the module specified in RootModule/ModuleToProcess
-NestedModules = @(
-        '.\Private\SEPPmailAPIPrivate.ps1'
-        )
+   # Modules to import as nested modules of the module specified in RootModule/ModuleToProcess
+   NestedModules = @(
+           '.\Private\SEPPmailAPIPrivate.ps1'
+           )
 
-# Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-FunctionsToExport = @(
-      'Find-SMACustomer'
-       'Get-SMACustomer'
-       'New-SMACustomer'
-       'Set-SMACustomer'
-    'Remove-SMACustomer'
-    'Export-SMACustomer'
-    'Import-SMACustomer'
-       'Get-SMAEncInfo'
-       'Add-SMACustomerAdmin'
-    'Remove-SMACustomerAdmin'
-       'Set-SMAConfiguration'
-       'Get-SMAConfiguration'
-       'New-SMAConfiguration'
-    'Remove-SMAConfiguration'
-      'Test-SMAConfiguration'
-      'Find-SMADisclaimer'
-       'Get-SMADisclaimer'
-       'New-SMADisclaimer'
-       'Set-SMADisclaimer'
-    'Remove-SMADisclaimer'
-      'Find-SMADisclaimerInclude'
-       'New-SMADisclaimerInclude'
-    'Remove-SMADisclaimerInclude'
-      'Find-SMAGinaUser'
-       'New-SMAGinaUser'
-       'Set-SMAGinaUser'
-    'Remove-SMAGinaUser'
-      'Find-SMAGroup'
-       'Get-SMAGroup'
-       'New-SMAGroup'
-       'Set-SMAGroup'
-    'Remove-SMAGroup'
-       'Add-SMAGroupMember'
-    'Remove-SMAGroupMember'
-      'Find-SMAManagedDomain'
-       'Get-SMAManagedDomain'
-       'New-SMAManagedDomain'
-       'Set-SMAManagedDomain'
-    'Remove-SMAManagedDomain'
-      'Find-SMATemplate'
-       'Get-SMATemplate'
-       'New-SMATemplate'
-       'Set-SMATemplate'
-    'Remove-SMATemplate'
-      'Find-SMATemplateInclude'
-       'Get-SMATemplateInclude'
-       'New-SMATemplateInclude'
-    'Remove-SMATemplateInclude'
-       'Get-SMAStatistics'
-       'Get-SMAUser'
-      'Find-SMAUser'
-       'New-SMAUser'
-       'Set-SMAUser'
-    'Remove-SMAUser'
-)
+   # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
+   FunctionsToExport = @(
+         'Find-SMACustomer'
+          'Get-SMACustomer'
+          'New-SMACustomer'
+          'Set-SMACustomer'
+       'Remove-SMACustomer'
+       'Export-SMACustomer'
+       'Import-SMACustomer'
+          'Get-SMAEncInfo'
+          'Add-SMACustomerAdmin'
+       'Remove-SMACustomerAdmin'
+          'Set-SMAConfiguration'
+          'Get-SMAConfiguration'
+          'New-SMAConfiguration'
+       'Remove-SMAConfiguration'
+         'Test-SMAConfiguration'
+         'Find-SMADisclaimer'
+          'Get-SMADisclaimer'
+          'New-SMADisclaimer'
+          'Set-SMADisclaimer'
+       'Remove-SMADisclaimer'
+         'Find-SMADisclaimerInclude'
+          'New-SMADisclaimerInclude'
+       'Remove-SMADisclaimerInclude'
+         'Find-SMAGinaUser'
+          'New-SMAGinaUser'
+          'Set-SMAGinaUser'
+       'Remove-SMAGinaUser'
+         'Find-SMAGroup'
+          'Get-SMAGroup'
+          'New-SMAGroup'
+          'Set-SMAGroup'
+       'Remove-SMAGroup'
+          'Add-SMAGroupMember'
+       'Remove-SMAGroupMember'
+         'Find-SMAManagedDomain'
+          'Get-SMAManagedDomain'
+          'New-SMAManagedDomain'
+          'Set-SMAManagedDomain'
+       'Remove-SMAManagedDomain'
+         'Find-SMATemplate'
+          'Get-SMATemplate'
+          'New-SMATemplate'
+          'Set-SMATemplate'
+       'Remove-SMATemplate'
+         'Find-SMATemplateInclude'
+          'Get-SMATemplateInclude'
+          'New-SMATemplateInclude'
+       'Remove-SMATemplateInclude'
+          'Get-SMAStatistics'
+          'Get-SMAUser'
+         'Find-SMAUser'
+          'New-SMAUser'
+          'Set-SMAUser'
+       'Remove-SMAUser'
+   )
 
-# Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
-CmdletsToExport = @()
+   # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
+   CmdletsToExport = @()
 
-# Variables to export from this module
-VariablesToExport = '*'
+   # Variables to export from this module
+   VariablesToExport = '*'
 
-# Aliases to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no aliases to export.
-AliasesToExport = @('*')
+   # Aliases to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no aliases to export.
+   AliasesToExport = @('*')
 
-# DSC resources to export from this module
-# DscResourcesToExport = @()
+   # DSC resources to export from this module
+   # DscResourcesToExport = @()
 
-# List of all modules packaged with this module
-# ModuleList = @()
+   # List of all modules packaged with this module
+   # ModuleList = @()
 
-# List of all files packaged with this module
-FileList = @(
-    '.\SEPPmailAPI.psm1',
-    '.\SEPPmailAPI.psd1',
-    '.\Readme.MD',
-    '.\LICENSE',
-    '.\examples\examples.md',
-    '.\examples\customers.csv',
-    '.\examples\NewUsers.csv',
-    '.\examples\RemoveUsers.csv',
-    '.\examples\UpdateUsers.csv',
-    '.\Private\SEPPmailAPIPrivate.ps1',
-    '.\Private\SEPPmailAPIPrivate_Cfg.ps1',
-    '.\Public\SEPPmailAPI-Customer.ps1',
-    '.\Public\SEPPMailAPI-Disclaimer.ps1',
-    '.\Public\SEPPMailAPI-Group.ps1',
-    '.\Public\SEPPmailAPI-Info.ps1',
-    '.\Public\SEPPmailAPI-ManagedDomain.ps1',
-    '.\Public\SEPPMailAPI-ModuleCfg.ps1',
-    '.\Public\SEPPMailAPI-Statistics.ps1',
-    '.\Public\SEPPMailAPI-Template.ps1',
-    '.\Public\SEPPmailAPI-User.ps1'
-    '.\Public\SEPPmailAPI-Webmail.ps1'
-)
+   # List of all files packaged with this module
+   FileList = @(
+       '.\SEPPmailAPI.psm1',
+       '.\SEPPmailAPI.psd1',
+       '.\Readme.MD',
+       '.\LICENSE',
+       '.\examples\examples.md',
+       '.\examples\customers.csv',
+       '.\examples\NewUsers.csv',
+       '.\examples\RemoveUsers.csv',
+       '.\examples\UpdateUsers.csv',
+       '.\Private\SEPPmailAPIPrivate.ps1',
+       '.\Private\SEPPmailAPIPrivate_Cfg.ps1',
+       '.\Public\SEPPmailAPI-Customer.ps1',
+       '.\Public\SEPPMailAPI-Disclaimer.ps1',
+       '.\Public\SEPPMailAPI-Group.ps1',
+       '.\Public\SEPPmailAPI-Info.ps1',
+       '.\Public\SEPPmailAPI-ManagedDomain.ps1',
+       '.\Public\SEPPMailAPI-ModuleCfg.ps1',
+       '.\Public\SEPPMailAPI-Statistics.ps1',
+       '.\Public\SEPPMailAPI-Template.ps1',
+       '.\Public\SEPPmailAPI-User.ps1',
+       '.\Public\SEPPmailAPI-Webmail.ps1'
+   )
 
 # Private data to pass to the module specified in RootModule/ModuleToProcess. This may also contain a PSData hashtable with additional module metadata used by PowerShell.
-PrivateData = @{
+   PrivateData = @{
+       PSData = @{
+           # Tags applied to this module. These help with module discovery in online galleries.
+           Tags = @(
+                   'SEPPmail',
+                   'REST-API',
+                   'PSEdition_Desktop',
+                   'PSEdition_Core',
+                   'Windows',
+                   'Linux'
+                   'MacOS'
+                   )
 
-    PSData = @{
+           # A URL to the license for this module.
+           LicenseUri = 'https://github.com/seppmail/SEPPmailAPI/blob/master/LICENSE'
 
-        # Tags applied to this module. These help with module discovery in online galleries.
-        Tags = @(
-                'SEPPmail',
-                'REST-API',
-                'PSEdition_Desktop',
-                'PSEdition_Core',
-                'Windows',
-                'Linux'
-                'MacOS'
-                )
+           # A URL to the main website for this project.
+           ProjectUri = 'https://github.com/seppmail/SEPPmailAPI'
 
-        # A URL to the license for this module.
-        LicenseUri = 'https://github.com/seppmail/SEPPmailAPI/blob/master/LICENSE'
+           # A URL to an icon representing this module.
+           IconUri = 'https://avatars1.githubusercontent.com/u/55975553?s=400&u=ab22c52a439397dca458e58dfcec9f0a9dd347db&v=4'
 
-        # A URL to the main website for this project.
-        ProjectUri = 'https://github.com/seppmail/SEPPmailAPI'
-
-        # A URL to an icon representing this module.
-        IconUri = 'https://avatars1.githubusercontent.com/u/55975553?s=400&u=ab22c52a439397dca458e58dfcec9f0a9dd347db&v=4'
-
-        # ReleaseNotes of this module
-        ReleaseNotes =
+           # ReleaseNotes of this module
+           ReleaseNotes =
 @'
 260121: Initial release - preparation for SM Release 12.1.0 - User path only
 
@@ -235,21 +233,22 @@ PrivateData = @{
         # External dependent modules of this module
         # ExternalModuleDependencies = @()
 
-    } # End of PSData hashtable
+       } # End of PSData hashtable
 
-} # End of PrivateData hashtable
+   } # End of PrivateData hashtable
 
-# HelpInfo URI of this module
-HelpInfoURI = 'https://github.com/seppmail/SEPPmailAPI/blob/main/examples/examples.md'
+   # HelpInfo URI of this module
+   HelpInfoURI = 'https://github.com/seppmail/SEPPmailAPI/blob/main/examples/examples.md'
 
-# Default prefix for commands exported from this module. Override the default prefix using Import-Module -Prefix.
-# DefaultCommandPrefix = ''
+   # Default prefix for commands exported from this module. Override the default prefix using Import-Module -Prefix.
+   # DefaultCommandPrefix = ''
+}
 
 # SIG # Begin signature block
 # MIIL1wYJKoZIhvcNAQcCoIILyDCCC8QCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUD04UxPNbzSu9QR/YYvr0IpVg
-# FSiggglAMIIEmTCCA4GgAwIBAgIQcaC3NpXdsa/COyuaGO5UyzANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQU9ieq+zJzsYf2SBOloc+Kieo+
+# NG2ggglAMIIEmTCCA4GgAwIBAgIQcaC3NpXdsa/COyuaGO5UyzANBgkqhkiG9w0B
 # AQsFADCBqTELMAkGA1UEBhMCVVMxFTATBgNVBAoTDHRoYXd0ZSwgSW5jLjEoMCYG
 # A1UECxMfQ2VydGlmaWNhdGlvbiBTZXJ2aWNlcyBEaXZpc2lvbjE4MDYGA1UECxMv
 # KGMpIDIwMDYgdGhhd3RlLCBJbmMuIC0gRm9yIGF1dGhvcml6ZWQgdXNlIG9ubHkx
@@ -303,11 +302,11 @@ HelpInfoURI = 'https://github.com/seppmail/SEPPmailAPI/blob/main/examples/exampl
 # NiBDb2RlIFNpZ25pbmcgQ0ECEF0xOuf5lHR9Mf0X/F6tAjYwCQYFKw4DAhoFAKB4
 # MBgGCisGAQQBgjcCAQwxCjAIoAKAAKECgAAwGQYJKoZIhvcNAQkDMQwGCisGAQQB
 # gjcCAQQwHAYKKwYBBAGCNwIBCzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcNAQkE
-# MRYEFJoBx0YdE4mIMsUgrjMsV0D2VpByMA0GCSqGSIb3DQEBAQUABIIBAFK9kCfn
-# K827UjywdC66m374oPVF0nDqehFHSYKZTqTURB/ZDjXo1uQhMVJYY/9OCtFxXWXW
-# XAeoj0CnkaLqb4/KbpMpu0/Q3o5WloKoCWQQnmlESdG7uRZ0Kx7zdy1HVt8uqFZk
-# zRJCfsJ3D+cPf4wJfBw5QbExOuXMf4JHRQbsEhU82cg0HuWih2mIBbgSsyIA6cmi
-# nKJ1C2xTVsUTDUvwXj6aS5oRHnAnT/YwnbNgDbPg3pMjpxw3f7itacfHK8v8lHBy
-# KrPr0NDWaqql24yrzE6jlOzVTdDZej6xyxr+e+Dp+Kg1EcTjghFHgzWYIciepqoO
-# ke84gQHizLfu0IM=
+# MRYEFG0G+Rr3UJYqBylFTHh/dMfoyhj1MA0GCSqGSIb3DQEBAQUABIIBAB2SFJh8
+# eDHMDC+Ipawm+XYTkvXV+XnThEm/ZsGWoqFOTz5JP437VZKOAzTRVadO6NtS4aXM
+# Rs43GGlHkizp4pGeI6OfsmLhz4KeCkaqbCs+lGHtgbCjDBaWb3ld0c/PcS6P5MPP
+# r7a6rY1GTmcBHo69sKJE1dRjqOvNBu0mdwK01+IApdNOWQF0uIQyvFXsubP2DBUK
+# 7BTWLic53X+apEByB11tKt7Z8ueo6wmwp1kZ5dHxU3/H9BnokSmKmf1fjfJW+zQN
+# Os1vMswB8q+2lwfvMnJYMJidRV7DBrECkTx0sqB+vLWcTeMmhLnlcmh55jIgVEjT
+# CWiYlUeoBiAQk7o=
 # SIG # End signature block
