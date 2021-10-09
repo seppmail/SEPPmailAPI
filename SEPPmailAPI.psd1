@@ -12,7 +12,7 @@
 RootModule = '.\SEPPmailAPI.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.0.0'
+ModuleVersion = '1.0.1'
 
 # Supported PSEditions
 CompatiblePSEditions = @('Desktop','Core')
@@ -223,6 +223,7 @@ PrivateData = @{
 
 071021: 1.0.0 - First Release compatible with SEPpmail 12.1
 
+091021: 1.0.1 - Signing of psd1 file added
 '@
 
         # Prerelease string of this module
@@ -243,12 +244,12 @@ HelpInfoURI = 'https://github.com/seppmail/SEPPmailAPI/blob/main/examples/exampl
 
 # Default prefix for commands exported from this module. Override the default prefix using Import-Module -Prefix.
 # DefaultCommandPrefix = ''
-}
+
 # SIG # Begin signature block
 # MIIL1wYJKoZIhvcNAQcCoIILyDCCC8QCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUDWODn9Osx6ZG54sWCwFoKTUm
-# k6eggglAMIIEmTCCA4GgAwIBAgIQcaC3NpXdsa/COyuaGO5UyzANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUD04UxPNbzSu9QR/YYvr0IpVg
+# FSiggglAMIIEmTCCA4GgAwIBAgIQcaC3NpXdsa/COyuaGO5UyzANBgkqhkiG9w0B
 # AQsFADCBqTELMAkGA1UEBhMCVVMxFTATBgNVBAoTDHRoYXd0ZSwgSW5jLjEoMCYG
 # A1UECxMfQ2VydGlmaWNhdGlvbiBTZXJ2aWNlcyBEaXZpc2lvbjE4MDYGA1UECxMv
 # KGMpIDIwMDYgdGhhd3RlLCBJbmMuIC0gRm9yIGF1dGhvcml6ZWQgdXNlIG9ubHkx
@@ -302,11 +303,11 @@ HelpInfoURI = 'https://github.com/seppmail/SEPPmailAPI/blob/main/examples/exampl
 # NiBDb2RlIFNpZ25pbmcgQ0ECEF0xOuf5lHR9Mf0X/F6tAjYwCQYFKw4DAhoFAKB4
 # MBgGCisGAQQBgjcCAQwxCjAIoAKAAKECgAAwGQYJKoZIhvcNAQkDMQwGCisGAQQB
 # gjcCAQQwHAYKKwYBBAGCNwIBCzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcNAQkE
-# MRYEFKhsTPw5YGrkLPxWnMcYeKmx3beYMA0GCSqGSIb3DQEBAQUABIIBAGmzn/lL
-# 4NhLafdHTZn7t0SpE5Rn5jHTMsRPiiktDsjDDDhMghwlyE5/5CbBISb0lPPsEFZd
-# ZHnBViWHdJH9Q3s5SR7RgBpeqz3NhWPMA5L7Ykasb9bg7AkZFNcjmJTa/oKuPec4
-# Z8tOBvXKSWcCcIidesOrWAmPSMe2hzqdpUxTDQ9MWegFcgNu9B7gt3k6KPnvGqkY
-# JyGO9uPK58GyO8ik9zQuWFJxHABez5WKbhk85UCBO8UyBC1D7wQCV0bBWFQx65pG
-# w9L2HtNbmIvob183WIlpvDtWhdFiNiyC+Ams1uB6kE4tnutB46MsyQkljSsYjfC1
-# EMvk8pqC/yU7BvE=
+# MRYEFJoBx0YdE4mIMsUgrjMsV0D2VpByMA0GCSqGSIb3DQEBAQUABIIBAFK9kCfn
+# K827UjywdC66m374oPVF0nDqehFHSYKZTqTURB/ZDjXo1uQhMVJYY/9OCtFxXWXW
+# XAeoj0CnkaLqb4/KbpMpu0/Q3o5WloKoCWQQnmlESdG7uRZ0Kx7zdy1HVt8uqFZk
+# zRJCfsJ3D+cPf4wJfBw5QbExOuXMf4JHRQbsEhU82cg0HuWih2mIBbgSsyIA6cmi
+# nKJ1C2xTVsUTDUvwXj6aS5oRHnAnT/YwnbNgDbPg3pMjpxw3f7itacfHK8v8lHBy
+# KrPr0NDWaqql24yrzE6jlOzVTdDZej6xyxr+e+Dp+Kg1EcTjghFHgzWYIciepqoO
+# ke84gQHizLfu0IM=
 # SIG # End signature block
