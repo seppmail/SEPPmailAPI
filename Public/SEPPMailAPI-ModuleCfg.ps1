@@ -533,7 +533,7 @@ function Test-SMAConfiguration
                 {
                     writeLogOutput -LogString ('Failed to reach the host ' + $smaHostName + ' on port ' + ($tmp.Metadata.SMAPort)) -LogType Warning;
                 }; # end if
-                $msg=('Failed to test the access to SeppMail on server ' + $smaHostName);
+                $msg=('Failed to test the access to SEPPMail on server ' + $smaHostName);
                 $paramList=@{
                     SMACred=(New-Object System.Management.Automation.PSCredential ($tmpCred.UserName, $tmpCred.Password));
                     SMAHost=$smaHostName;
