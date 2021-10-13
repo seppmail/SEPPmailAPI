@@ -7,6 +7,11 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned
 Install-Module Microsoft.PowerShell.Secretmanagement -scope CurrentUser
 Install-Module Microsoft.PowerShell.SecretStore -scope CurrentUser
 Install-Module SEPPmailAPI -scope CurrentUser
+
+#Import Modules into Memory
+Import-Module Microsoft.PowerShell.Secretmanagement
+Import-Module Microsoft.PowerShell.SecretStore
+Import-Module SEPPmailAPI
 #endregion
 
 #region Setting up your first Configuration

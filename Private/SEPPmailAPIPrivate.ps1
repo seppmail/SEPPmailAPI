@@ -95,8 +95,9 @@ function ConvertFrom-SMASecureString {
     )
 
     try {
-        $BSTR = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($securePassword)
-        $plainPassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
+        #$BSTR = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($securePassword)
+        #$plainPassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
+        $plainPassword = $securePassword|ConvertFrom-SecureString -AsPlainText
         return $plainPassword
     }
     catch {
