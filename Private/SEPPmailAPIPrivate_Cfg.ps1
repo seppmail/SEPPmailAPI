@@ -153,8 +153,17 @@ param([Parameter(Mandatory = $true, Position = 0)][string]$ComputerName,
         writeLogOutput -LogString ('Testing port ' + $Port.ToString() + ' on computer ' + $computerName);
         $msg=('Failed to access server ' + $ComputerName + ' on port ' + $Port);
         try {
-            $tmp=Test-NetConnection -ComputerName $ComputerName -Port $Port;
-            return ($tmp.TcpTestSucceeded);
+            if (($PSVersiontable.Platform -eq 'Win32NT') -or ($PSVersiontable.PSEdition -eq 'Desktop')) 
+            {
+                # Windows
+                $tmp=Test-NetConnection -ComputerName $ComputerName -Port $Port;
+                return ($tmp.TcpTestSucceeded)
+            } else 
+            {
+                # Linux/MacOS
+                $tmp = Test-Connection -TargetName $Computername -TcpPort $Port
+                return ($tmp)
+            }
         }
         catch {
             writeLogError -ErrorMessage $msg -PSErrMessage ($_.Exception.Message) -PSErrStack $_;
