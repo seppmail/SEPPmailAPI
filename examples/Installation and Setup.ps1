@@ -1,8 +1,12 @@
 #region  Installation
 
-Install-Module Microsoft.PowerShell.Secretmanagement
-Install-Module Microsoft.PowerShell.SecretStore
-Install-Module SEPPmailAPI
+# maybe you need to set the Executionpolicy (on PS 5.1) AS ADMIN to install modules
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned
+
+# Install Modules into User-scope (no admin rights needed)
+Install-Module Microsoft.PowerShell.Secretmanagement -scope CurrentUser
+Install-Module Microsoft.PowerShell.SecretStore -scope CurrentUser
+Install-Module SEPPmailAPI -scope CurrentUser
 #endregion
 
 #region Setting up your first Configuration
