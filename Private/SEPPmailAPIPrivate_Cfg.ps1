@@ -168,25 +168,10 @@ param([Parameter(Mandatory = $true, Position = 0)][string]$ComputerName,
         catch {
             writeLogError -ErrorMessage $msg -PSErrMessage ($_.Exception.Message) -PSErrStack $_;
             return $false;
-        }; # end catch
-        <#$TcpClient = New-Object System.Net.Sockets.TcpClient
-        $Connect = $TcpClient.BeginConnect($ComputerName, $Port, $null, $null)
-        $Wait = $Connect.AsyncWaitHandle.WaitOne($TcpTimeout, $false)
-        if (!$Wait) 
-        {
-	        writeLogOutput -LogString ('Server ' + $computerName + ' failed to answer on port ' + $Port.ToString()) -LogType Warning;
-            return $false;
-        } # end if
-        else 
-        {	        
-	        return $true;
-        }; # end else    
-        #>    
-    } # end process
+        }    
+    }
 
     end {        
-        #$TcpClient.Close();
-        #$TcpClient.Dispose();
     } # end END
 
 }; # end function testPort
