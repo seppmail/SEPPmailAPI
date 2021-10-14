@@ -12,7 +12,7 @@
    RootModule = '.\SEPPmailAPI.psm1'
 
    # Version number of this module.
-   ModuleVersion = '1.0.1'
+   ModuleVersion = '1.0.5'
 
    # Supported PSEditions
    CompatiblePSEditions = @('Desktop','Core')
@@ -222,6 +222,8 @@
 071021: 1.0.0 - First Release compatible with SEPpmail 12.1
 
 091021: 1.0.1 - Signing of psd1 file added
+
+141021: 1.0.5 - Linux/macOS test-smaconfig fixed, securestrig fixed, Module init SEPPmail_ModuleCfg fixed.
 '@
 
         # Prerelease string of this module
