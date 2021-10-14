@@ -17,7 +17,9 @@ function initModule
         $msg=('Creating vault ' + $Script:vaultName);
         writeLogOutput -LogString $msg;
         try {
-            Register-SecretVault -ModuleName $script:SecureVaultModuleName -Name $Script:vaultName -Description 'Cereated by SMA PS module';
+            writeLogOutput -LogString 'Setting authentication for secret store to NONE!!!' -LogType Warning;
+            Set-SecretStoreConfiguration -Authentication None -Confirm:$false;
+            Register-SecretVault -ModuleName $script:SecureVaultModuleName -Name $Script:vaultName -Description 'Cereated by SMA PS module';            
         } # end try
         catch {
             $msg=('Failed to register vault ' + $Script:vaultName);
@@ -156,14 +158,14 @@ param([Parameter(Mandatory = $true, Position = 0)][string]$ComputerName,
             if (($PSVersiontable.Platform -eq 'Win32NT') -or ($PSVersiontable.PSEdition -eq 'Desktop')) 
             {
                 # Windows
-                $tmp=Test-NetConnection -ComputerName $ComputerName -Port $Port;
+                $tmp=Test-NetConnection -ComputerName $ComputerName -Port $Port -ErrorAction Stop;
                 return ($tmp.TcpTestSucceeded)
             } else 
             {
                 # Linux/MacOS
-                $tmp = Test-Connection -TargetName $Computername -TcpPort $Port
-                return ($tmp)
-            }
+                $tmp = Test-Connection -TargetName $Computername -TcpPort $Port -ErrorAction Stop;
+                return ($tmp);  # return bool
+            }; # end else
         }
         catch {
             writeLogError -ErrorMessage $msg -PSErrMessage ($_.Exception.Message) -PSErrStack $_;
@@ -507,7 +509,7 @@ param([Parameter(Mandatory = $true, Position = 0)][string]$ConfigurationName
         writeLogOutput 'Loading module configuration';
         [hashtable]$Cfg=(Get-SecretInfo -Name $Script:SMAModuleCfgName -Vault $Script:vaultName -ErrorAction Stop).Metadata;        
         $Cfg=(loadMetadata -MetaData (Get-SecretInfo -Name $Script:SMAModuleCfgName -Vault $Script:vaultName -ErrorAction Stop).Metadata);        
-        $newHashTable=@{};
+        <#$newHashTable=@{};
         foreach ($entry in $cfg.Keys)
         {
             if ($cfg.$entry.gettype().Name.startswith('Int'))
@@ -517,11 +519,14 @@ param([Parameter(Mandatory = $true, Position = 0)][string]$ConfigurationName
             else {
                $newHashTable.Add($entry,$cfg.$entry); 
             }; # end else
-        }; # end foreach
+        }; # end forea
         writeLogOutput 'Writing module configuration';
         $newHashTable.DefaultCfgName=$ConfigurationName;
+        #>
+        $cfg.DefaultCfgName=$ConfigurationName;
         $msg='Failed to save the module configuration';
-        Set-SecretInfo -Name $Script:SMAModuleCfgName -Vault $Script:vaultName -Metadata $newHashTable -ErrorAction Stop;
+        #Set-SecretInfo -Name $Script:SMAModuleCfgName -Vault $Script:vaultName -Metadata $newHashTable -ErrorAction Stop;
+        Set-SecretInfo -Name $Script:SMAModuleCfgName -Vault $Script:vaultName -Metadata $cfg -ErrorAction Stop;
     } # end try
     catch {
         writeLogError -ErrorMessage $msg -PSErrMessage ($_.Exception.Message) -PSErrStack $_;
