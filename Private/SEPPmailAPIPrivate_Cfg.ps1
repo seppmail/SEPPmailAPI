@@ -17,9 +17,9 @@ function initModule
         $msg=('Creating vault ' + $Script:vaultName);
         writeLogOutput -LogString $msg;
         try {
-            writeLogOutput -LogString 'Setting authentication for secret store to NONE!!!' -LogType Warning;
+            writeLogOutput -LogString 'Setting authentication for secret store to NONE! - This is not the most secure setup, to change use Set-SecretStoreConfiguration' -LogType Warning;
             Set-SecretStoreConfiguration -Authentication None -Confirm:$false;
-            Register-SecretVault -ModuleName $script:SecureVaultModuleName -Name $Script:vaultName -Description 'Cereated by SMA PS module';            
+            Register-SecretVault -ModuleName $script:SecureVaultModuleName -Name $Script:vaultName -Description 'Created by SMA PS module';            
         } # end try
         catch {
             $msg=('Failed to register vault ' + $Script:vaultName);
