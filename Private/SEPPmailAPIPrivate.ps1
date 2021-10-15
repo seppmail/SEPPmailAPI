@@ -95,9 +95,13 @@ function ConvertFrom-SMASecureString {
     )
 
     try {
-        #$BSTR = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($securePassword)
-        #$plainPassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
-        $plainPassword = $securePassword|ConvertFrom-SecureString -AsPlainText
+        [string]$plainpassword = $null
+        if ($psversiontable.PsEdition -eq 'Desktop') {
+            $BSTR = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($securePassword)
+            $plainPassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
+        } else {
+            $plainPassword = $securePassword|ConvertFrom-SecureString -AsPlainText
+        }
         return $plainPassword
     }
     catch {
