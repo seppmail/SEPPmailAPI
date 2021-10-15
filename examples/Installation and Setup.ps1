@@ -1,6 +1,6 @@
 #region  Installation
 
-# maybe you need to set the Executionpolicy (on PS 5.1) AS ADMIN to install modules
+# WINDOWS PowerShell 5.1 : It may be the case you need to set the Executionpolicy (on PS 5.1) AS ADMIN to install modules
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned
 
 # Install Modules into User-scope (no admin rights needed)
@@ -29,6 +29,8 @@ Set-SecretStoreConfiguration -Authentication None
 Set-SMAConfiguration -ConfigurationName Demo -SetAsDefault
 Set-SMAConfiguration -ConfigurationName Demo -SetActive
 
+## to reload it
+Get-SMAConfiguration -ConfigurationName Demo
 
 # Changing Configuration details
 Set-SMAConfiguration -ConfigurationName Demo -SMAPort '8446'
