@@ -18,9 +18,10 @@ function initModule
         writeLogOutput -LogString $msg;
         try {
             writeLogOutput -LogString 'Setting authentication for secret store to NONE! - This is not the most secure setup. To change use Set-SecretStoreConfiguration' -LogType Warning
-            Set-SecretStoreConfiguration -Authentication None -Confirm $false
-            writeLogOutput -Logstring 'Registering the SEPPmail Vault without password required.'
-            $storeVaultParam = @{Authentication = 'none'}
+            $tempPassword = 'SEPPmail' |Convertto-SecureString -Asplaintext -Force
+            Set-SecretStoreConfiguration -Authentication None -Interaction None -Password $tempPassword -Confirm:$false
+            writeLogOutput -Logstring 'Registering the SEPPmail Vault without password required.' -LogType Info
+            $storeVaultParam = @{Authentication = 'none';Interaction = 'none'}
             Register-SecretVault -ModuleName $script:SecureVaultModuleName -Name $Script:vaultName -Description 'Created by SMA PS module' -VaultParameters $storeVaultParam            
         } # end try
         catch {
