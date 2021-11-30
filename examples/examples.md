@@ -74,7 +74,13 @@ Set-SMAUser -email 'sberger@fabrikam.com' -locked $true
 # Change user Display Name
 Set-SMAUser -email 'sberger@fabrikam.com' -name 'Alexandra Berger'
 # Disable sign and encrypt possibility
-Set-SMAUser -email 'sberger@fabrikam.com' -mayNotSign $true -MayNotEncrypt $true
+Set-SMAUser -email 'sberger@fabrikam.com' -mayNotSign -MayNotEncrypt
+# (Re)Enable sign and encrypt possibilities
+Set-SMAUser -email 'sberger@fabrikam.com' -mayNotSign:$false -MayNotEncrypt:$false # explicit denial of the values
+Set-SMAUser -email 'sberger@fabrikam.com'  # simply omit the parameter
+
+
+
 ```
 
 #### Changing multiple users via CSV import
