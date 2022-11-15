@@ -253,7 +253,7 @@ function Find-SMAUser
         locked = $false
         mayNotEncrypt = $false
         mayNotSign = $false
-        password = 'aBc1$6tgR'
+        password = ('aBc1$6tgR'|ConvertTo-SecureString -AsPlainText)
         customer = 'Contoso'
         notifications = 'never'
         mpkiSubjectPart = ''
@@ -394,6 +394,8 @@ function New-SMAUser
                  if ($mayNotSign) {$bodyht.mayNotSign = $mayNotSign}
             if ($mpkiSubjectPart) {$bodyht.mpkiSubjectPart = $mpkiSubjectPart}
               if ($notifications) {$bodyht.notifications = $notifications}
+                   if ($password) {$bodyht.password = ($password|ConvertFrom-SecureString -asplaintext)}
+
             
             $body = $bodyht|ConvertTo-JSON
             Write-verbose "Crafting Invokeparam for Invoke-SMARestMethod"
@@ -572,6 +574,7 @@ function Set-SMAUser
             if ((Get-Variable mayNotSign).value -eq $true) {$bodyht.mayNotSign = $true}
             if ($mpkiSubjectPart) {$bodyht.mpkiSubjectPart = $mpkiSubjectPart}
             if ($notifications) {$bodyht.notifications = $notifications}
+            if ($password) {$bodyht.password = ($password|ConvertFrom-SecureString -asplaintext)}
             
             $body = $bodyht|ConvertTo-JSON
             Write-verbose "Crafting Invokeparam for Invoke-SMARestMethod"
