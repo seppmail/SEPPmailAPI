@@ -124,42 +124,122 @@ function Get-SMAUser
 
 <#
 .SYNOPSIS
-    Find a locally existing users and details
+    Find a locally existing users by email address, name or uid.
 .DESCRIPTION
-    This CmdLet lets you read the detailed properties of multiple users.
+    This CmdLet lets you quickly find users in the SEPPmail Database by various properties. 
+    It may be used with 4 different variants.
+    1. By Name with the -name parameter and a part of the users name.
+    2. By uid with the -uid parameter and an EXACT match of the uid.
+    3. By email address with the -email parameter and and EXACT match of the email address
+    4. By a part of the email address with the -partialMatch parameter.
+
+    By Default
 .EXAMPLE
     PS C:\> Find-SMAUser
     Emits all users and their details - may take some time
 .EXAMPLE
-    PS C:\> Find-SMAUser -List
-    Emits all users - mail-addresses only
+    PS C:\> Find-SMAUser -email 'john.doe@fabrikam.eu'
+    Emits the specific user with this email address.
+.EXAMPLE
+    PS C:\> Find-SMAUser -name 'john'
+    Emits all users with john in the email address
+.EXAMPLE
+    PS C:\> Find-SMAUser -partialMatch 'fabrikam.eu'
+    Emits all users with fabrikam.eu in the email address
+.EXAMPLE
+    PS C:\> Find-SMAUser -uid 'john'
+    Emits the specific user john as UID
 .EXAMPLE
     PS C:\> Find-SMAUser -customer 'Contoso'
-    Emits all users of a particular customer
-.EXAMPLE
-    PS C:\> Find-SMAUser -customer 'Contoso' -List
     Emits e-mail addresses of all users of a particular customer
+.EXAMPLE
+    PS C:\> Find-SMAUser -List
+    Emits all users and their details
+.EXAMPLE
+    PS C:\> Find-SMAUser -limit 5
+    Emits all users but stop output at 5 objects
+.EXAMPLE
+    PS C:\> Find-SMAUser -active:$false
+    Emits only active users
+.EXAMPLE
+    PS C:\> Find-SMAUser -activeWithinDays 14
+    Emits only users which have sent emails within the last 14 days
+.EXAMPLE
+    PS C:\> Find-SMAUser -partialMatch 'tailspintoys.com' -activeWithinDays 14 -customer 'tailspintoys' -Limit 50
+    Use a combination of parameters to pre-filter the output as good as possible.
 #>
 function Find-SMAUser
 {
-    [CmdletBinding()]
+    [CmdletBinding(
+        DefaultParameterSetName             = 'partialMatch'
+    )]
+
     param (
+    #region Define the 4 parametersets and the uniqe params in it
         [Parameter(
-            Mandatory                       = $false,
-            ValueFromPipelineByPropertyName = $true,
-            ValueFromPipeline               = $true,
-            HelpMessage                     = 'For MSP´s and multi-customer environments, limit query for a specific customer'
+            ParameterSetName                = 'email',
+            Mandatory                       = $true,
+            Position                        = 0,
+            HelpMessage                     = 'Find users by their e-Mail address'
             )]
+        [string]$email,
+
+        [Parameter(
+            ParameterSetName                = 'partialMatch',
+            Mandatory                       = $false,
+            Position                        = 0,
+            HelpMessage                     = 'Find users by a partial match of their e-Mail address'
+            )]
+        [string]$partialMatch = ' ',
+
+        [Parameter(
+            ParameterSetName                = 'name',
+            Mandatory                       = $true,
+            Position                        = 0,
+            HelpMessage                     = 'Find users by their display name (parts of the name allowed)'
+            )]
+        [string]$name,
+
+        [Parameter(
+            ParameterSetName                = 'uid',
+            Mandatory                       = $true,
+            Position                        = 0,
+            HelpMessage                     = 'Find users by their exact uid' 
+            )]
+        [string]$uid,
+    #endregion
+
+        [Parameter(
+                Mandatory                   = $false,
+                HelpMessage                 = 'For MSP´s and multi-customer environments, limit query for a specific customer'
+                )]
         [string]$customer,
 
-        
         [Parameter(
             Mandatory                       = $false,
-            ValueFromPipelineByPropertyName = $true,
             HelpMessage                     = 'Show list with e-mail address only'
             )]
-        [switch]$list,
+        [bool]$list = $true,
 
+        [Parameter(
+            Mandatory                       = $false,
+            HelpMessage                     = 'limit output to <n> objects' 
+            )]
+        [int]$limit = 0,
+
+        [Parameter(
+            Mandatory                       = $false,
+            HelpMessage                     = 'limit output to active or inactive objects' 
+            )]
+        [bool]$active,
+
+        [Parameter(
+            Mandatory                       = $false,
+            HelpMessage                     = 'limit output to users which have sent e-mails within a certain timeframe (days)'
+            )]
+        [int]$activeWithinDays,
+
+        #region SMAParameters
         [Parameter(Mandatory = $false)]
         [String]$host = $Script:activeCfg.SMAHost,
 
@@ -169,16 +249,12 @@ function Find-SMAUser
         [Parameter(Mandatory = $false)]
         [String]$version = $Script:activeCfg.SMAPIVersion,
 
-        [Parameter(
-            Mandatory=$false
-            )]
-            [System.Management.Automation.PSCredential]$cred=$Script:activeCfg.SMACred,
+        [Parameter(Mandatory=$false)]
+        [System.Management.Automation.PSCredential]$cred=$Script:activeCfg.SMACred,
 
-            [Parameter(
-                Mandatory=$false
-                )]
-            [switch]$SkipCertCheck=$Script:activeCfg.SMAskipCertCheck
-                
+        [Parameter(Mandatory=$false)]
+        [switch]$SkipCertCheck=$Script:activeCfg.SMAskipCertCheck
+        #endregion SMAParameters
     )
 
     if (! (verifyVars -VarList $Script:requiredVarList))
@@ -187,8 +263,23 @@ function Find-SMAUser
     }; # end if
 
     try {
-        Write-Verbose "Building full request uri"
-        $boundParam = $psCmdLet.MyInvocation.BoundParameters
+        Write-Verbose "Building full request uri icluding all bound parameters"
+        #$boundParam = $psCmdLet.MyInvocation.BoundParameters
+        # Build querystring hashtable for conversion from parameters. Boundparams are eiter mandatory or have default values
+        $boundParam = @{
+                   'list' = $list
+                  'limit' = $limit
+            }
+
+            # Now check if any of the parameters was set by the commandline and set their values for the querystring
+                     if ($PSCmdlet.MyInvocation.BoundParameters.ContainsKey('name')) {$boundParam.name = $name}
+                    if ($PSCmdlet.MyInvocation.BoundParameters.ContainsKey('email')) {$boundParam.email = $email}
+             if ($PSCmdlet.MyInvocation.BoundParameters.ContainsKey('partialMatch')) {$boundParam.partialMatch = $partialMatch}
+                      if ($PSCmdlet.MyInvocation.BoundParameters.ContainsKey('uid')) {$boundParam.uid = $uid}
+                 if ($PSCmdlet.MyInvocation.BoundParameters.ContainsKey('customer')) {$boundParam.customer = $customer}
+                   if ($PSCmdlet.MyInvocation.BoundParameters.ContainsKey('active')) {$boundParam.active = $active}
+         if ($PSCmdlet.MyInvocation.BoundParameters.ContainsKey('activeWithinDays')) {$boundParam.activeWithinDays = $activeWithinDays}
+
         $smaParams=@{
             Host=$Host;
             Port=$Port;
