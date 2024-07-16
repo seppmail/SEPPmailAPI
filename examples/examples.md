@@ -1,11 +1,11 @@
 # Examples for the SEPPmailAPI Module
 
-Below, find some examples on how to use the module. The modules CmdLets emits PSObjects for easier further processing in PowerShell. Read the API documentation on https://docs.seppmail.com/api for more detailed insights of the API.
+Below, find some examples on how to use the module. The modules CmdLets emits PSObjects for easier further processing in PowerShell. Read the API documentation on <https://docs.seppmail.com/api> for more detailed insights of the API.
 
 ## Manage Users
 
 This section explains CRUD (Create, Read, Modify and Delete) operations on SEPPmail User Objects.
-Especially in environments with often changing useraccounts (i.e. education) this should be helpful. For mass-changes use external sources like Active Directory or CSV-files for modifying.
+Especially in environments with often changing user accounts (i.e. education) this should be helpful. For mass-changes use external sources like Active Directory or CSV-files for modifying.
 
 ### Finding Users
 
@@ -29,7 +29,7 @@ Find-SMAuser -customer 'Fabrikam'
 
 ### Create new SEPPmail users
 
-#### Create a single SEPPmail user in the [default] customer.
+#### Create a single SEPPmail user in the [default] customer
 
 You need at least 3 properties for a new user.
 
@@ -43,7 +43,7 @@ More properties may be defined as well, see CmdLet help for detailed information
 New-SMAUser -uid 'umeyer@domain.local' -email 'ullrich.meyer@yourdomain.com' -Name 'Ulli Meyer'
 ```
 
-#### Create a single user for a customer.
+#### Create a single user for a customer
 
 __NOTE!__ Customer Names are _case sensitive!_ . Customers must exist prior to create users for that customer.
 
@@ -107,7 +107,7 @@ __NOTE!__ Removing a zser has no recycle bin functionality. Removed users are GO
 
 Remove-SMAUuer works pretty similar to the CmdLets above. If you want to remove a SEPPmail user, you just need the e-Mail address as identifyer.
 
-#### Removing a single user 
+#### Removing a single user
 
 ```powershell
 Remove-SMAUser -email 'sberger@fabrikam.com'
@@ -152,7 +152,6 @@ Find-SMAcustomer -name 'Fabrikam'
 
 ### Create new SEPPmail customers
 
-#### Create a single SEPPmailv customer.
-
+#### Create a single SEPPmailv customer
 
 --- This is the end of the file ---

@@ -11,6 +11,7 @@ $ModulePath = $PSScriptroot
 . $ModulePath\Public\SEPPmailAPI-Statistics.ps1
 . $ModulePath\Public\SEPPmailAPI-Template.ps1
 . $ModulePath\Public\SEPPmailAPI-User.ps1
+. $ModulePath\Public\SEPPmailAPI-UserCrypto.ps1
 . $ModulePath\Public\SEPPmailAPI-Webmail.ps1
 
 $script:requiredVarList=@(

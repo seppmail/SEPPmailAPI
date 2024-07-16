@@ -36,7 +36,7 @@ function Get-SMAUser
         [string]$customer,
         #endregion
 
-        # SMA host parameters
+        #region SMA host parameters
         [Parameter(
             Mandatory = $false
             )]
@@ -61,6 +61,7 @@ function Get-SMAUser
             Mandatory=$false
             )]
         [switch]$SkipCertCheck=$Script:activeCfg.SMAskipCertCheck
+        #endregion
     )
 
     begin {
@@ -175,7 +176,7 @@ function Find-SMAUser
     )]
 
     param (
-    #region Define the 4 parametersets and the uniqe params in it
+        #region Define the 4 parametersets and the uniqe params in it
         [Parameter(
             ParameterSetName                = 'email',
             Mandatory                       = $true,
@@ -207,8 +208,9 @@ function Find-SMAUser
             HelpMessage                     = 'Find users by their exact uid' 
             )]
         [string]$uid,
-    #endregion
+        #endregion
 
+        #region common API params for all parametersets
         [Parameter(
                 Mandatory                   = $false,
                 HelpMessage                 = 'For MSP´s and multi-customer environments, limit query for a specific customer'
@@ -238,6 +240,7 @@ function Find-SMAUser
             HelpMessage                     = 'limit output to users which have sent e-mails within a certain timeframe (days)'
             )]
         [int]$activeWithinDays,
+        #endregion
 
         #region SMAParameters
         [Parameter(Mandatory = $false)]
@@ -356,6 +359,7 @@ function New-SMAUser
 {
     [CmdletBinding(SupportsShouldProcess)]
     param (
+        #region REST-API Parameters
         [Parameter(
             Mandatory                       = $true,
             ValueFromPipelineByPropertyName = $true,
@@ -427,7 +431,43 @@ function New-SMAUser
             )]
         [string]$mpkiSubjectPart,
 
-        # Host configuration parameters
+        [Parameter(
+            Mandatory                       = $false,
+            ValueFromPipelineByPropertyName = $true,
+            HelpMessage                     = 'SEPPmail group membership'
+            )]
+        [string[]]$memberOf,
+
+        [Parameter(
+            Mandatory                       = $false,
+            ValueFromPipelineByPropertyName = $true,
+            HelpMessage                     = 'POP (IMAP) account userID (e-mail address)'
+            )]
+        [string]$mailAccountUID,
+
+        [Parameter(
+            Mandatory                       = $false,
+            ValueFromPipelineByPropertyName = $true,
+            HelpMessage                     = 'POP (IMAP) account password as securestring'
+            )]
+        [secureString]$mailAccountPassword,
+
+        [Parameter(
+            Mandatory                       = $false,
+            ValueFromPipelineByPropertyName = $true,
+            HelpMessage                     = 'POP (IMAP) account host'
+            )]
+        [string]$mailAccountHost,
+
+        [Parameter(
+            Mandatory                       = $false,
+            ValueFromPipelineByPropertyName = $true,
+            HelpMessage                     = 'POP (IMAP) account host uses SSL'
+            )]
+        [boolean]$mailAccountSSL,
+        #endregion
+
+        #region SMAparams
         [Parameter(Mandatory = $false)]
         [String]$host = $Script:activeCfg.SMAHost,
 
@@ -437,16 +477,12 @@ function New-SMAUser
         [Parameter(Mandatory = $false)]
         [String]$version = $Script:activeCfg.SMAPIVersion,
 
-        [Parameter(
-            Mandatory=$false
-            )]
-            [System.Management.Automation.PSCredential]$cred=$Script:activeCfg.SMACred,
+        [Parameter(Mandatory=$false)]
+        [System.Management.Automation.PSCredential]$cred=$Script:activeCfg.SMACred,
 
-            [Parameter(
-                Mandatory=$false
-                )]
-            [switch]$SkipCertCheck=$Script:activeCfg.SMAskipCertCheck
-    
+        [Parameter(Mandatory=$false)]
+        [switch]$SkipCertCheck=$Script:activeCfg.SMAskipCertCheck
+        #endregion
     )
 
     begin {
@@ -479,13 +515,18 @@ function New-SMAUser
                 email = $email
             }
             Write-Verbose 'Adding Optional values to $body JSON'
-                   if ($customer) {$bodyht.customer = $customer}
-                     if ($locked) {$bodyht.locked = $locked}
-              if ($mayNotEncrypt) {$bodyht.mayNotEncrypt = $mayNotEncrypt}
-                 if ($mayNotSign) {$bodyht.mayNotSign = $mayNotSign}
-            if ($mpkiSubjectPart) {$bodyht.mpkiSubjectPart = $mpkiSubjectPart}
-              if ($notifications) {$bodyht.notifications = $notifications}
-                   if ($password) {$bodyht.password = ($password|ConvertFrom-SecureString -asplaintext)}
+                        if ($customer) {$bodyht.customer = $customer}
+                          if ($locked) {$bodyht.locked = $locked}
+                   if ($mayNotEncrypt) {$bodyht.mayNotEncrypt = $mayNotEncrypt}
+                      if ($mayNotSign) {$bodyht.mayNotSign = $mayNotSign}
+                    if ($notifications) {$bodyht.notifications = $notifications}
+                        if ($password) {$bodyht.password = ($password|ConvertFrom-SecureString -asplaintext)}
+                 if ($mpkiSubjectPart) {$bodyht.mpkiSubjectPart = $mpkiSubjectPart}
+                        if ($memberOf) {$bodyht.memberOf = $memberOf}
+                  if ($mailAccountUID) {$bodyht.mailAccountUID = $mailAccountUID}
+             if ($mailAccountPassword) {$bodyht.mailAccountPassword = ($mailAccountPassword|ConvertFrom-Securestring -AsPlainText)}
+                 if ($mailAccountHost) {$bodyht.mailAccountHost = $mailAccountHost}
+                  if ($mailAccountSSL) {$bodyht.mailAccountSSL = $mailAccountSSL}
 
             
             $body = $bodyht|ConvertTo-JSON
@@ -528,10 +569,16 @@ function New-SMAUser
         locked = $true
         mayNotEncrypt = $false
         mayNotSign = $false
-        password = 'aBc1$6tgR'
+        password = 'aBc1$6tgR'  # (As securestrig)
         customer = 'Contoso'
         notifications = 'never'
         mpkiSubjectPart = ''
+        notifications = 'never'
+        memberOf = 'myOwnGroup'
+        mailAccountUID = 'm.musterfrau'
+        mailAccountPassword = 'aBc1$6tgR'  # (As securestrig)
+        mailAccountHost = 'mail.contoso.com'
+        mailAccountSSL = $true
     }
     PS C:\> Set-SMAUser @userInfo
     Example of all parameters possible to change a user using parameter splatting
@@ -540,10 +587,10 @@ function Set-SMAUser
 {
     [CmdletBinding(SupportsShouldProcess)]
     param (
+        #region API parameters
         [Parameter(
             Mandatory                       = $true,
             ValueFromPipelineByPropertyName = $true,
-            #ValueFromPipeline               = $true,
             HelpMessage                     = 'User E-Mail address'
             )]
         [string]$eMail,
@@ -562,33 +609,33 @@ function Set-SMAUser
             )]
         [SecureString]$password,
 
-        [Parameter(
+<#        [Parameter(
             Mandatory                       = $false,
             ValueFromPipelineByPropertyName = $true,
             HelpMessage                     = '!!CASE_SENSITIVE!! For MSP´s, multi-customer and cloud environments, set the users customer, API default is blank'
             )]
         [string]$customer,
-
+#>
         [Parameter(
             Mandatory                       = $false,
             ValueFromPipelineByPropertyName = $true,
             HelpMessage                     = 'Disable the encrypt functionality for the user, API default is $false'
             )]
-        [switch]$mayNotEncrypt,
+        [boolean]$mayNotEncrypt,
 
         [Parameter(
             Mandatory                       = $false,
             ValueFromPipelineByPropertyName = $true,
             HelpMessage                     = 'Disable the sign functionality for the user, API default is $false'
             )]
-        [switch]$mayNotSign,
+        [boolean]$mayNotSign,
 
         [Parameter(
             Mandatory                       = $false,
             ValueFromPipelineByPropertyName = $true,
             HelpMessage                     = 'Lock this user, API default is $false'
             )]
-        [switch]$locked,
+        [boolean]$locked,
 
         [Parameter(
             Mandatory                       = $false,
@@ -605,6 +652,43 @@ function Set-SMAUser
             )]
         [string]$mpkiSubjectPart,
 
+        [Parameter(
+            Mandatory                       = $false,
+            ValueFromPipelineByPropertyName = $true,
+            HelpMessage                     = 'SEPPmail group membership'
+            )]
+        [string[]]$memberOf,
+
+        [Parameter(
+            Mandatory                       = $false,
+            ValueFromPipelineByPropertyName = $true,
+            HelpMessage                     = 'POP (IMAP) account userID (e-mail address)'
+            )]
+        [string]$mailAccountUID,
+
+        [Parameter(
+            Mandatory                       = $false,
+            ValueFromPipelineByPropertyName = $true,
+            HelpMessage                     = 'POP (IMAP) account password as securestring'
+            )]
+        [secureString]$mailAccountPassword,
+
+        [Parameter(
+            Mandatory                       = $false,
+            ValueFromPipelineByPropertyName = $true,
+            HelpMessage                     = 'POP (IMAP) account host'
+            )]
+        [string]$mailAccountHost,
+
+        [Parameter(
+            Mandatory                       = $false,
+            ValueFromPipelineByPropertyName = $true,
+            HelpMessage                     = 'POP (IMAP) account host uses SSL'
+            )]
+        [boolean]$mailAccountSSL,    
+        #endregion
+
+        #region SMAParams
         [Parameter(Mandatory = $false)]
         [String]$host = $Script:activeCfg.SMAHost,
 
@@ -614,16 +698,12 @@ function Set-SMAUser
         [Parameter(Mandatory = $false)]
         [String]$version = $Script:activeCfg.SMAPIVersion,
 
-        [Parameter(
-        Mandatory=$false
-        )]
+        [Parameter(Mandatory=$false)]
         [System.Management.Automation.PSCredential]$cred=$Script:activeCfg.SMACred,
 
-        [Parameter(
-            Mandatory=$false
-            )]
+        [Parameter(Mandatory=$false)]
         [switch]$SkipCertCheck=$Script:activeCfg.SMAskipCertCheck 
-    
+        #endregion
     )
     begin {
         if (! (verifyVars -VarList $Script:requiredVarList))
@@ -637,11 +717,8 @@ function Set-SMAUser
             Write-Verbose "Creating URL path"
             $uriPath = "{0}/{1}" -f 'user', $eMail
             Write-Verbose "Building full request uri"
-            if ($customer) {
-                $boundParam = @{
-                    customer = $customer
-                }
-            }
+            $boundParam = @{}
+            
             $smaParams=@{
                 Host=$Host;
                 Port=$Port;
@@ -655,18 +732,20 @@ function Set-SMAUser
                 email = $email
             }
             Write-Verbose 'Adding optional values to $body JSON'
-            if ($name) {$bodyht.name = $name}
-            if ($customer) {$bodyht.customer = $customer}
-            if ((Get-Variable locked).value -eq $false) {$bodyht.locked = $false}
-            if ((Get-Variable locked).value -eq $true) {$bodyht.locked = $true}
-            if ((Get-Variable mayNotEncrypt).value -eq $false) {$bodyht.mayNotEncrypt = $false}
-            if ((Get-Variable mayNotEncrypt).value -eq $true) {$bodyht.mayNotEncrypt = $true}
-            if ((Get-Variable mayNotSign).value -eq $false) {$bodyht.mayNotSign = $false}
-            if ((Get-Variable mayNotSign).value -eq $true) {$bodyht.mayNotSign = $true}
-            if ($mpkiSubjectPart) {$bodyht.mpkiSubjectPart = $mpkiSubjectPart}
-            if ($notifications) {$bodyht.notifications = $notifications}
-            if ($password) {$bodyht.password = ($password|ConvertFrom-SecureString -asplaintext)}
-            
+                                                    if ($name) {$bodyht.name = $name}
+                                                if ($customer) {$bodyht.customer = $customer}
+                                                  if ($locked) {$bodyht.locked = $locked}
+                                           if ($mayNotEncrypt) {$bodyht.mayNotEncrypt = $mayNotEncrypt}
+                                              if ($mayNotSign) {$bodyht.mayNotSign = $mayNotSign}
+                                         if ($mpkiSubjectPart) {$bodyht.mpkiSubjectPart = $mpkiSubjectPart}
+                                            if ($notifications) {$bodyht.notifications = $notifications}
+                                                if ($password) {$bodyht.password = ($password|ConvertFrom-SecureString -asplaintext)}
+                                                if ($memberOf) {$bodyht.memberOf = $memberOf}
+                                          if ($mailAccountUID) {$bodyht.mailAccountUID = $mailAccountUID}
+                                     if ($mailAccountPassword) {$bodyht.mailAccountPassword = ($mailAccountPassword|ConvertFrom-Securestring -AsPlainText)}
+                                         if ($mailAccountHost) {$bodyht.mailAccountHost = $mailAccountHost}
+                                          if ($mailAccountSSL) {$bodyht.mailAccountSSL = $mailAccountSSL}
+
             $body = $bodyht|ConvertTo-JSON
             Write-verbose "Crafting Invokeparam for Invoke-SMARestMethod"
             $invokeParam = @{
@@ -707,6 +786,8 @@ function Remove-SMAUser
 {
     [CmdletBinding(SupportsShouldProcess)]
     param (
+
+        #region API Parameters
         [Parameter(
             Mandatory                       = $true,
             ValueFromPipelineByPropertyName = $true,
@@ -718,10 +799,19 @@ function Remove-SMAUser
         [Parameter(
             Mandatory                       = $false,
             ValueFromPipelineByPropertyName = $true,
-            HelpMessage                     = 'If true certificates and private keys will not be deleted'
+            HelpMessage                     = 'If true, certificates and private keys will not be deleted'
             )]
         [switch]$keepKeys,
 
+        [Parameter(
+            Mandatory                       = $false,
+            ValueFromPipelineByPropertyName = $true,
+            HelpMessage                     = 'If true, the user is REALLY deleted from the database and is LOST forever'
+            )]
+        [switch]$purge,
+        #endregion
+
+        #region SMA Parameters
         [Parameter(Mandatory = $false)]
         [String]$host = $Script:activeCfg.SMAHost,
 
@@ -731,15 +821,12 @@ function Remove-SMAUser
         [Parameter(Mandatory = $false)]
         [String]$version = $Script:activeCfg.SMAPIVersion,
 
-        [Parameter(
-            Mandatory=$false
-            )]
-            [System.Management.Automation.PSCredential]$cred=$Script:activeCfg.SMACred,
+        [Parameter(Mandatory=$false)]
+        [System.Management.Automation.PSCredential]$cred=$Script:activeCfg.SMACred,
 
-            [Parameter(
-                Mandatory=$false
-                )]
-            [switch]$SkipCertCheck=$Script:activeCfg.SMAskipCertCheck 
+        [Parameter(Mandatory=$false)]
+        [switch]$SkipCertCheck=$Script:activeCfg.SMAskipCertCheck
+        #endregion
 
     )
 
@@ -760,9 +847,10 @@ function Remove-SMAUser
     process {
         try {
             Write-Verbose "Building full request uri"
-            $boundParam = @{
-                keepkeys = $keepkeys
-            }
+            $boundParam = @{ }
+
+            if ($keepkeys) {$boundParam.keepkeys = $keepkeys}
+               if ($purge) {$boundParam.purge = $purge}
 
             $smaParams=@{
                 Host=$Host;
@@ -773,9 +861,9 @@ function Remove-SMAUser
     
             Write-verbose "Crafting Invokeparam for Invoke-SMARestMethod"
             $invokeParam = @{
-                Uri         = $uri 
-                Method      = 'DELETE'
-                Cred        =  $cred
+                Uri           = $uri 
+                Method        = 'DELETE'
+                Cred          = $cred
                 SkipCertCheck = $SkipCertCheck
                 }
             

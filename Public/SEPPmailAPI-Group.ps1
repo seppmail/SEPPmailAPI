@@ -362,7 +362,7 @@ function Get-SMAGroup
         [Parameter(
             Mandatory                       = $true,
             ValueFromPipelineByPropertyName = $true,
-            HelpMessage                     = 'The groupss full name'
+            HelpMessage                     = 'The groups full name'
             )]
         [string]$name,
         #endregion
@@ -383,14 +383,10 @@ function Get-SMAGroup
             )]
         [String]$version = $Script:activeCfg.SMAPIVersion,
 
-        [Parameter(
-            Mandatory=$false
-            )]
-            [System.Management.Automation.PSCredential]$cred=$Script:activeCfg.SMACred,
+        [Parameter(Mandatory=$false)]
+        [System.Management.Automation.PSCredential]$cred=$Script:activeCfg.SMACred,
 
-        [Parameter(
-            Mandatory=$false
-            )]
+        [Parameter(Mandatory=$false)]
         [switch]$SkipCertCheck=$Script:activeCfg.SMAskipCertCheck
         #endregion
     )
@@ -448,7 +444,6 @@ function Get-SMAGroup
 
     }
 }
-
 
 <#
 .SYNOPSIS
