@@ -1,6 +1,7 @@
 # User Management
-$userid = 'pstest1@local'
-$userName = 'PowerShell Test 1'
+$timeId = Get-Date -Format FileDateTime
+$userid = ('powershell_test_' + $timeid + '@local').ToLower()
+$userName = 'PowerShell Test User ' + $timeid
 
 # Create User with minimum requirements
 New-SMAUser -uid $userid -email $userid -Name $userName
@@ -26,7 +27,9 @@ $changedUserSettings = @{
 }
 Set-SMAUser -eMail $userid @changedUserSettings
 
-find-smauser -partialMatch 'admin'
+Find-smauser -partialMatch 'admin'
+
+Remove-SMAUser -eMail $userid
 
 
 

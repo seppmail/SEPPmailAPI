@@ -2,7 +2,7 @@
 
 ## Version 1.1.0
 
-
+Updated Version to fix invalid authenticode signature.
 
 ### Maintenance
 
