@@ -9,7 +9,6 @@ Updated Version to fix invalid authenticode signature.
 - Typo and minor logic fixes in the existing code
 - removed -customer parameter from Set-SMAUsers bcs. of a possible bug in the current API
 
-
 ## Version 1.0.5
 
 ### Additions

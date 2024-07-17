@@ -53,7 +53,7 @@
    # ProcessorArchitecture = ''
 
    # Modules that must be imported into the global environment prior to importing this module
-   # RequiredModules = @('Configuration','Microsoft.PowerShell.SecretsManagement')
+   RequiredModules = @('Microsoft.PowerShell.SecretStore','Microsoft.PowerShell.SecretsManagement')
    # RequiredModules = @()
 
    # Assemblies that must be loaded prior to importing this module
