@@ -20,7 +20,7 @@ function New-SMAQueryString {
         [String]$uriPath,
 
         [Parameter(Mandatory = $false)]
-        [Hashtable]$qparam
+        [Hashtable]$qParam
     )
 
     try {
@@ -62,27 +62,27 @@ function ConvertFrom-SMAPIFormat {
     )
 
       # Convert Names to Umlauts
-    if ($inputobject.Name) {
-        $bytes = [System.Text.Encoding]::GetEncoding("ISO-8859-1").GetBytes($inputobject.Name)
-        $inputobject.Name = [System.Text.Encoding]::UTF8.GetString($bytes)
+    if ($inputObject.Name) {
+        $bytes = [System.Text.Encoding]::GetEncoding("ISO-8859-1").GetBytes($inputObject.Name)
+        $inputObject.Name = [System.Text.Encoding]::UTF8.GetString($bytes)
     }
 
     # Convert comments to Umlauts
-      if ($inputobject.comment) {
-        $bytes = [System.Text.Encoding]::GetEncoding("ISO-8859-1").GetBytes($inputobject.comment)
-        $inputobject.comment = [System.Text.Encoding]::UTF8.GetString($bytes)
+      if ($inputObject.comment) {
+        $bytes = [System.Text.Encoding]::GetEncoding("ISO-8859-1").GetBytes($inputObject.comment)
+        $inputObject.comment = [System.Text.Encoding]::UTF8.GetString($bytes)
     }
     # Convert description to Umlauts
-    if ($inputobject.description) {
-        $bytes = [System.Text.Encoding]::GetEncoding("ISO-8859-1").GetBytes($inputobject.description)
-        $inputobject.description = [System.Text.Encoding]::UTF8.GetString($bytes)
+    if ($inputObject.description) {
+        $bytes = [System.Text.Encoding]::GetEncoding("ISO-8859-1").GetBytes($inputObject.description)
+        $inputObject.description = [System.Text.Encoding]::UTF8.GetString($bytes)
     }
 
     # Convert strig to Date
-    if ($inputobject.createddate) {
-        $inputobject.createdDate = [Datetime]::ParseExact($inputobject.createdDate, 'yyyyMMddHHmmssZ', $null)
+    if ($inputObject.createddate) {
+        $inputObject.createdDate = [Datetime]::ParseExact($inputObject.createdDate, 'yyyyMMddHHmmssZ', $null)
     }
-    return $inputobject
+    return $inputObject
 }
 
 function ConvertFrom-SMASecureString {
@@ -263,6 +263,35 @@ function ConvertTo-OrderedDictionary {
     }
     return $OrderedDictionary
 }
+
+function Get-EmailFlat {
+    [CmdletBinding()]
+    [OutputType([string])]
+    Param (
+        [parameter(Mandatory = $true, ValueFromPipeline = $true)]
+        $InputObj
+    )
+    $emails = @()
+    if ($null -eq $InputObj) { return $emails }
+    foreach ($prop in $InputObj.PSObject.Properties) {
+        $val = $prop.Value
+        if ($val -is [PSCustomObject]) {
+            foreach ($subProp in $val.PSObject.Properties) {
+                $subVal = $subProp.Value
+                if (($subVal -is [PSCustomObject]) -and ($subVal.PSObject.Properties["email"])) {
+                    $emailValue = $subVal.email
+                    if (($emailValue -is [string]) -and ($emailValue -ne "")) {
+                        $emails += $emailValue
+                    }
+                } elseif ($subVal -is [PSCustomObject]) {
+                    $emails += Get-EmailFlat $subVal
+                }
+            }
+        }
+    }
+    return $emails
+}
+
 
 # SIG # Begin signature block
 # MIIL1wYJKoZIhvcNAQcCoIILyDCCC8QCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB

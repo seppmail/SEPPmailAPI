@@ -25,7 +25,6 @@ Example file showed in youtube can be found here:
 * Installation and Setup [Github](https://github.com/seppmail/SEPPmailAPI/blob/main/examples/Installation%20and%20Setup.ps1)
 * First Steps [Github](https://github.com/seppmail/SEPPmailAPI/blob/main/examples/First%20Steps.ps1)
 
-
 ### Installation from Github
 
 If you have no access to the PowerShell Gallery but git installed, clone the module into a folder which is listed in the $env:PSmodulePath, preferably your home-PSmodule folder ~\Documents\PowerShell\Modules.

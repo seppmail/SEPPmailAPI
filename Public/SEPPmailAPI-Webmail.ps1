@@ -117,9 +117,9 @@ function Find-SMAGinaUser {
                 Port    = $Port
                 Version = $Version
             }
-            $uri = New-SMAQueryString -uriPath $uriPath -qparam $boundParam @smaParams
+            $uri = New-SMAQueryString -uriPath $uriPath -qParam $boundParam @smaParams
 
-            Write-verbose "Crafting Invokeparam for Invoke-SMARestMethod"
+            Write-verbose "Crafting InvokeParam for Invoke-SMARestMethod"
             $invokeParam = @{
                 Uri         = $uri 
                 Method      = 'GET'
@@ -128,19 +128,29 @@ function Find-SMAGinaUser {
             }
     
             Write-Verbose "Replace wrong '%40' value with '@'"
-            $invokeparam.Uri = ($invokeParam.Uri).Replace('%40','@')
+            $invokeParam.Uri = ($invokeParam.Uri).Replace('%40','@')
 
-            Write-Verbose "Call Invoke-SMARestMethod $($invokeparam.Uri)" 
+            Write-Verbose "Call Invoke-SMARestMethod $($invokeParam.Uri)" 
             $ginaUserRaw = Invoke-SMARestMethod @invokeParam
    
             Write-Verbose 'Converting Umlauts from ISO-8859-1'
             $ginaUser = ConvertFrom-SMAPIFormat -inputObject $GinaUserRaw #|convertfrom-Json -AsHashtable
 
-            # Gina-Userobject
+            # Anpassung: Nur die E-Mail-Adressen der User-Objekte ausgeben
+            # Anpassung: E-Mail-Adressen aus dritter Ebene extrahieren und als flache Liste als String-Array ausgeben
             if ($ginaUser) {
-                return $ginaUser
-            }
-            else {
+                $allEmails = @()
+                if ($ginaUser -is [System.Collections.IEnumerable]) {
+                    foreach ($item in $ginaUser) {
+                        $allEmails += Get-EmailFlat $item
+                    }
+                } else {
+                    $allEmails += Get-EmailFlat $ginaUser
+                }
+                foreach ($mail in $allEmails) {
+                    Write-Output $mail
+                }
+            } else {
                 Write-Information 'No matching GINA user found, nothing to return'
             }
 
@@ -379,7 +389,7 @@ function New-SMAGinaUser {
             if ($PSCmdLet.ShouldProcess($($bodyHt.Email),"Create user with e-mail $email")) {
                 
                 Write-Verbose "Call Invoke-SMARestMethod $uri"
-                $ginaUserRaw = Invoke-SMARestMethod @invokeParam
+                $ginaUserRaw = Invoke-SMARRestMethod @invokeParam
                 
                 return $ginaUserRaw
                 #Write-Verbose 'Returning e-Mail address of new users'
@@ -562,7 +572,7 @@ function Set-SMAGinaUser {
 
         try {
             Write-Verbose "Creating URL path"
-            $uriPath = "{0}/{1}/{2}" -f 'webmail', 'user', $email
+            $uriPath = "{0}/{1}" -f 'webmail', 'user'
 
             Write-Verbose "Building full request uri"
             $smaParams=@{
@@ -610,7 +620,7 @@ function Set-SMAGinaUser {
             if ($PSCmdLet.ShouldProcess($($bodyHt.Email),"Update user with e-mail $email")) {
                 
                 Write-Verbose "Call Invoke-SMARestMethod $uri"
-                $ginaUserRaw = Invoke-SMARestMethod @invokeParam
+                $ginaUserRaw = Invoke-SMARRestMethod @invokeParam
                 
                 return $ginaUserRaw
                 #Write-Verbose 'Returning e-Mail address of new users'
@@ -722,7 +732,7 @@ function Remove-SMAGinaUser {
             if ($PSCmdLet.ShouldProcess($($bodyHt.Email),"Update user with e-mail $email")) {
                 
                 Write-Verbose "Call Invoke-SMARestMethod $uri"
-                $ginaUserRaw = Invoke-SMARestMethod @invokeParam
+                $ginaUserRaw = Invoke-SMARRestMethod @invokeParam
                 
                 return $ginaUserRaw
                 #Write-Verbose 'Returning e-Mail address of deleted users'

@@ -87,7 +87,7 @@ function Get-SMAStatistics
             $uri = New-SMAQueryString -uriPath $uriPath -qParam $boundParam @smaParams
 
             
-            Write-verbose "Crafting Invokeparam for Invoke-SMARestMethod"
+            Write-verbose "Crafting InvokeParam for Invoke-SMARestMethod"
             $invokeParam = @{
                 Uri         = $uri 
                 Method      = 'GET'
@@ -106,7 +106,12 @@ function Get-SMAStatistics
     
             # Userobject
             if ($statsInfo) {
-                return $statsInfo
+                if ($StatsInfo.User) {
+                    $statsInfo.User
+                }
+                if ($StatsInfo.Domain) {
+                    $statsInfo.Domain
+                }
             }
             else {
                 Write-Information 'Nothing to return'
