@@ -12,7 +12,7 @@
    RootModule = '.\SEPPmailAPI.psm1'
 
    # Version number of this module.
-   ModuleVersion = '1.2.0'
+   ModuleVersion = '2.0.0'
 
    # Supported PSEditions
    CompatiblePSEditions = @('Desktop','Core')
@@ -109,6 +109,7 @@
        'Remove-SMAGroup'
           'Add-SMAGroupMember'
        'Remove-SMAGroupMember'
+          'Get-SMALicense'
          'Find-SMAManagedDomain'
           'Get-SMAManagedDomain'
           'New-SMAManagedDomain'

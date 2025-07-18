@@ -7,7 +7,6 @@ This release has 3 major areas
 1. Expansion of the API-features around:
    - crypto
    - mailsystem/manageddomain/{domainname}/group
-   - info
    - mailsystem/settings
    - statistics
    - system
@@ -18,7 +17,7 @@ This release has 3 major areas
 - "Get-" CmdLets always emit the full object properties of an object
   
 1. Appliance Report
-   
+
 The CmdLet New-SMAApplianceReport will provide a summary of an Appliance for documentation or troubleshooting.
 
 ### Maintenance
@@ -28,6 +27,8 @@ The CmdLet New-SMAApplianceReport will provide a summary of an Appliance for doc
 - Module expects a multi-customer envrironment
 
 ### Features
+
+- New CmdLet Get-SMALicense returning Appliance License Info and customer statistics
 
 ### Bugs
 

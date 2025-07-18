@@ -127,7 +127,193 @@ function Get-SMAStatistics
     }
 }
 
+<#
+.SYNOPSIS
+    Retrieves license statistics from your SEPPmail appliance.
+
+.DESCRIPTION
+    The Get-SMALicense CmdLet queries the SEPPmail API endpoint /statistics/license for license information.
+    It has 2 outputs. Either License information or customer license statistics information (for MSPs or multi-customer environments)
+    
+.PARAMETER Customer
+    Returns license information for a specific customer (tenant).
+
+.EXAMPLE
+    PS C:\> Get-SMALicense
+    Emits the appliance license information.
+
+    .EXAMPLE
+    PS C:\> Get-SMALicense -CustomerStatistics
+    Emits the usage statistics per appliance-customer.
+
+.EXAMPLE
+    PS C:\> Get-SMALicense -showGlobal
+    Emits the usage statistics of the appliance globally.
+
+.EXAMPLE
+    PS C:\> Get-SMALicense -Customer "Contoso"
+    Emits the usage statistics for a particular customer.
+
+.NOTES
+    Available parameters may vary depending on appliance and API version.
+#>
+function Get-SMALicense {
+    [CmdletBinding()]
+    param (
+        [Parameter(
+              Mandatory = $false,
+            HelpMessage = 'Returns license information for a specific customer (tenant).'
+            )]
+        [string]$Customer,
+
+        [Parameter(
+              Mandatory = $false,
+            HelpMessage = 'Returns license information for a specific customer (tenant).'
+            )]
+        [Alias("stats")]
+        [switch]$CustomerStatistics,
+
+        [Parameter(
+              Mandatory = $false,
+            HelpMessage = 'Returns global license statistics.'
+            )]
+        [Alias("global")]
+        [switch]$showGlobal,
+        [Parameter(
+              Mandatory = $false,
+            HelpMessage = 'API version to use.'
+            )]
+        [string]$Version = $Script:activeCfg.SMAPIVersion,
+
+        [Parameter(
+              Mandatory = $false,
+            HelpMessage = 'Hostname or IP of the SEPPmail appliance.'
+            )]
+        [string]$Host = $Script:activeCfg.SMAHost,
+
+        [Parameter(
+              Mandatory = $false,
+            HelpMessage = 'Port for the SEPPmail API.'
+            )]
+        [int]$Port = $Script:activeCfg.SMAPort,
+
+        [Parameter(Mandatory = $false)]
+        [System.Management.Automation.PSCredential]$Cred = $Script:activeCfg.SMACred,
+
+        [Parameter(Mandatory = $false)]
+        [switch]$SkipCertCheck = $Script:activeCfg.SMAskipCertCheck
+    )
+
+    begin {
+        if (! (verifyVars -VarList $Script:requiredVarList)) {
+            Throw($missingVarsMessage);
+        }
+        try {
+            Write-Verbose "Creating URL path for license statistics"
+            $uriPath = "statistics/license"
+        }
+        catch {
+            Write-Error "Error happened setting REST-Path variables"
+        }
+    }
+    process {
+        try {
+            Write-Verbose "Building full request uri"
+
+            if ($customer) {$CustomerStatistics = $true}
+            $boundParam = @{
+                customerStatistics = $customerStatistics
+            }
+            if ($Customer) { $boundParam.customer = $Customer }
+ 
+            $smaParams = @{
+                Host    = $Host
+                Port    = $Port
+                Version = $Version
+            }
+            $uri = New-SMAQueryString -uriPath $uriPath -qParam $boundParam @smaParams
+
+            Write-Verbose "Crafting InvokeParam for Invoke-SMARestMethod"
+            $invokeParam = @{
+                Uri         = $uri
+                Method      = 'GET'
+                Cred        = $Cred
+                SkipCertCheck = $SkipCertCheck
+            }
+
+            Write-Verbose "Replace wrong '%40' value with '@'"
+            $invokeParam.Uri = ($invokeParam.Uri).Replace('%40','@')
+
+            Write-Verbose "Call Invoke-SMARestMethod $($invokeParam.Uri)"
+            $licenseInfo = Invoke-SMARestMethod @invokeParam
+
+            if ($licenseInfo) {
+                
+                # Keine Parameter gesetzt ==> OK
+                if ((!($customer)) -and (!($customerStatistics)) -and (!($showGlobal))) {
+                    Write-Output $licenseInfo.License
+                }
+                
+                # Global statistics
+                if ((!($customer)) -and (!($customerStatistics)) -and ($showGlobal)) {
+                    Write-Output $licenseInfo.statistics.global
+                }
+
+                # Customerusage
+                if ((!($customer)) -and ($customerStatistics)) {
+                    $outPutObj = $licenseInfo.statistics.customers.PSObject.Properties | ForEach-Object {
+                        $obj = [PSCustomObject]@{
+                            customerName = $_.Name
+                        }
+                        # Alle Properties aus dem Originalobjekt hinzufügen
+                        $_.Value.PSObject.Properties | ForEach-Object {
+                            $obj | Add-Member -MemberType NoteProperty -Name $_.Name -Value $_.Value
+                        }
+                        $obj
+                    }
+                    Write-Output $outPutObj
+                }
+
+                # specific customer
+                if (($customer) -and (!($showGlobal))) {
+                    Write-Output $licenseInfo.statistics.customers.$customer
+                }
+
+                
+
+            <#    
+                if ($licenseInfo.license) {Write-Output $licenseInfo.License}
+                if ($customerStatistics) {
+                    $licenseInfo.statistics.customers.PSObject.Properties | ForEach-Object {
+                        $obj = [PSCustomObject]@{
+                            customerName = $_.Name
+                        }
+                        # Alle Properties aus dem Originalobjekt hinzufügen
+                        $_.Value.PSObject.Properties | ForEach-Object {
+                            $obj | Add-Member -MemberType NoteProperty -Name $_.Name -Value $_.Value
+                        }
+                        $obj
+                    }
+                } else {
+                    $licenseInfo.statistics.global
+                }
+            #>
+            } else {
+                Write-Information 'No license information found, nothing to return'
+            }
+        }
+        catch {
+            Write-Error "An error occurred, see $error"
+        }
+    } 
+    end {
+        # Cleanup or final actions can be added here if needed
+    }
+}
+
 New-Alias -Name Get-SMAStat -Value Get-SMAStatistics
+New-Alias -Name Get-SMALic -Value Get-SMALicense
+
 # SIG # Begin signature block
 # MIIVzAYJKoZIhvcNAQcCoIIVvTCCFbkCAQExDzANBglghkgBZQMEAgEFADB5Bgor
 # BgEEAYI3AgEEoGswaTA0BgorBgEEAYI3AgEeMCYCAwEAAAQQH8w7YFlLCE63JNLG
