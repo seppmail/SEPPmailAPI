@@ -24,7 +24,8 @@ The CmdLet New-SMAApplianceReport will provide a summary of an Appliance for doc
 
 - Updates on API Version
 - Better output handling of WEBUsers
-- Module expects a multi-customer envrironment
+- Module expects a multi-customer envrinonment
+- Get-SMACustomer not emits a List of customers by default. Get-SMAcustomers -List:$False will emit all customer details
 
 ### Features
 

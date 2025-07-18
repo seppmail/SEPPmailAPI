@@ -18,7 +18,7 @@ function Find-SMACustomer
             Mandatory                       = $false,
             HelpMessage                     = 'Show list with e-mail address only'
             )]
-        [switch]$list,
+        [bool]$list = $true,
 
         [Parameter(Mandatory = $false)]
         [String]$host = $Script:activeCfg.SMAHost,
