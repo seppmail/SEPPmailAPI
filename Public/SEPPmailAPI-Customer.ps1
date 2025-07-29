@@ -389,10 +389,10 @@ function New-SMACustomer
             $body = $bodyht|ConvertTo-JSON
     
             $invokeParam = @{
-                Uri         = $uri 
-                Method      = 'POST'
-                body        = $body
-                Cred        =  $cred
+                Uri           = $uri 
+                Method        = 'POST'
+                body          = $body
+                Cred          =  $cred
                 SkipCertCheck = $SkipCertCheck
             }
 

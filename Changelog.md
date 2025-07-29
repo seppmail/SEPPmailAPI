@@ -2,6 +2,8 @@
 
 ## Version 2.0.0
 
+***Breaking Changes !!! CmdLet output of Find-CmdLets changes to single objects and lists only the unique identifier of the object***
+
 This release has 3 major areas
 
 1. Expansion of the API-features around:
@@ -11,8 +13,9 @@ This release has 3 major areas
    - statistics
    - system
    - cluster
+  
 2. Harmonizing of Output for specific commands
-   
+
 - "Find-" CmdLets always emit the identifier property of an object for further processing.
 - "Get-" CmdLets always emit the full object properties of an object
   
@@ -25,7 +28,8 @@ The CmdLet New-SMAApplianceReport will provide a summary of an Appliance for doc
 - Updates on API Version
 - Better output handling of WEBUsers
 - Module expects a multi-customer envrinonment
-- Get-SMACustomer not emits a List of customers by default. Get-SMAcustomers -List:$False will emit all customer details
+- Find-SMACustomer now emits a List of customers by default. Get-SMAcustomers -List:$False will emit all customer details
+- Find-SMAManagedomains now emits domain-lists only. -List parameter is removed
 
 ### Features
 
@@ -35,7 +39,6 @@ The CmdLet New-SMAApplianceReport will provide a summary of an Appliance for doc
 
 - Typo in Modulename for Secretmanagement
 - Output of Get-SMAStatistics without parameters (= defaultvalue all) now emits also user data not only domain data
-- 
 
 ## Version 1.1.0
 

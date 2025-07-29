@@ -9,6 +9,7 @@ $ModulePath = $PSScriptroot
 . $ModulePath\Public\SEPPmailAPI-ManagedDomain.ps1
 . $ModulePath\Public\SEPPMailAPI-ModuleCfg.ps1
 . $ModulePath\Public\SEPPmailAPI-Statistics.ps1
+. $ModulePath\Public\SEPPmailAPI-System.ps1
 . $ModulePath\Public\SEPPmailAPI-Template.ps1
 . $ModulePath\Public\SEPPmailAPI-User.ps1
 . $ModulePath\Public\SEPPmailAPI-UserCrypto.ps1

@@ -13,13 +13,7 @@ This CmdLet lets you read the detailed properties of multiple users.
 function Find-SMAManagedDomain
 {
     [CmdletBinding()]
-    param (
-        [Parameter(
-            Mandatory                       = $false,
-            HelpMessage                     = 'Show list with domain names only'
-            )]
-        [switch]$list,
-
+    param(
         [Parameter(
              Mandatory = $false,
              HelpMessage = "Limit output to a specific domain"
@@ -52,7 +46,6 @@ function Find-SMAManagedDomain
         [switch]$SkipCertCheck=$Script:activeCfg.SMAskipCertCheck
     )
 
-
     if (!(verifyVars -VarList $Script:requiredVarList))
     {
         Throw($missingVarsMessage);
@@ -64,13 +57,9 @@ function Find-SMAManagedDomain
 
         Write-verbose "Build Parameter hashtable"
         $boundParam = @{}
-
-        if($list)
-        {$boundParam["list"] = $true}
-        if($name)
-        {$boundParam["domainName"] = $name}
-        if($customer)
-        {$boundParam["customer"] = $customer}
+        $boundParam.list        = $true
+        if ($name)     { $boundParam.domainName  = $name }
+        if ($customer) { $boundParam.customer    = $customer }
 
         Write-Verbose "Build QueryString"
         $smaParams=@{
@@ -89,19 +78,18 @@ function Find-SMAManagedDomain
         }
 
         Write-Verbose "Call Invoke-SMARestMethod $uri"
-        $tmp = Invoke-SMARestMethod @invokeParam
+        $managedDomains = Invoke-SMARestMethod @invokeParam
 
         Write-Verbose 'Filter data and return as PSObject'
 
-        if (!$list) {
-            $tmp = $tmp.Psobject.properties.value
-        }
+        # Write.Output $managedDomains.Psobject.properties.value
+        
 
         Write-Verbose 'Converting Umlauts from ISO-8859-1 and DateTime correctly'
-        $ret = foreach ($c in $tmp) {ConvertFrom-SMAPIFormat -inputobject $c}
+        $ret = foreach ($c in $managedDomains) {ConvertFrom-SMAPIFormat -inputobject $c}
 
         if ($ret) {
-            return $ret
+            Write-Output $ret
         }
         else {
             Write-Information 'Nothing to return'
