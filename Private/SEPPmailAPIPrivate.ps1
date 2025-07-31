@@ -146,9 +146,7 @@ function Invoke-SMARestMethod {
     begin {
         Write-Verbose "Crafting Header-JSON"
         $headers = @{
-            ##'X-SM-API-TOKEN' = $SMACred.UserName
             'X-SM-API-TOKEN' = $Cred.UserName;
-            ##'X-SM-API-SECRET' = (ConvertFrom-SMASecureString -securePassword $SMACred.Password)
             'X-SM-API-SECRET' = (ConvertFrom-SMASecureString -securePassword $Cred.Password)
             'accept' = 'application/json'
         }
@@ -161,31 +159,21 @@ function Invoke-SMARestMethod {
         }
         if ($null -ne $body) { $SMinvokeParam.body = $body }
 
-        function Get-SMARestError {
-            if ($_.ErrorDetails.Message -like '*errorcode*') {
-                $RestErr = ($_.ErrorDetails.Message|convertfrom-JSON).errorMessage
-                Write-Error "$RestErr"
-            }
-            else {
-                Write-Error "Calling SEPPmail API failed with error: $_"
-            }
-        }
     }
     process {
         # Core and Skip
-        if (($PSversiontable.PSEdition -like 'Core') -and ($SkipCertCheck)) {
+        if (($PSversionTable.PSEdition -like 'Core') -and ($SkipCertCheck)) {
             Write-verbose 'Calling Invoke-RestMethod on Core edition with skip Certificate'
             try {
-                Invoke-RestMethod @SMinvokeParam -SkipCertificateCheck -ContentType 'application/json; charset=utf-8'
+                #Invoke-RestMethod @SMinvokeParam -SkipCertificateCheck -ContentType 'application/json; charset=utf-8'
+                Invoke-RestMethod @SMinvokeParam -SkipCertificateCheck -ContentType 'application/json'
             }
             catch {
-                #$RestErr = ($_.ErrorDetails.Message|convertfrom-JSON).errorMessage
-                #Write-Error "$RestErr"
                 Get-SMARestError
             }
         }
         # Desktop and skip
-        elseif (($PSversiontable.PSedition -like 'Desktop') -and ($SkipCertCheck)) {
+        elseif (($PSversionTable.PSedition -like 'Desktop') -and ($SkipCertCheck)) {
             Write-Verbose "Change endpoint to skipCertificateCheck and call url"
             if ([System.Net.ServicePointManager]::CertificatePolicy -like 'System.Net.DefaultCertPolicy') {
                 $DefaultPolicy = [System.Net.ServicePointManager]::CertificatePolicy
@@ -204,7 +192,7 @@ function Invoke-SMARestMethod {
                 [System.Net.ServicePointManager]::CertificatePolicy = new-object IDontCarePolicy 
                 Write-verbose 'Calling Invoke-RestMethod on Dektop edition with skip Certificate'
                 try {
-                    Invoke-RestMethod @SMinvokeParam -ContentType 'application/json; charset=utf-8'
+                    Invoke-RestMethod @SMinvokeParam -ContentType 'application/json'
                 }
                 catch {
                     #$RestErr = ($_.ErrorDetails.Message|convertfrom-JSON).errorMessage
@@ -218,11 +206,9 @@ function Invoke-SMARestMethod {
         else {
             Write-verbose 'Calling Invoke-RestMethod with valid Certificate'
             try {
-                Invoke-RestMethod @SMinvokeParam -ContentType 'application/json; charset=utf-8'
+                Invoke-RestMethod @SMinvokeParam -ContentType 'application/json'
             }
             catch {
-                #$RestErr = ($_.ErrorDetails.Message|convertfrom-JSON).errorMessage
-                #Write-Error "$RestErr"
                 Get-SMARestError
             }        
         }
@@ -292,6 +278,49 @@ function Get-EmailFlat {
     return $emails
 }
 
+function Get-SMARestError {
+    if ($_.Exception.Response) {
+        $response = $_.Exception.Response
+        $statusCode = $response.StatusCode.value__
+        $statusDescription = $response.StatusDescription
+        
+        Write-Verbose "HTTP Status Code: $statusCode"
+        Write-Verbose "Status Description: $statusDescription"
+        Write-Verbose "Request URI: $($_.Exception.Response.ResponseUri)"
+
+        try {
+            $reader = [System.IO.StreamReader]::new($response.GetResponseStream())
+            $errorContent = $reader.ReadToEnd()
+            $reader.Close()
+            
+            Write-Verbose "Raw Response: $errorContent"
+
+            # Bei HTTP 500 detailliertere Informationen ausgeben
+            if ($statusCode -eq 500) {
+                Write-Error "Server Error (HTTP 500)`nURI: $($_.Exception.Response.ResponseUri)`nResponse: $errorContent"
+                Write-Verbose "Request Method: $($invokeParam.Method)"
+                if ($invokeParam.body) {
+                    Write-Verbose "Request Body: $($invokeParam.body)"
+                }
+                return
+            }
+
+            try {
+                $errorJson = $errorContent | ConvertFrom-Json
+                Write-Error "$($errorJson.errorMessage)"
+            }
+            catch {
+                Write-Error "API Error: $errorContent"
+            }
+        }
+        catch {
+            Write-Error "API call failed: $statusCode - $statusDescription"
+        }
+    }
+    else {
+        Write-Error "Error calling SEPPmail API: $_"
+    }
+}
 
 # SIG # Begin signature block
 # MIIVzAYJKoZIhvcNAQcCoIIVvTCCFbkCAQExDzANBglghkgBZQMEAgEFADB5Bgor

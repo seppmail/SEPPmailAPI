@@ -412,12 +412,13 @@ function Set-SMASystemComment
         )]
         [string]$name,
 
+<#      #Wait for bugfix in SEPPmail API
         [Parameter(
                    Mandatory = $false,
                  HelpMessage = 'Apply sysconfig after change ?'
         )]
         $sysConfig = $false,
-
+#>
         #region Config parameters block
         [Parameter(Mandatory = $false)]
         [String]$host = $Script:activeCfg.SMAHost,
@@ -475,12 +476,13 @@ function Set-SMASystemComment
             $body = $bodyHt | ConvertTo-Json
 
             $uri = $null
-            $boundParam = @{
+            <#$boundParam = @{
                 applySysconfig = $sysConfig
-            }
-            $uri = New-SMAQueryString -uriPath $uriPath -qParam $boundParam @smaParams
+            }#>
+
+            $uri = New-SMAQueryString -uriPath $uriPath @smaParams
             
-            Write-verbose "Crafting Invokeparam for Invoke-SMARestMethod"
+            Write-verbose "Crafting InvokeParam for Invoke-SMARestMethod"
             $invokeParam = @{
                 Uri             = $uri 
                 Method          = 'PUT'
@@ -494,10 +496,7 @@ function Set-SMASystemComment
             Write-Verbose "Call Invoke-SMARestMethod $uri" 
             $systemInfo = Invoke-SMARestMethod @invokeParam
 
-            #Write-Verbose 'Converting Umlauts from ISO-8859-1'
-            #Encinfo = ConvertFrom-SMAPIFormat -inputObject $encInfoRaw
-    
-            # Userobject
+            # Return object
             if ($systemInfo) {
                 return $systemInfo
             }
