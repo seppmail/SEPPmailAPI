@@ -9,8 +9,8 @@ $bodyHt = @{
 $body = $bodyHt | ConvertTo-Json -Depth 10
 $headersHt = @{
              "accept" = 'application/json'
-    "X-SM-API-TOKEN"  = 'eeac5df8-83ad-42cd-8e28-d157f828437e'
-    "X-SM-API-SECRET" = 'SZ7$$UW598b8V@wA#6'
+    "X-SM-API-TOKEN"  = 'unknown'
+    "X-SM-API-SECRET" = 'Unknown'
 }
 $invokeParam = @{
     uri         = 'https://labnode2.seppmail365lab.com:8445/v1/system/comment'
