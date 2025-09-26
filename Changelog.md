@@ -29,7 +29,7 @@ The CmdLet New-SMAApplianceReport will provide a summary of an Appliance for doc
 - Better output handling of WEBUsers
 - Module expects a multi-customer envrinonment
 - Find-SMACustomer now emits a List of customers by default. Get-SMAcustomers -List:$False will emit all customer details
-- Find-SMAManagedomains now emits domain-lists only. -List parameter is removed
+- Find-SMAManageDomains now emits domain-lists only. -List parameter is removed
 
 ### Features
 
