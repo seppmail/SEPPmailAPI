@@ -3,7 +3,9 @@
 *** BREAKING CHANGE Okt 25 ***
 
 The module development will continue internally, so the code will no lomger show up in GutHub. 
-We will furthermore mode the documentation to dosc.seppmail.com soon.
+We will furthermore mode the documentation to docs.seppmail.com soon.
+
+There will be a new release of the module 2.0.0 covering API Version 1.0.8+ end of 2025.
 
 *** ---------------------- ***
 
@@ -28,22 +30,9 @@ PowerShell 7 on Linux or macOS may work as well, we are currently focussing on t
 
 Follow the youtube video here: [Link](https://www.youtube.com/watch?v=RHaZW7txxBg).
 
-Example file showed in youtube can be found here:
-* Installation and Setup [Github](https://github.com/seppmail/SEPPmailAPI/blob/main/examples/Installation%20and%20Setup.ps1)
-* First Steps [Github](https://github.com/seppmail/SEPPmailAPI/blob/main/examples/First%20Steps.ps1)
+## Examples and Hints
 
-### Installation from Github
-
-If you have no access to the PowerShell Gallery but git installed, clone the module into a folder which is listed in the $env:PSmodulePath, preferably your home-PSmodule folder ~\Documents\PowerShell\Modules.
-
-Set your location to this folder and enter:
-```powershell
-git clone https://github.com/SEPPmail/SeppmailAPI
-```
-
-If you do not have git installed, download the files from the repository, unblock the zip file (PS CmdLet `Unblock-File`) and place it in the modules folder.
-
-IMPORTANT: Its *imperative that the Module is installed in a folder which is included in the $env:PSModulePath*, otherwise the module will not work.
+This an be found in the module help and CmdLet help by using get-help
 
 ### Configuration creation
 
