@@ -1,8 +1,10 @@
 # SEPPmail API Powershell Module
 
 *** BREAKING CHANGE Okt 25 ***
+
 The module development will continue internally, so the code will no lomger show up in GutHub. 
 We will furthermore mode the documentation to dosc.seppmail.com soon.
+
 *** ---------------------- ***
 
 Receive data and manage your SEPPmail Appliance via REST!
